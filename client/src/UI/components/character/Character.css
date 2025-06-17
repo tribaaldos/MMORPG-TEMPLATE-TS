@@ -1,0 +1,115 @@
+@font-face {
+  font-family: 'WoWFont';
+  src: url('/assets/fonts/DiabloHeavy.woff2') format('woff2');
+  font-weight: normal;
+  font-style: normal;
+  }
+  
+  .character {
+  position: absolute;
+  bottom: 20px;
+  left: 20px;
+  width: 50vw;
+  max-width: 600px;
+  background: url('/assets/textures/wood_panel.jpg') center/cover;
+  padding: 16px;
+  color: #eee;
+  font-family: 'WoWFont', sans-serif;
+  border: 32px solid transparent;
+  border-image: url('/assets/textures/frame_border.png') 32 fill stretch;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(4px);
+  }
+  
+  .character h2 {
+  font-size: 1.5em;
+  margin: 0 0 12px;
+  color: #fefcc9;
+  text-shadow: 1px 1px 0 #000;
+  }
+  
+  .character-3d {
+  margin-bottom: 10px;
+  background: black;
+  border-radius: 8px;
+  width: 100%;
+  height: 400px; /* ajusta según necesites */
+  }
+  
+  .equipment-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin-bottom: 12px;
+  }
+  
+  .equipment-slot {
+  background: url('/assets/textures/slot_bg.png') center/contain no-repeat;
+  border: 2px solid #333;
+  border-radius: 4px;
+  padding: 6px;
+  text-align: center;
+  min-height: 60px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.8);
+  transition: box-shadow 0.2s ease;
+  }
+  .equipment-slot:hover {
+  box-shadow: 0 0 8px rgba(60, 231, 245, 0.8), inset 0 0 6px rgba(0, 0, 0, 0.8);
+  }
+  
+  equipment-slot .slot-label {
+  font-size: 0.65em;
+  color: #ccc;
+  text-shadow: 0 1px 1px #000;
+  margin-bottom: 4px;
+  }
+  
+  equipment-slot img {
+  width: 48px;
+  height: 48px;
+  margin-bottom: 4px;
+  object-fit: contain;
+  }
+  
+  .empty {
+  font-size: 0.8em;
+  color: #666;
+  }
+  
+  .character-stats {
+  margin-top: 12px;
+  }
+  
+  .stat-bar {
+  position: relative;
+  height: 16px;
+  margin: 6px 0;
+  background: #333;
+  border: 2px solid #111;
+  border-radius: 4px;
+  overflow: hidden;
+  font-size: 0.75em;
+  color: #eee;
+  text-shadow: 0 1px 1px #000;
+  }
+  .stat-bar span {
+  display: block;
+  height: 100%;
+  }
+  .stat-bar.hp span   { background: linear-gradient(90deg, #e54e4e, #7e1f1f); }
+  .stat-bar.mana span { background: linear-gradient(90deg, #4e6de5, #1f2c7e); }
+  .stat-bar.exp span  { background: linear-gradient(90deg, #e5c54e, #7e6b1f); }
+  
+  .attributes {
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+  font-size: 0.8em;
+  justify-content: space-between;
+  }
+  
+  
