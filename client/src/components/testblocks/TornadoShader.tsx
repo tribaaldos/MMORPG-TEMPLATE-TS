@@ -8,7 +8,7 @@ import {
   oneMinus, min, length, mix, luminance,
 } from 'three/tsl';
 import { useTexture } from '@react-three/drei';
-import { MeshStandardNodeMaterial } from 'three/nodes';
+
 
 export default function TornadoShader() {
   const textureURL = '/textures/grass/perlin.png';
@@ -22,6 +22,7 @@ export default function TornadoShader() {
   const parabolOffset = useMemo(() => uniform(0.3), []);
   const parabolAmplitude = useMemo(() => uniform(0.2), []);
 
+  // @ts-ignore
   const twistedCylinder = Fn(([position, parabolStrength, parabolOffset, parabolAmplitude, time]) => {
     const angle = atan(position.z, position.x).toVar();
     const elevation = position.y;

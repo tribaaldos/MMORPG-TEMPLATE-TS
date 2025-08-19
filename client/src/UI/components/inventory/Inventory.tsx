@@ -56,9 +56,12 @@ const InventorySlot: React.FC<InventorySlotProps> = ({ item, index, onDrop }) =>
   }
 
   return (
+    // @ts-ignore
     <div ref={dropRef} className="inventory-slot" onContextMenu={handleRightClick}>
       {item ? (
         <img
+        
+        // @ts-ignore
           ref={dragRef as React.Ref<HTMLImageElement>}
           src={item.image}
           alt={item.name}

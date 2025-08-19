@@ -11,7 +11,7 @@ export default function Fountain(props: any) {
         <group position={[0, 0, 20]} {...props} dispose={null} rotation={nodes.Circle.rotation}>
             <group rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.1, 0]}>
                 {/* <pointLight position={[0, 5, 0]} intensity={40} /> */}
-                <WaterShader geometry={nodes.water.geometry}
+                <WaterShader geometry={(nodes.water as THREE.Mesh).geometry}
                     scaleProp={1}
                     numero={0.56}
                     timed={0.17}
@@ -24,8 +24,8 @@ export default function Fountain(props: any) {
 
                 />
             </group>
-            <mesh position={nodes.Circle.position} castShadow receiveShadow geometry={nodes.Circle.geometry} material={materials.Rock} />
-            <mesh castShadow receiveShadow geometry={nodes.water.geometry} material={materials.water} />
+            <mesh position={(nodes.Circle as THREE.Mesh).position} castShadow receiveShadow geometry={(nodes.Circle as THREE.Mesh).geometry} material={materials.Rock} />
+            <mesh castShadow receiveShadow geometry={(nodes.water as THREE.Mesh).geometry} material={materials.water} />
         </group>
     );
 }

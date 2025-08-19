@@ -1,6 +1,6 @@
 
 import { useState } from 'react';
-import { useCharacterStore } from '../../../store/Character';
+import { useCharacterStore } from '../../../store/useCharacterStore';
 import BotonPantallaCompleta from '../PantallaCompleta';
 
 export default function ShowStats() {

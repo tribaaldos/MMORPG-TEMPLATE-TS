@@ -19,7 +19,8 @@ import WaterShader from './components/shaders/greenPortal/GreenPortalShader'
 import MagmaShader from './components/shaders/magma/MagmaShader'
 import GrassField from './components/shaders/grass/Grass'
 import DebugStatsPanel from './UI/debug/DebugStats'
-import { useCharacterStore } from './store/Character'
+import { useCharacterStore } from './store/useCharacterStore'
+import RemoteCharacters from './character/RemoteCharacter'
 export default function Experience() {
 
     const physicsSettings = useControls('Physics', {
@@ -72,11 +73,12 @@ export default function Experience() {
                         {/* <RigidBody colliders="ball">
                         <MagmaShader />
                     </RigidBody> */}
-                        <CharacterController />
+                    <CharacterController />
                         <Floor />
 
-                        <AllTestBlocks />
+                        {/* <AllTestBlocks /> */}
                     </Physics>
+                    <RemoteCharacters />
                     {/* <GrassField /> */}
                     <Lights />
                     <DebugStatsPanel />

@@ -1,4 +1,4 @@
-import { useCharacterStore } from '../../store/Character';
+import { useCharacterStore } from '../../store/useCharacterStore';
 import './ExpBar.css';
 export default function ExpBar() {
 

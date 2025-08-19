@@ -22,6 +22,7 @@ export default function PopupUI() {
             minWidth: 240,
           }}
         >
+          {/* @ts-ignore */}
           <Component />
           <button onClick={() => hidePopup(type)}>Cerrar</button>
 

@@ -17,7 +17,7 @@ interface StarterShaderProps {
   glows?: number;
   clampMin?: number;
   clampMax?: number;
-  geometry?: THREE.Element;
+  geometry?: any;
 }
 
 export default function StarterShader({

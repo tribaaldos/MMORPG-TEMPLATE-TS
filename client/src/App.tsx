@@ -5,7 +5,11 @@ import { Route, Routes } from 'react-router-dom'
 import ShaderVisualizer from './components/shaders/ShaderVisualizer'
 import Experience from './Experience'
 import { useControls } from 'leva'
+import NameEntryScreen from './UI/components/name-entry/NameEntry'
+import { useCharacterStore } from './store/useCharacterStore'
 function App() {
+
+  const name = useCharacterStore((s) => s.name)
 
 
   return (
@@ -13,7 +17,7 @@ function App() {
       <Routes>
         <Route path="/shader-visualizer" element={<ShaderVisualizer />} />
         <Route path="/shader-visualizer/:id" element={<ShaderVisualizer />} />
-        <Route path="/" element={ <Experience /> } />
+        <Route path="/" element={name ? <Experience /> : <NameEntryScreen />} />
       </Routes>
     </>
   )

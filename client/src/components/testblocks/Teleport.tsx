@@ -2,7 +2,7 @@ import React, { useMemo, useRef } from 'react'
 import { useGLTF, useAnimations } from '@react-three/drei'
 import { extend, useFrame } from '@react-three/fiber'
 import * as THREE from 'three'
-import { useCharacterStore } from '../../store/Character'
+import { useCharacterStore } from '../../store/useCharacterStore'
 import { useControls } from 'leva'
 
 export default function TeleportZone({

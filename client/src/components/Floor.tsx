@@ -2,7 +2,7 @@ import * as THREE from 'three';
 import { RigidBody } from '@react-three/rapier';
 import { useFrame } from '@react-three/fiber';
 import { useRef, useState, useEffect } from 'react';
-import { useCharacterStore } from '../store/Character';
+import { useCharacterStore } from '../store/useCharacterStore';
 const TILE_SIZE = 100;
 const getTileKey = (x: number, z: number) => `${x},${z}`;
 

@@ -1,7 +1,7 @@
 import { useRef, useEffect } from 'react'
 import { useFrame } from '@react-three/fiber'
 import * as THREE from 'three'
-import { useCharacterStore } from '../../store/Character'
+import { useCharacterStore } from '../../store/useCharacterStore'
 
 export default function FollowDirectionalLight() {
   const lightRef = useRef<THREE.DirectionalLight>(null!)
@@ -40,7 +40,7 @@ export default function FollowDirectionalLight() {
       />
       <primitive object={targetRef.current} />
       <pointLight intensity={100} position={[0, 10, 0]} /> */}
-      <ambientLight intensity={0.1} />
+      <ambientLight intensity={1.0} />
     </>
   )
 }

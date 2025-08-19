@@ -1,50 +1,71 @@
-
-import { useEffect, useRef } from 'react'
-import { useAnimations, useGLTF } from '@react-three/drei'
+import { useEffect, useMemo, useRef } from 'react';
+import { useGLTF, useAnimations, Html, Billboard, Text } from '@react-three/drei';
+import { SkeletonUtils } from 'three-stdlib';
 import * as THREE from 'three';
-
-
-type CharacterProps = {
+import fuente from '../../public/fonts/roboto.ttf';
+import { socket } from '../socket/SocketManager';
+import { useFrame, useThree } from '@react-three/fiber';
+type Props = {
     animation: string;
-}
+    name: any;
+};
 
-export default function BasicCharacter({ animation, ...props }: CharacterProps) {
-    const group = useRef<THREE.Group>(null!);
+export default function BasicCharacter({ animation, name }: Props) {
+    const avatarRef = useRef<THREE.Group>(null!);
+    // ✅ Load and clone the full animated scene
+    const { scene, animations } = useGLTF('/BasicCharacter.glb');
+    const clonedScene = useMemo(() => SkeletonUtils.clone(scene), [scene]);
 
-    const { nodes, materials, animations } = useGLTF('/BasicCharacter.glb')
-    const { actions } = useAnimations(animations, group)
-    console.log("actions", actions);
-    console.log("animation", animation);
+    const { actions } = useAnimations(animations, avatarRef);
+
     useEffect(() => {
-        actions[animation]?.reset().fadeIn(0.24).play();
+        if (!actions[animation]) return;
+        actions[animation].reset().fadeIn(0.25).play();
         return () => {
-            actions?.[animation]?.fadeOut(0.24);
+            actions[animation]?.fadeOut(0.25);
         };
     }, [animation, actions]);
-    return (
-        <group ref={group} {...props} dispose={null}>
-            <group name="Scene" position={[0, -0.2, 0]}>
-                <group name="Armature" rotation={[Math.PI / 2, 0, 0]} scale={0.01} >
-                    <skinnedMesh
-                        name="Alpha_Joints"
-                        geometry={(nodes.Alpha_Joints as THREE.SkinnedMesh).geometry}
-                        material={materials.Alpha_Joints_MAT}
-                        skeleton={(nodes.Alpha_Joints as THREE.SkinnedMesh).skeleton}
-                        castShadow
-                    />
-                    <skinnedMesh
-                        castShadow
-                        name="Alpha_Surface"
-                        geometry={(nodes.Alpha_Surface as THREE.SkinnedMesh).geometry}
-                        material={materials.Alpha_Body_MAT}
-                        skeleton={(nodes.Alpha_Surface as THREE.SkinnedMesh).skeleton}
-                    />
-                    <primitive object={nodes.mixamorigHips} />
-                </group>
-            </group>
-        </group>
+    function NameTag({ text }: { text: string }) {
+        const { camera } = useThree();
+        const meshRef = useRef<THREE.Mesh>(null!);
 
-    )
+        const canvas = useMemo(() => {
+            const c = document.createElement("canvas");
+            const ctx = c.getContext("2d")!;
+            c.width = 256;
+            c.height = 64;
+            ctx.fillStyle = "transparent";
+            ctx.fillRect(0, 0, c.width, c.height);
+            ctx.fillStyle = "white";
+            ctx.font = "24px sans-serif";
+            ctx.textAlign = "center";
+            ctx.fillText(text, c.width / 2, 40);
+            return c;
+        }, [text]);
+
+        const texture = useMemo(() => new THREE.CanvasTexture(canvas), [canvas]);
+
+        // 👁️ Billboard
+        useFrame(() => {
+            if (meshRef.current) {
+                meshRef.current.lookAt(camera.position);
+            }
+        });
+
+        return (
+            <mesh position={[0, 2.2, 0]} ref={meshRef}>
+                <planeGeometry args={[1.5, 0.4]} />
+                <meshBasicMaterial map={texture} transparent />
+            </mesh>
+        );
+    }
+    return (
+        <group>
+
+            <NameTag text={name} />
+            <primitive object={clonedScene} ref={avatarRef} />
+        </group>
+    );
 }
 
-useGLTF.preload('/BasicCharacter.glb')
+useGLTF.preload('/BasicCharacter.glb');

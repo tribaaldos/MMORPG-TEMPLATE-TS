@@ -22,7 +22,7 @@ import {
 import { useControls } from 'leva';
 import { Perf } from 'r3f-perf';
 import { useThree } from '@react-three/fiber';
-import { useCharacterStore } from '../../../store/Character';
+import { useCharacterStore } from '../../../store/useCharacterStore';
 
 export default function GrassOnSphere() {
     const meshRef = useRef<THREE.InstancedMesh>(null!);

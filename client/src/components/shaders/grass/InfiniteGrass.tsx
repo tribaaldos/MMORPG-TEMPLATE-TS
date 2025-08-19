@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
 import GrassOnSphere from './GrassOnSphere';
-import { useCharacterStore } from '../../../store/Character';
+import { useCharacterStore } from '../../../store/useCharacterStore';
 
 export default function InfiniteGrassGrid() {
   const tileSize = 20; // ya está definido en tu tile

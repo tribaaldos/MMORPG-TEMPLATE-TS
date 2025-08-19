@@ -6,7 +6,7 @@ import {
   uniform, mix, color, attribute,
   
 } from 'three/tsl';
-import { useCharacterStore } from '../../../store/Character';
+import { useCharacterStore } from '../../../store/useCharacterStore';
 
 export default function GrassField({ count = 10000 }: { count?: number }) {
   const meshRef = useRef<THREE.InstancedMesh>(null!);

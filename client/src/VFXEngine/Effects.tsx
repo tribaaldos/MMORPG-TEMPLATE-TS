@@ -4,19 +4,23 @@ import { bloom } from "three/examples/jsm/tsl/display/BloomNode.js";
 import { emissive, mrt, output, pass } from "three/tsl";
 import * as THREE from "three/webgpu";
 
-export const PostProcessing = ({
-  strength = 2.5,
-  radius = 0.5,
-  threshold = 0.25,
+interface PostProcessingProps {
+  strength?: number;
+  radius?: number;
+  threshold?: number;
+}
+
+export const PostProcessing: React.FC<PostProcessingProps> = ({
+  strength = 0.5,
+  radius = -0.6,
+  threshold = 0,
 }) => {
-  const { gl: renderer, scene, camera } = useThree();
-  const postProcessingRef = useRef(null);
-  const bloomPassRef = useRef(null);
+  const { gl: renderer, scene, camera } = useThree<any>();
+  const postProcessingRef = useRef<THREE.PostProcessing | null>(null);
+  const bloomPassRef = useRef<any>(null); // BloomNode doesn't have full TS types
 
   useEffect(() => {
-    if (!renderer || !scene || !camera) {
-      return;
-    }
+    if (!renderer || !scene || !camera) return;
 
     const scenePass = pass(scene, camera);
 
@@ -38,15 +42,15 @@ export const PostProcessing = ({
 
     // Setup post-processing
     const postProcessing = new THREE.PostProcessing(renderer);
-
     const outputNode = outputPass.add(bloomPass);
     postProcessing.outputNode = outputNode;
     postProcessingRef.current = postProcessing;
 
     return () => {
       postProcessingRef.current = null;
+      bloomPassRef.current = null;
     };
-  }, [renderer, scene, camera]);
+  }, [renderer, scene, camera, strength, radius, threshold]);
 
   useFrame(() => {
     if (bloomPassRef.current) {

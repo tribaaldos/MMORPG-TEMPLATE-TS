@@ -5,11 +5,13 @@ import * as THREE from 'three';
 import { useFrame, useThree } from '@react-three/fiber';
 import { useOrbitCam } from '../hooks/useFollowCam';
 import directionOffset from '../hooks/useDirectionOffset';
-import { useCharacterStore } from '../store/Character';
+// import { useCharacterStore } from '../store/Character';
 import BasicCharacter from './BasicCharacter';
 import { useLocation } from 'react-router-dom';
 import CharacterLevaControls from '../leva/CharacterLevaControls';
 import CameraLevaControls from '../leva/CameraLevaControls';
+import { socket } from '../socket/SocketManager';
+import { useCharacterStore } from '../store/useCharacterStore';
 
 export default function MiniEcctrl() {
   const bodyRef = useRef<any>(null);
@@ -19,7 +21,15 @@ export default function MiniEcctrl() {
   const [animation, setAnimation] = useState('idle');
   const [isJumping, setIsJumping] = useState(false);
   const [isInAir, _] = useState(false);
+  const initialPosition = useCharacterStore((s) => s.position);
+  // crear una variable q copie la posicion de initialPosition 
+
+
+  
+
+
   const jumpDirection = useRef(new THREE.Vector3());
+  const name = useCharacterStore((s) => s.name); // ✅ nombre del jugador
 
   // 🎛️ Leva Controls
 
@@ -31,7 +41,7 @@ export default function MiniEcctrl() {
 
   const [camDistance, setCamDistance] = useState(5);
   const [camHeightOffset, setCamHeightOffset] = useState(2);
-
+ // @ts-ignore
   useOrbitCam(meshRef, camDistance, camHeightOffset); // ✅ seguimiento correcto
 
   const walkDir = new THREE.Vector3();
@@ -118,6 +128,19 @@ export default function MiniEcctrl() {
       setForceJumpAnim(true);
       setTimeout(() => setForceJumpAnim(false), 600);
     }
+
+
+    const rot = body.rotation();
+
+    // Emitir posición y rotación por socket
+    socket.emit("updatePosition", {
+      id: socket.id,
+      position: [pos.x, pos.y, pos.z],
+      rotation: [rot.x, rot.y, rot.z, rot.w],
+    });
+
+    // Guardar en Zustand
+    useCharacterStore.getState().setPosition([pos.x, pos.y, pos.z]);
   });
 
   const onCollide = ({ other }: any) => {
@@ -126,37 +149,51 @@ export default function MiniEcctrl() {
     }
   };
 
-return (
-  <>
-    {location.pathname === '/' && (
-      <>
-        <CharacterLevaControls
-          setSpeed={setSpeed}
-          setJumpForce={setJumpForce}
-          setFriction={setFriction}
-          setDamping={setDamping}
-        />
-        <CameraLevaControls
-          setCamDistance={setCamDistance}
-          setCamHeightOffset={setCamHeightOffset}
-        />
-      </>
-    )}
+  // socket animation 
+  useEffect(() => {
+    socket.emit("playerAnim", { id: socket.id, animation });
+  }, [animation]);
+  // socket name 
+  useEffect(() => {
+    if (name) {
+      socket.emit('playerJoin', { name });
+    }
+  }, [name]);
 
-    <RigidBody
-      name="player"
-      lockRotations
-      ref={bodyRef}
-      colliders={false}
-      position={[0, 1, 0]}
-      friction={friction}
-      linearDamping={damping}
-      onCollisionEnter={onCollide}
-    >
-      <group ref={meshRef}>
-        <CapsuleCollider args={[0.5, 0.7]} position={[0, 1, 0]} />
-        <BasicCharacter animation={animation} />
-      </group>
-    </RigidBody>
-  </>
-)}
+
+  return (
+    <>
+      {location.pathname === '/' && (
+        <>
+          <CharacterLevaControls
+            setSpeed={setSpeed}
+            setJumpForce={setJumpForce}
+            setFriction={setFriction}
+            setDamping={setDamping}
+          />
+          <CameraLevaControls
+            setCamDistance={setCamDistance}
+            setCamHeightOffset={setCamHeightOffset}
+          />
+        </>
+      )}
+
+      <RigidBody
+        name="player"
+        lockRotations
+        ref={bodyRef}
+        colliders={false}
+        // position={[0, 10, 0]}
+        // position={initialPosition}
+        friction={friction}
+        linearDamping={damping}
+        onCollisionEnter={onCollide}
+      >
+        <group ref={meshRef}>
+          <CapsuleCollider args={[0.5, 0.7]} position={[0, 1, 0]} />
+          <BasicCharacter animation={animation} name={name} />
+        </group>
+      </RigidBody>
+    </>
+  )
+}

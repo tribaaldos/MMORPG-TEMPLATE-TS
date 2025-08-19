@@ -3,9 +3,9 @@ import './Character.css';
 import { Canvas } from '@react-three/fiber';
 import { useDrop } from 'react-dnd';
 import { useInventoryStore, EquipmentSlot } from '../../../store/useInventoryStore';
-import { usePlayerStore } from '../../../store/usePlayerStore';
 import BasicCharacterModel from '../../../character/BasicCharacterModel';
 import { OrbitControls, OrthographicCamera } from '@react-three/drei';
+import { useCharacterStore } from '../../../store/useCharacterStore';
 
 /** Forma del ítem arrastrado */
 interface DraggedItem {
@@ -15,7 +15,7 @@ interface DraggedItem {
 export default function UICharacter() {
   // Stats del jugador (lectura estática)
   const { hp, mana, exp, level, strength, agility, intelligence, critRate } =
-    usePlayerStore.getState();
+    useCharacterStore.getState();
 
   // Inventario y equipamiento
   const equipment = useInventoryStore((state) => state.equipment);
