@@ -1,117 +1,164 @@
-// ✅ useCharacterStore.ts
+// store/useCharacterStore.ts
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-
+import { Coins, toBronze } from '../UI/components/npcs/Currency';
+// ES UN VECTOR 3 
 type Position = [number, number, number];
-type Rotation = [number, number, number, number]; // Quaternion: x, y, z, w
+type Rotation = [number, number, number, number];
 
 interface CharacterState {
-    name: string | null
-    setName: (name: string) => void;
-    // position and rotation
-    position: Position;
-    rotation: Rotation;
+  // identidad y mundo
+  name: string | null;
+  setName: (name: string) => void;
+  world: string | null;
+  setWorld: (world: string) => void;
 
-    setPosition: (pos: Position) => void;
-    setRotation: (rot: Rotation) => void;
+  // estado “runtime” (NO persistente)
+  position: Position;
+  rotation: Rotation;
+  setPosition: (pos: Position) => void;
+  setRotation: (rot: Rotation) => void;
+  updateX: (x: number) => void;
+  updateY: (y: number) => void;
+  updateZ: (z: number) => void;
 
-    updateX: (x: number) => void;
-    updateY: (y: number) => void;
-    updateZ: (z: number) => void;
+  rigidBodyRef: React.RefObject<any> | null;
+  setRigidBodyRef: (ref: React.RefObject<any> | null) => void;
 
-    // rigidbody ref
-    rigidBodyRef: React.RefObject<any> | null;
-    setRigidBodyRef: (ref: React.RefObject<any> | null) => void;
+  // stats (sí persistentes)
+  exp: number;
+  level: number;
+  maxHp: number;
+  hp: number;
+  mana: number;
+  maxMana: number;
+  critRate: number;
+  strength: number;
+  agility: number;
+  intelligence: number;
 
-    // stats
-    exp: number;
-    level: number;
-    maxHp: number;
-    hp: number;
-    mana: number;
-    maxMana: number;
-    critRate: number;
-    strength: number;
-    agility: number;
-    intelligence: number;
+  getExpToLevel: (level: number) => number;
+  checkLevelUp: () => void;
+  gainExp: (amount: number) => void;
 
-    getExpToLevel: (level: number) => number;
-    checkLevelUp: () => void;
-    gainExp: (amount: number) => void;
+  // economía (sí persistente)
+  gold: number;
+  addGold: (amount: number) => void;
+  spendGold: (amount: number) => boolean;
+  addCoins: (c: Coins) => void;
+  spendCoins: (c: Coins) => boolean;
 }
 
-// Solo persistimos el name
+// ⚠️ OJO: solo persistimos lo estable (perfil, mundo, stats, oro).
 export const useCharacterStore = create<CharacterState>()(
-    persist(
-        (set, get) => ({
-            name: null,
-            setName: (name) => set({ name }),
+  persist(
+    (set, get) => ({
+      // identidad y mundo
+      name: null,
+      setName: (name) => set({ name }),
+      world: 'world1',
+      setWorld: (world) => set({ world }),
 
-            position: [0, 1, 0],
-            rotation: [0, 0, 0, 1],
-            setPosition: (pos) => set({ position: pos }),
-            setRotation: (rot) => set({ rotation: rot }),
+      // runtime: NO persistir (se actualiza por frame)
+      position: [0, 1, 0],
+      rotation: [0, 0, 0, 1],
 
-            updateX: (x) =>
-                set((state) => ({
-                    position: [x, state.position[1], state.position[2]],
-                })),
-            updateY: (y) =>
-                set((state) => ({
-                    position: [state.position[0], y, state.position[2]],
-                })),
-            updateZ: (z) =>
-                set((state) => ({
-                    position: [state.position[0], state.position[1], z],
-                })),
-
-            rigidBodyRef: null,
-            setRigidBodyRef: (ref) => set({ rigidBodyRef: ref }),
-
-            exp: 0,
-            level: 1,
-            maxHp: 100,
-            hp: 100,
-            mana: 100,
-            maxMana: 100,
-            critRate: 15,
-            strength: 10,
-            agility: 10,
-            intelligence: 10,
-
-            getExpToLevel: (level) => level * 100,
-
-            checkLevelUp: () => {
-                const { exp, level, getExpToLevel } = get();
-                const expNeeded = getExpToLevel(level);
-
-                if (exp >= expNeeded) {
-                    set({
-                        level: level + 1,
-                        exp: exp - expNeeded,
-                        maxHp: get().maxHp + 10,
-                        hp: get().hp + 10,
-                        mana: get().mana + 10,
-                        maxMana: get().maxMana + 10,
-                    });
-                    console.log(`Level up! New level: ${level + 1}`);
-                    get().checkLevelUp();
-                }
-            },
-
-            gainExp: (amount) => {
-                const newExp = get().exp + amount;
-                set({ exp: newExp });
-                console.log(`Gained ${amount} exp! Total: ${newExp}`);
-                get().checkLevelUp();
-            },
+      setPosition: (pos) =>
+        set((s) => {
+          const p = s.position;
+          // Evita set si no hay cambio (previene renders inútiles cuando estás parado)
+          if (p[0] === pos[0] && p[1] === pos[1] && p[2] === pos[2]) return {};
+          return { position: pos };
         }),
-        {
-            name: 'character-storage', // clave de localStorage
-            partialize: (state) => ({
-                name: state.name,
-                position: state.position,
-            }),
+
+      setRotation: (rot) =>
+        set((s) => {
+          const r = s.rotation;
+          if (r[0] === rot[0] && r[1] === rot[1] && r[2] === rot[2] && r[3] === rot[3]) return {};
+          return { rotation: rot };
+        }),
+
+      updateX: (x) =>
+        set((state) => ({ position: [x, state.position[1], state.position[2]] })),
+      updateY: (y) =>
+        set((state) => ({ position: [state.position[0], y, state.position[2]] })),
+      updateZ: (z) =>
+        set((state) => ({ position: [state.position[0], state.position[1], z] })),
+
+      rigidBodyRef: null,
+      setRigidBodyRef: (ref) => set({ rigidBodyRef: ref }),
+
+      // stats
+      exp: 0,
+      level: 1,
+      maxHp: 100,
+      hp: 100,
+      mana: 100,
+      maxMana: 100,
+      critRate: 15,
+      strength: 10,
+      agility: 10,
+      intelligence: 10,
+
+      getExpToLevel: (level) => level * 100,
+
+      checkLevelUp: () => {
+        const { exp, level, getExpToLevel } = get();
+        const expNeeded = getExpToLevel(level);
+        if (exp >= expNeeded) {
+          set((s) => ({
+            level: s.level + 1,
+            exp: s.exp - expNeeded,
+            maxHp: s.maxHp + 10,
+            hp: Math.min(s.hp + 10, s.maxHp + 10), // evita pasar el nuevo max
+            mana: Math.min(s.mana + 10, s.maxMana + 10),
+            maxMana: s.maxMana + 10,
+          }));
+          // recursivo por si sube varios niveles
+          get().checkLevelUp();
         }
-    )
+      },
+
+      gainExp: (amount) => {
+        set((s) => ({ exp: s.exp + Math.max(0, amount) }));
+        get().checkLevelUp();
+      },
+
+      // economía
+      gold: 10001,
+      addGold: (amt) => set((s) => ({ gold: s.gold + Math.max(0, amt) })),
+      spendGold: (amt) => {
+        const g = get().gold;
+        if (amt <= 0) return true;
+        if (g < amt) return false;
+        set({ gold: g - amt });
+        return true;
+      },
+      addCoins: (c) => set((s) => ({ gold: s.gold + toBronze(c) })),
+      spendCoins: (c) => {
+        const cost = toBronze(c);
+        return get().spendGold(cost);
+      },
+    }),
+    {
+      name: 'character-storage',
+      // Solo persistimos lo “estable”
+      partialize: (state) => ({
+        name: state.name,
+        world: state.world,
+        level: state.level,
+        exp: state.exp,
+        gold: state.gold,
+        maxHp: state.maxHp,
+        hp: state.hp,
+        mana: state.mana,
+        maxMana: state.maxMana,
+        critRate: state.critRate,
+        strength: state.strength,
+        agility: state.agility,
+        intelligence: state.intelligence,
+        // ⛔️ NO position/rotation/rigidBodyRef aquí
+      }),
+    }
+  )
 );

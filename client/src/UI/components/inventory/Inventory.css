@@ -12,6 +12,7 @@
   box-shadow: 0 0 20px rgba(0, 255, 255, 0.3);
   backdrop-filter: blur(5px);
   z-index: 200;
+  /* cursor: none; */
 }
 
 .inventory h2 {
@@ -57,4 +58,63 @@
   position: absolute;
   bottom: 4px;
   right: 6px;
+}
+
+.tooltip {
+  position: absolute;
+  bottom: 100%; /* appear above slot */
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(20, 20, 20, 0.95);
+  border: 1px solid #555;
+  border-radius: 6px;
+  padding: 8px;
+  min-width: 180px;
+  color: #eee;
+  font-size: 0.8em;
+  white-space: normal;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  z-index: 1000;
+}
+
+.inventory-slot:hover .tooltip {
+  opacity: 1;
+}
+
+.tooltip-icon {
+  width: 48px;
+  height: 48px;
+  object-fit: contain;
+  display: block;
+  margin: 0 auto 6px;
+}
+
+.tooltip-name {
+  margin: 0;
+  text-align: center;
+  font-size: 1em;
+}
+
+.tooltip-name.common { color: #ccc; }
+.tooltip-name.uncommon { color: #1eff00; }
+.tooltip-name.rare { color: #0070dd; }
+.tooltip-name.epic { color: #a335ee; }
+.tooltip-name.legendary { color: #ff8000; }
+
+.tooltip-desc {
+  margin: 4px 0;
+  font-style: italic;
+  color: #ddd;
+  text-align: center;
+}
+
+.tooltip-stats {
+  margin: 6px 0 0;
+  padding: 0;
+  list-style: none;
+}
+.tooltip-stats li {
+  margin: 2px 0;
 }

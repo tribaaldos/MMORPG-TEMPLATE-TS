@@ -1,6 +1,10 @@
 import express from 'express';
 import http from 'http';
+import { register } from 'module';
 import { Server } from 'socket.io';
+import { registerWolfHandlers } from './wolfManager';
+import { registerSpiderHandlers } from './spiderManager';
+import { registerDragonHandlers } from './dragonManager';
 
 const app = express();
 const server = http.createServer(app);
@@ -13,6 +17,14 @@ const io = new Server(server, {
 
 // 🌐 Almacén temporal de nombres
 const playerNames: { [id: string]: string } = {};
+// equipamiento 
+type EquipmentSlot =
+    | 'helmet' | 'chest' | 'legs' | 'boots' | 'gloves'
+    | 'weapon' | 'shield' | 'shoulders' | 'ring' | 'trinket';
+
+type ItemKey = string | null;
+const equipmentByPlayer: Record<string, Partial<Record<EquipmentSlot, ItemKey>>> = {};
+
 
 io.listen(5174);
 
@@ -21,6 +33,8 @@ io.on('connection', (socket) => {
 
     // ✅ Enviar nombres de jugadores ya conectados
     socket.emit('existingPlayers', playerNames);
+
+
 
     // ✅ Cuando alguien se une con nombre
     socket.on('playerJoin', ({ name }) => {
@@ -38,6 +52,29 @@ io.on('connection', (socket) => {
 
     });
 
+    // equipamiento 
+    socket.emit('equipmentSnapshot', equipmentByPlayer);
+
+    socket.on('playerEquipment', (msg: { id: string; slot: EquipmentSlot; itemKey: ItemKey }) => {
+        const { id, slot, itemKey } = msg || {};
+        if (!id || !slot) return;
+
+        // Actualiza snapshot del servidor
+        if (!equipmentByPlayer[id]) equipmentByPlayer[id] = {};
+        equipmentByPlayer[id][slot] = itemKey ?? null;
+
+        // Reemite a todos menos al emisor
+        socket.broadcast.emit('remoteEquipment', { id, slot, itemKey });
+    });
+
+    socket.on('projectileSpawn', (payload) => {
+        // envía a todos los OTROS del mismo mundo
+        socket.emit('projectileSpawn', payload);
+        // sin mundos: a todos menos al emisor
+        socket.broadcast.emit('projectileSpawn', payload);
+    }
+    );
+
     // 📡 Posición del jugador
     socket.on('updatePosition', (data) => {
         socket.broadcast.emit('remotePosition', data); // data: { id, position, rotation }
@@ -47,6 +84,9 @@ io.on('connection', (socket) => {
     socket.on('playerAnim', (data) => {
         socket.broadcast.emit('remoteAnim', data); // data: { id, animation }
     });
+
+    // projectiles / monstruos 
+
 
     // ❌ Desconexión
     socket.on('disconnect', () => {
@@ -59,3 +99,8 @@ io.on('connection', (socket) => {
         delete playerNames[socket.id];
     });
 });
+
+
+registerWolfHandlers(io);
+registerSpiderHandlers(io);
+registerDragonHandlers(io);

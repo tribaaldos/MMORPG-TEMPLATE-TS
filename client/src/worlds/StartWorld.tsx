@@ -1,0 +1,123 @@
+import { Physics, RigidBody } from '@react-three/rapier'
+import { useCharacterStore } from '../store/useCharacterStore'
+import TeleportZone from '../components/testblocks/Teleport'
+import { GridShader } from '../components/CustomGrid'
+import ShaderVisualizer3D from '../debug/ShaderVisualizer3D'
+import { Gltf, OrbitControls, useGLTF } from '@react-three/drei'
+import Floor from '../leva/Floor'
+import CharacterController from '../character/newCharacter/CharacterController'
+import { folder, Leva, useControls } from 'leva'
+import BasicCharacter from '../old/newCharacter/BasicCharacter'
+import BonesDebugger from '../old/newCharacter/BonesDebugger'
+import TestCharacter from '../old/newCharacter/TestCharacter'
+import CharacterUI from '../character/newCharacter/CharacterUI'
+import Shop from '../components/npc/Shop'
+import GrassBlock from '../components/environmentModels/GrassBlock'
+import GrassField from '../components/environmentModels/GrassField'
+import { InfiniteTiles } from '../components/environmentModels/InfiniteTiles'
+import * as THREE from 'three'
+import { Model } from '../components/environmentModels/Cofre'
+import Fountain from '../components/environmentModels/Fountain'
+import KShop from '../components/npc/Shop'
+import TestController from '../old/testCharacter/TestController'
+import FullBVH from '../character/noPhysicsCharacter/FullBVH'
+import RemoteBVHCharacters from '../character/noPhysicsCharacter/extra/remoteBVHCharacter'
+import { useEffect } from 'react'
+export default function World1({ onTeleport, setEmoji }: {
+    physicsSettings: any,
+    onTeleport: (worldId: string, targetPos?: [number, number, number]) => void
+}) {
+    const playerPosition = useCharacterStore((s) => s.position)
+    const physicsSettings1 = useControls({
+        'Starter-World1': folder({
+            enabled: { value: true },
+            debug: { value: false },
+            gravity: { value: [0, -9.81, 0], step: 0.1 },
+        })
+    })
+    const Sky = (props: any) => {
+        const { nodes, materials } = useGLTF('/sky-green.glb')
+        const positionPersonaje = useCharacterStore((s) => s.position);
+
+        return (
+            <group {...props} dispose={null} position={positionPersonaje}>
+                <mesh
+                    castShadow
+                    receiveShadow
+                    geometry={(nodes.Skybox as THREE.Mesh).geometry}
+                    material={materials.Skybox_mat}
+                    material-fog={false}
+                />
+            </group>
+        )
+    }
+    function LordMarrowgar() {
+        const { scene } = useGLTF('/dungeons/icc.glb');
+        const { scene: scenePhysics } = useGLTF('/dungeons/iccPhysics.glb');
+        return (
+            <>
+                <primitive object={scene} />
+
+                <RigidBody type="fixed" colliders="trimesh" userData={{ floor: true }}>
+                    <primitive object={scenePhysics} position={[0, -1, 0]} />
+                </RigidBody>
+            </>
+        )
+    }
+    useEffect(() => {
+        console.log("Mount world1")
+        return () => console.log("Unmount world1")
+    }, [])
+
+
+    return (
+        // minimized leva
+        <>
+            {/* <Physics
+                gravity={physicsSettings1.gravity}
+                debug={physicsSettings1.debug}
+                timeStep="vary"
+                updateLoop="follow"
+                interpolate={true}
+            > */}
+            {/* <RemoteCharacters /> */}
+            {/* <RemoteBVHCharacters /> */}
+            {/* <CharacterController /> */}
+            {/* <FullBVH /> */}
+            {/* <LordMarrowgar /> */}
+            {/* <TestController /> */}
+            {/* <group position={[0, -1, 0]}> */}
+            <ambientLight intensity={0.4} />
+            <Floor />
+            {/* </group> */}
+            <Fountain />
+            <GrassBlock position={[0, -1, 0]} />
+            <TeleportZone
+                position={[10, 0, 0]}
+                radius={2}
+                targetWorld="world2"
+                color="gray"
+                target={[5, 5, 0]} // posición en world2
+                onTeleport={onTeleport}
+            />
+            <TeleportZone
+                position={[15, 0, 0]}
+                radius={2}
+                targetWorld="dungeon"
+                color="blue"
+                target={[0, 10, 0]} // posición en world2
+                onTeleport={onTeleport}
+            />
+            <Model position={[3, 0, 5]} />
+            <KShop setEmoji={setEmoji} />
+            {/* <BonesDebugger /> */}
+            {/* <GrassField /> */}
+            {/* <ShaderVisualizer3D position={[-3, 2.25, 7]} /> */}
+            {/* <Gltf position={playerPosition} src="/sky-green.glb" fog={false} /> */}
+            <Sky />
+            <fog attach="fog" args={['lightblue', 15, 200]} />
+            {/* <CharacterUI animation="jumpTest" name="porke aki si" position={[3, 0, 0]} /> */}
+            {/* </Physics> */}
+        </>
+    )
+}

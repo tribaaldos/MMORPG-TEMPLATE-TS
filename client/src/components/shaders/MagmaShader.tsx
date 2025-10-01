@@ -53,7 +53,7 @@ export default function MagmaShader() {
     const materialKey = useMemo(() => Date.now(), [PracticeNodeMaterial])
 
     return (
-        <mesh scale={0.25} position={[2, 2, 0]}
+        <mesh scale={0.25} position={[0, 0, 0]}
             rotation={[Math.PI / 2, 0, 0]}
             frustumCulled={false} castShadow receiveShadow>
             <sphereGeometry args={[2, 64, 64]} />

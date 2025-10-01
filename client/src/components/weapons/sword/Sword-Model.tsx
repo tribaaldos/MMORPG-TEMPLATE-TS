@@ -2,7 +2,7 @@ import { useGLTF } from '@react-three/drei'
 import * as THREE from 'three'
 
 export default function SwordTest(props: any) {
-  const { nodes } = useGLTF('/weapons/sword1.glb')
+  const { nodes } = useGLTF('/items/weapons/sword1.glb')
   return (
     <group {...props} dispose={null}>
       <mesh

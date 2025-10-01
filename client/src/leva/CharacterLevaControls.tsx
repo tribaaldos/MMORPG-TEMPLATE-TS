@@ -1,4 +1,4 @@
-import { useControls } from 'leva';
+import { folder, useControls } from 'leva';
 import { useEffect } from 'react';
 
 interface CharacterLevaControlsProps {
@@ -8,11 +8,13 @@ interface CharacterLevaControlsProps {
     setDamping: (value: number) => void;
 }
 export default function CharacterLevaControls({ setSpeed, setJumpForce, setFriction, setDamping }: CharacterLevaControlsProps) {
-    const controls = useControls('Character Physics', {
-        speed: { value: 10, min: 5, max: 100, step: 0.1 },
-        jumpForce: { value: 6, min: 1, max: 20, step: 0.5 },
-        friction: { value: 1, min: 0, max: 5, step: 0.1 },
-        damping: { value: 1, min: 0, max: 10, step: 0.1 },
+    const controls = useControls({
+        'Character Physics': folder({
+            speed: { value: 10, min: 1, max: 100, step: 0.1 },
+            jumpForce: { value: 6, min: 1, max: 20, step: 0.5 },
+            friction: { value: 1, min: 0, max: 5, step: 0.1 },
+            damping: { value: 1, min: 0, max: 10, step: 0.1 },
+        })
     });
 
     useEffect(() => {

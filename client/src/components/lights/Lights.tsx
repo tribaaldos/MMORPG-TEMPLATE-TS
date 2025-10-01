@@ -40,7 +40,17 @@ export default function FollowDirectionalLight() {
       />
       <primitive object={targetRef.current} />
       <pointLight intensity={100} position={[0, 10, 0]} /> */}
-      <ambientLight intensity={1.0} />
+      <ambientLight intensity={1} />
+      {/* <directionalLight
+        intensity={1.6}
+        color={"#FFFFED"}
+        castShadow
+        shadow-bias={-0.00005}
+        position={[-10, 20, 10]}
+        shadow-mapSize={[2048, 2048]}
+      >
+        <orthographicCamera attach="shadow-camera" args={[-70, 70, 70, -70]} />
+      </directionalLight> */}
     </>
   )
 }

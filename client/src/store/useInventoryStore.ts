@@ -1,6 +1,12 @@
 // store/useInventoryStore.ts
 import { create } from 'zustand'
-import swordItem from '../components/weapons/sword/Sword-Item'
+import { BasicShoulder, ShoulderPincho2 } from '../items/storage/ShouldersStorage'
+import { BasicSword, BasicSword2 } from '../items/storage/WeaponsStorage'
+import React from 'react'
+
+import { BasicPants } from '../items/storage/PantsStorage'
+import { itemRegistry, ItemKey } from '../items/itemRegistry'
+
 /** Los slots de equipo válidos */
 export type EquipmentSlot =
   | 'helmet'
@@ -10,6 +16,9 @@ export type EquipmentSlot =
   | 'gloves'
   | 'weapon'
   | 'shield'
+  | 'shoulders'
+  | 'ring'
+  | 'trinket'
 
 /** Tipos de ítems consumibles */
 export type ConsumableType = 'potion' | 'consumable'
@@ -21,108 +30,200 @@ export type ItemType = EquipmentSlot | ConsumableType
 export interface Item {
   type: ItemType
   name: string
-  image: string
+  image: string | React.FC
+  description?: string
+  rarity?: 'common' | 'uncommon' | 'rare' | 'epic' | 'legendary'
+  attack?: number
+  defense?: number
+  Model?: React.FC // Componente 3D asociado (si tiene)
   // ...otros campos que necesites
 }
 
-export interface InventoryState {
-  /** 20 ranuras de inventario, algunas inicializadas con una espada */
-  inventory: Array<Item | null>
-  /** Ítems equipados por slot */
-  equipment: Record<EquipmentSlot, Item | null>
+export type Equipment = Record<EquipmentSlot, Item | null>
+export type PlayerId = string
 
-  /** Usa un ítem consumible en la ranura dada */
-  useItem: (index: number) => void
-  /** Mueve un ítem dentro del inventario */
-  moveItem: (fromIndex: number, toIndex: number) => void
-  /** Equipar un ítem desde el inventario a un slot */
-  equipItem: (fromIndex: number, slotType: EquipmentSlot) => void
-  /** Desequipar un ítem a la primera ranura vacía */
-  unequipItem: (slotType: EquipmentSlot) => void
+// ——— Defaults por jugador (mismos que tenías, encapsulados) ———
+const makeDefaultInventory = (): Array<Item | null> => {
+  const inv = Array<Item | null>(20).fill(null)
+  inv[0] = BasicSword
+  inv[1] = BasicSword2
+  inv[2] = null
+  inv[3] = ShoulderPincho2
+  // if (i === 3) return HeadItem
+  // if (i === 4) return HeadItem2
+  return inv
 }
 
-export const useInventoryStore = create<InventoryState>((set) => ({
-  inventory: Array(20)
-    .fill(null)
-    .map((_, i) =>
-      i === 0 || i === 1 || i === 2 ? (swordItem as Item) : null
-    ),
+const makeDefaultEquipment = (): Equipment => ({
+  helmet: null,
+  chest: null,
+  shoulders: BasicShoulder,
+  legs: BasicPants,
+  boots: null,
+  gloves: null,
+  weapon: BasicSword, // ✅ inicializamos con la espada equipada
+  shield: null,
+  ring: null,
+  trinket: null,
+})
 
-  equipment: {
-    helmet: null,
-    chest: null,
-    legs: null,
-    boots: null,
-    gloves: null,
-    weapon: null,
-    shield: null,
+// ——— State tipado: ahora “namespaced” por playerId ———
+export interface InventoryState {
+  /** Inventarios por jugador */
+  inventoryByPlayer: Record<PlayerId, Array<Item | null>>
+  /** Equipos por jugador */
+  equipmentByPlayer: Record<PlayerId, Equipment>
+
+  /** Asegura que exista el estado del jugador (si no, crea defaults) */
+  ensurePlayer: (id: PlayerId) => void
+
+  /** Getters */
+  getInventory: (id: PlayerId) => Array<Item | null>
+  getEquipment: (id: PlayerId) => Equipment
+
+  /** Acciones SCOPED por jugador */
+  useItem: (id: PlayerId, index: number) => void
+  moveItem: (id: PlayerId, fromIndex: number, toIndex: number) => void
+  equipItem: (id: PlayerId, fromIndex: number, slotType: EquipmentSlot) => void
+  unequipItem: (id: PlayerId, slotType: EquipmentSlot) => void
+  addItem: (id: PlayerId, item: Item) => void
+  removeItem: (id: PlayerId, index: number) => void
+  // red 
+  setEquipmentSlot: (id: PlayerId, slot: EquipmentSlot, itemKey: ItemKey | null) => void;
+}
+
+export const useInventoryStore = create<InventoryState>((set, get) => ({
+  inventoryByPlayer: {},
+  equipmentByPlayer: {},
+
+  ensurePlayer: (id) => {
+    const s = get()
+    if (!s.inventoryByPlayer[id] || !s.equipmentByPlayer[id]) {
+      set({
+        inventoryByPlayer: {
+          ...s.inventoryByPlayer,
+          [id]: s.inventoryByPlayer[id] ?? makeDefaultInventory(),
+        },
+        equipmentByPlayer: {
+          ...s.equipmentByPlayer,
+          [id]: s.equipmentByPlayer[id] ?? makeDefaultEquipment(),
+        },
+      })
+    }
   },
 
-  useItem: (index) =>
+  getInventory: (id) => {
+    const s = get()
+    return s.inventoryByPlayer[id] ?? makeDefaultInventory()
+  },
+
+  getEquipment: (id) => {
+    const s = get()
+    return s.equipmentByPlayer[id] ?? makeDefaultEquipment()
+  },
+
+  useItem: (id, index) =>
     set((state) => {
-      const item = state.inventory[index]
-      if (!item || (item.type !== 'potion' && item.type !== 'consumable')) {
-        return {}
-      }
-
-      console.log(`Using item: ${item.name}`)
-
-      const newInventory = [...state.inventory]
-      newInventory[index] = null
-
-      return { inventory: newInventory }
+      const inv = state.inventoryByPlayer[id]
+      if (!inv) return {}
+      const item = inv[index]
+      if (!item || (item.type !== 'potion' && item.type !== 'consumable')) return {}
+      const newInv = [...inv]
+      newInv[index] = null
+      return { inventoryByPlayer: { ...state.inventoryByPlayer, [id]: newInv } }
     }),
 
-  moveItem: (fromIndex, toIndex) =>
+  moveItem: (id, fromIndex, toIndex) =>
     set((state) => {
-      const newInventory = [...state.inventory]
-      const tmp = newInventory[toIndex]
-      newInventory[toIndex] = newInventory[fromIndex]
-      newInventory[fromIndex] = tmp
-      return { inventory: newInventory }
+      const inv = state.inventoryByPlayer[id]
+      if (!inv) return {}
+      const newInv = [...inv]
+      const tmp = newInv[toIndex]
+      newInv[toIndex] = newInv[fromIndex]
+      newInv[fromIndex] = tmp
+      return { inventoryByPlayer: { ...state.inventoryByPlayer, [id]: newInv } }
     }),
 
-  equipItem: (fromIndex, slotType) =>
+  equipItem: (id, fromIndex, slotType) =>
     set((state) => {
-      const itemToEquip = state.inventory[fromIndex]
-      if (!itemToEquip || itemToEquip.type !== slotType) {
-        return {}
-      }
+      const inv = state.inventoryByPlayer[id]
+      const eq = state.equipmentByPlayer[id]
+      if (!inv || !eq) return {}
+      const itemToEquip = inv[fromIndex]
+      if (!itemToEquip || itemToEquip.type !== slotType) return {}
 
-      const currentlyEquipped = state.equipment[slotType]
-      const newInventory = [...state.inventory]
-      newInventory[fromIndex] = currentlyEquipped || null
+      const currentlyEquipped = eq[slotType]
+      const newInv = [...inv]
+      newInv[fromIndex] = currentlyEquipped || null
 
       return {
-        inventory: newInventory,
-        equipment: {
-          ...state.equipment,
-          [slotType]: itemToEquip,
+        inventoryByPlayer: { ...state.inventoryByPlayer, [id]: newInv },
+        equipmentByPlayer: {
+          ...state.equipmentByPlayer,
+          [id]: { ...eq, [slotType]: itemToEquip },
         },
       }
     }),
 
-  unequipItem: (slotType) =>
+  unequipItem: (id, slotType) =>
     set((state) => {
-      const item = state.equipment[slotType]
-      if (!item) {
-        return {}
-      }
+      const inv = state.inventoryByPlayer[id]
+      const eq = state.equipmentByPlayer[id]
+      if (!inv || !eq) return {}
+      const item = eq[slotType]
+      if (!item) return {}
 
-      const newInventory = [...state.inventory]
-      const emptyIndex = newInventory.findIndex((slot) => slot === null)
+      const newInv = [...inv]
+      const emptyIndex = newInv.findIndex((slot) => slot === null)
       if (emptyIndex === -1) {
         console.warn('No hay espacio en el inventario para desequipar.')
         return {}
       }
+      newInv[emptyIndex] = item
 
-      newInventory[emptyIndex] = item
       return {
-        inventory: newInventory,
-        equipment: {
-          ...state.equipment,
-          [slotType]: null,
+        inventoryByPlayer: { ...state.inventoryByPlayer, [id]: newInv },
+        equipmentByPlayer: {
+          ...state.equipmentByPlayer,
+          [id]: { ...eq, [slotType]: null },
         },
+      }
+    }),
+
+  addItem: (id, item) =>
+    set((state) => {
+      const inv = state.inventoryByPlayer[id]
+      if (!inv) return {}
+      const idx = inv.findIndex((s) => s === null)
+      if (idx === -1) {
+        alert('Inventory full!')
+        return {}
+      }
+      const newInv = [...inv]
+      newInv[idx] = item
+      return { inventoryByPlayer: { ...state.inventoryByPlayer, [id]: newInv } }
+    }),
+
+  removeItem: (id, index) =>
+    set((state) => {
+      const inv = state.inventoryByPlayer[id]
+      if (!inv) return {}
+      const newInv = [...inv]
+      newInv[index] = null
+      return { inventoryByPlayer: { ...state.inventoryByPlayer, [id]: newInv } }
+    }),
+  setEquipmentSlot: (id, slot, itemKey) =>
+    set((state) => {
+      const eq = state.equipmentByPlayer[id] ?? makeDefaultEquipment()
+      const next: Equipment = {
+        ...eq,
+        [slot]: itemKey ? itemRegistry[itemKey] : null
+      }
+      return {
+        equipmentByPlayer: {
+          ...state.equipmentByPlayer,
+          [id]: next,
+        }
       }
     }),
 }))

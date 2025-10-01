@@ -26,7 +26,7 @@ export default function BotonPantallaCompleta() {
             >
                 Pantalla completa
             </button>
-            <Link to="/shader-visualizer">
+            {/* <Link to="/shader-visualizer">
                 <button style={{
                     position: 'absolute',
                     top: 200,
@@ -45,7 +45,7 @@ export default function BotonPantallaCompleta() {
                 }}>
                     HOME
                 </button>
-            </Link>
+            </Link> */}
     
         </div>
     );

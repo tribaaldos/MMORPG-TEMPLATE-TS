@@ -1,45 +1,96 @@
-
 import './App.css'
 import { Canvas, useFrame, useThree } from '@react-three/fiber'
 import * as THREE from 'three/webgpu'
 import { extend } from '@react-three/fiber'
 import MainUI from './UI/MainUI'
-import CharacterController from './character/CharacterController'
-import { Gltf, KeyboardControls, OrbitControls, Sky } from '@react-three/drei'
-import { Physics, RigidBody } from '@react-three/rapier'
-import { Leva, useControls } from 'leva'
-import Floor from './components/Floor'
-import { SocketManager } from './socket/SocketManager'
-// import { TestShader, VFXBasicInstanced } from './VFXEngine/TestShader'
-import { PostProcessing } from './VFXEngine/Effects'
-import AllTestBlocks from './components/testblocks/AllTestBlocks'
-import Lights from './components/lights/Lights'
-import { useEffect, useRef, useState } from 'react'
-import WaterShader from './components/shaders/greenPortal/GreenPortalShader'
-import MagmaShader from './components/shaders/magma/MagmaShader'
-import GrassField from './components/shaders/grass/Grass'
-import DebugStatsPanel from './UI/debug/DebugStats'
+import { KeyboardControls, Loader, useGLTF } from '@react-three/drei'
+import { folder, Leva, useControls } from 'leva'
 import { useCharacterStore } from './store/useCharacterStore'
-import RemoteCharacters from './character/RemoteCharacter'
+import { useState, useEffect, useRef } from 'react'
+import World1 from './worlds/StartWorld'
+import PhysicsWorld from './worlds/PhysicsWorld/PhysicsWorld'
+import { SocketManager } from './socket/SocketManager'
+import IccDungeon from './worlds/dungeons/IccDungeon'
+
+import StaticCollider from './character/noPhysicsCharacter/extra/StaticCollider'
+import RemoteBVHCharacters from './character/noPhysicsCharacter/extra/remoteBVHCharacter'
+import GrassBlock from './components/environmentModels/GrassBlock'
+import { PerfTracker } from './debug/Performance'
+import FullBVH from './character/noPhysicsCharacter/FullBVH'
+import { useTargetStore } from './store/useTargetStore'
+import ProjectilesLayer from './character/skills/ProjectilesLayer'
+import { IceSkillRenderer } from './character/skills/iceSkill/IceSkill'
+import DragonDungeon from './worlds/dungeons/DragonDungeon'
+import Inventory from './UI/components/inventory/Inventory'
+import RemoteCharactersBVH from './character/noPhysicsCharacter/extra/remoteBVHCharacter'
+
 export default function Experience() {
 
-    const physicsSettings = useControls('Physics', {
-        enabled: { value: true, label: 'Enable Physics' },
-        debug: { value: false, label: 'Debug Mode' },
-        gravity: {
-            value: [0, -9.81, 0],
-            label: 'Gravity',
-            step: 0.1
-        },
-        timestep: { value: 1 / 60, min: 1 / 120, max: 1 / 30, step: 0.001, label: 'Timestep' },
-    })
 
-    const playerPosition = useCharacterStore((s) => s.position);
+    const setPlayerPosition = useCharacterStore((s) => s.setPosition)
 
+    const [currentWorld, setCurrentWorld] = useState<'world1' | 'world2' | 'dungeon' | 'dragonDungeon'>('dragonDungeon')
+    const [playerTargetPos, setPlayerTargetPos] = useState<[number, number, number] | null>(null)
+
+    // Función que se pasa al TeleportZone
+    const handleTeleport = (worldId: 'world1' | 'world2' | 'dungeon' | 'dragonDungeon', targetPos?: [number, number, number]) => {
+        setCurrentWorld(worldId)
+        useCharacterStore.getState().setWorld(worldId);
+        if (targetPos) setPlayerTargetPos(targetPos)
+    }
+
+    // Actualiza la posición del jugador cuando cambia de mundo
+    useEffect(() => {
+        if (playerTargetPos) {
+            setPlayerPosition(playerTargetPos)
+            setPlayerTargetPos(null)
+        }
+    }, [playerTargetPos, setPlayerPosition])
+
+
+    const [frameloop, setFrameloop] = useState("never");
+
+    extend({
+        MeshBasicNodeMaterial: THREE.MeshBasicNodeMaterial,
+        MeshStandardNodeMaterial: THREE.MeshStandardNodeMaterial,
+    });
+
+    const [emoji, setEmoji] = useState("😀")
+    const PlayGround = () => {
+        const { scene } = useGLTF('/dungeons/Playground.glb');
+        const EcctrlMapDebugSettings = useControls("Map Debug", {
+            MapDebug: false,
+            ActiveKinematicCollider: true,
+            Map: folder({
+                visible: true,
+                excludeFloatHit: false,
+                excludeCollisionCheck: false,
+                friction: { value: 0.8, min: 0, max: 1, step: 0.01 },
+                restitution: { value: 0.05, min: 0, max: 1, step: 0.01 },
+            }, { collapsed: true }),
+        });
+        return (
+            <StaticCollider
+                debug={EcctrlMapDebugSettings.MapDebug} {...EcctrlMapDebugSettings}
+            >
+
+                <primitive object={scene} />
+            </StaticCollider>
+        )
+    }
+
+  
     return (
         <>
-
+            {/* <div style={{ position: 'absolute', left: 2000, top: 50, zIndex: 1000 }}>
+            </div> */}
+            {/* <StepAudio /> */}
+            {/* <EnvironmentSound /> */}
+            {/* <Inventory /> */}
+            {/* <EmojiCursor emoji={emoji} /> */}
             <Leva collapsed />
+            
+            <MainUI />
             <SocketManager />
             <KeyboardControls
                 map={[
@@ -48,46 +99,70 @@ export default function Experience() {
                     { name: 'leftward', keys: ['ArrowLeft', 'KeyA'] },
                     { name: 'rightward', keys: ['ArrowRight', 'KeyD'] },
                     { name: 'jump', keys: ['Space'] },
+                    { name: 'run', keys: ['Shift'] },
+                    { name: 'Key1', keys: ['1'] },
+                    { name: 'Key2', keys: ['2'] },
+                    { name: 'Key3', keys: ['3'] },
+                    { name: 'Key4', keys: ['4'] },
                 ]}
+
             >
-                <MainUI />
+                {/* <Loader /> */}
                 <Canvas
+                    // style={{ cursor: 'none' }}
                     className='canvas'
                     shadows
+                    // high performance
                     camera={{ fov: 75, position: [0, 4, 5] }}
+                    // frameloop='demand'
                     gl={(props) => {
                         extend(THREE as any)
-                        // @ts-ignore
-                        const renderer = new THREE.WebGPURenderer(props)
+                        // @ts-ignore                        
+                        const renderer = new THREE.WebGPURenderer({
+                            ...props,
+                            powerPreference: "high-performance",
+                            antialias: true,
+                            alpha: false,
+                            stencil: false,
+                        })
                         return renderer.init().then(() => renderer)
-                    }}>
-                    {/* <Effects />  */}
-                    <Physics
-                        gravity={physicsSettings.gravity}
-                        debug={physicsSettings.debug}
-                        timeStep="vary"
-                        updateLoop="follow"
-                        paused={!physicsSettings.enabled}
-                        interpolate={true}
-                    >
-                        {/* <RigidBody colliders="ball">
-                        <MagmaShader />
-                    </RigidBody> */}
-                    <CharacterController />
-                        <Floor />
+                    }}
+                    onPointerMissed={() => useTargetStore.getState().setSelectedTarget(null)}
+                >
 
-                        {/* <AllTestBlocks /> */}
-                    </Physics>
-                    <RemoteCharacters />
-                    {/* <GrassField /> */}
-                    <Lights />
-                    <DebugStatsPanel />
+                    <ProjectilesLayer />
+                    <IceSkillRenderer />
+                    <FullBVH />
+                    <RemoteCharactersBVH />
+                    {/* <PerfTracker /> */}
+                    {currentWorld === 'world1' && (
+                        <World1
+                            key="world1"
+                            onTeleport={handleTeleport}
+                            setEmoji={setEmoji}
+                        />
+                    )}
+                    {currentWorld === 'dungeon' && (
+                        <IccDungeon
+                            key="dungeon"
+                            onTeleport={handleTeleport}
+                            setEmoji={setEmoji}
+                        />
+                    )}
 
-                        <Gltf position={playerPosition} src="/sky-green.glb" />
-                    {/* <PostProcessing /> */}
-                    <OrbitControls />
+                    {currentWorld === 'dragonDungeon' && (
+                        <DragonDungeon
+                            key="dragonDungeon"
+                            onTeleport={handleTeleport}
+                            setEmoji={setEmoji}
+                        />
+                    )}
+   
+
                 </Canvas>
-            </KeyboardControls >
+  
+            </KeyboardControls>
+
         </>
     )
 }
