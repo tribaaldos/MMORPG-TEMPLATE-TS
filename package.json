@@ -1,0 +1,5 @@
+{
+    "scripts": {
+        "build" : "cd client && vite build"
+    }
+}
