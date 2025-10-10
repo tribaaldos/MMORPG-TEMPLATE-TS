@@ -26,28 +26,53 @@ export default function BasicShoulders({
   };
   const mesh1 = useRef<THREE.SkinnedMesh>(null);
   const mesh2 = useRef<THREE.SkinnedMesh>(null);
+  const mesh3 = useRef<THREE.SkinnedMesh>(null);
+  const mesh4 = useRef<THREE.SkinnedMesh>(null);
   useEffect(() => {
     if (!skeleton) return;
     mesh1.current?.bind(skeleton, mesh1.current.bindMatrix);
     mesh2.current?.bind(skeleton, mesh2.current.bindMatrix);
+    mesh3.current?.bind(skeleton, mesh3.current.bindMatrix);
+    mesh4.current?.bind(skeleton, mesh4.current.bindMatrix);
+
   })
   return (
     <group ref={group} {...props} dispose={null}>
       <group name="Scene">
         <group name="Rig">
-          <primitive object={nodes.root} />
-          <skinnedMesh
-            frustumCulled={false}
-            // material-side={THREE.DoubleSide}
-            ref={mesh1}
-            name="Object_18" geometry={nodes.Object_18.geometry} 
-            // material={materials.rshoulder_plate_alliance_211c997}
-             skeleton={nodes.Object_18.skeleton}>
-            <meshStandardMaterial color="red" />
-             </skinnedMesh>
-          <skinnedMesh
+          {/* <primitive object={nodes.root} /> */}
+          <group name="Object_18" >
+            <skinnedMesh
+              ref={mesh1}
+              name="Object_11"
+              geometry={nodes.Object_11.geometry}
+              material={materials.Material}
+              skeleton={nodes.Object_11.skeleton}
+            />
+            <skinnedMesh
             ref={mesh2}
-            name="Object_19" geometry={nodes.Object_19.geometry} material={materials.lshoulder_plate_alliance_09f994c} skeleton={nodes.Object_19.skeleton} />
+              name="Object_11_1"
+              geometry={nodes.Object_11_1.geometry}
+              material={materials['Material.001']}
+              skeleton={nodes.Object_11_1.skeleton}
+            />
+          </group>
+          <group name="Object_19001" >
+            <skinnedMesh
+              ref={mesh3}
+              name="Object_12003"
+              geometry={nodes.Object_12003.geometry}
+              material={materials.Material}
+              skeleton={nodes.Object_12003.skeleton}
+            />
+            <skinnedMesh
+              ref={mesh4}
+              name="Object_12003_1"
+              geometry={nodes.Object_12003_1.geometry}
+              material={materials['Material.001']}
+              skeleton={nodes.Object_12003_1.skeleton}
+            />
+          </group>
         </group>
       </group>
     </group>

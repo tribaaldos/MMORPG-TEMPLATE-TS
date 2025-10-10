@@ -1,6 +1,7 @@
 import { create } from 'zustand'
 import * as THREE from 'three'
 
+export type ProjectileKind = 'ice' | 'fire' | 'lightning';
 export interface Projectile {
   id: string
   position: THREE.Vector3
@@ -13,6 +14,10 @@ export interface Projectile {
   mesh: THREE.Mesh   // a quién chequeamos impacto
   ownerId?: string
   world?: string| null 
+  // aiming
+  aim?: THREE.Vector3
+  aimOffsetY?: number
+  kind?: ProjectileKind
 }
 
 

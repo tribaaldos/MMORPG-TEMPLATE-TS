@@ -65,6 +65,7 @@ export function Dragon({ props, position = [0, 0, 0], localPlayerPos, nameId = "
     const smoothedSpeed = useRef(0) // m/s aprox en XZ
 
     const setSelectedTarget = useTargetStore((s) => s.setSelectedTarget)
+    
     const monster = useMonsterStore((s) => s.monsters['dragon-1'])
 
     
@@ -177,10 +178,10 @@ export function Dragon({ props, position = [0, 0, 0], localPlayerPos, nameId = "
         const state = useTargetStore.getState()
         if (state.selectedTarget?.id === 'dragon-1') {
             const hitPoint = group.current.position.clone()
-            hitPoint.y += 1   // súbelo ~2.5 unidades (ajusta según tu modelo)
+            hitPoint.y += 3 // súbelo ~2.5 unidades (ajusta según tu modelo)
             state.setSelectedTarget({
                 ...state.selectedTarget,
-                position: hitPoint
+                position: hitPoint.clone()
             })
         }
     })

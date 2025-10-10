@@ -4,10 +4,10 @@ import * as THREE from "three";
 import React from "react";
 import { useTargetStore } from "../../store/useTargetStore";
 import { useProjectilesStore } from "./useProjectileStore";
-import { castIceSkill } from "./iceSkill/IceSkill";
-import { useIceSkillStore } from "./iceSkill/useIceSkillStore";
+import { useIceSkillStore } from "../../../../old-backup/oldprojectiles-backup/useIceSkillStore";
 import { socket } from "../../socket/SocketManager";
 import { useCharacterStore } from "../../store/useCharacterStore";
+import { useMonsterStore } from "../../worlds/dungeons/monsters/useMonsterStore";
 export type AbilityContext = {
     isOnGround: boolean;
     currentLinVel: React.MutableRefObject<THREE.Vector3>;
@@ -73,54 +73,124 @@ export const abilities: Record<string, Ability> = {
 
     },
     fireBolt: (ctx) => {
-        const sel = useTargetStore.getState().selectedTarget;
-        if (!ctx.model || !sel?.position) return;
+        const sel = useTargetStore.getState().selectedTarget
+        if (!ctx.model || !sel?.position) return
 
-        // origen: desde la cabeza del player
-        // const origin = ctx.model.getWorldPosition(new THREE.Vector3());
-        // origin.y -= 0.25;
+        // origen (cabeza jugador, ajusta si quieres)
+        const origin = ctx.model.getWorldPosition(new THREE.Vector3())
 
-        const origin = sel.position
-        origin.y += 5.5; // ajusta según la altura de tu modelo
+        // hitPoint MUY importante: lo sincronizamos por red
+        const aim = sel.position.clone() // ya viene elevado desde tu dummy/selector
 
+        const dir = aim.clone().sub(origin).normalize()
+        const id = `p_${Date.now()}_${Math.random().toString(36).slice(2)}`
+        const world = useCharacterStore.getState().world
+        const m = useMonsterStore.getState().monsters[sel.id]
 
-        // dirección: recta hacia el dragón en este instante
-        const dir = sel.position.clone().sub(origin).normalize();
-        const id = `p_${Date.now()}_${Math.random().toString(36).slice(2)}`;
-        const world = useCharacterStore.getState().world;
+        const baseY = m?.position?.y ?? sel.position.y
 
-        // dir.y = 5;
+        const aimOffsetY = Math.max(0.3, sel.position.y - baseY) // ej. 0.3 mínimo
+
+        // UNIFICA parámetros cliente/servidor
+        const speed = 10
+        const ttl = 6
+        const radius = 0.08
+        const damage = 15
+
+        // Cliente local
         useProjectilesStore.getState().add({
             id,
             ownerId: socket.id,
             world,
             position: origin.clone(),
             direction: dir.clone(),
-            speed: 20,
-            ttl: 5.2,
-            radius: 0.2,
-            damage: 15,
+            speed,
+            ttl,
+            radius,
+            damage,
             targetId: sel.id,
             mesh: new THREE.Mesh(),
-        });
+            aim: aim.clone(),
+            aimOffsetY,          // << offset local
+            kind: 'fire',
+        })
 
-        // y lo envías al server para que lo vean los demás
+        // Aviso al servidor (para reemitir a los demás)
         socket.emit('projectileSpawn', {
             id,
             ownerId: socket.id,
             world,
             position: origin.toArray(),
             direction: dir.toArray(),
-            speed: 20,
-            ttl: 5.2,
-            radius: 0.2,
-            damage: 15,
+            speed,
+            ttl,
+            radius,
+            damage,
             targetId: sel.id,
-        });
-
+            aim: aim.toArray(),      // << viaja por red
+            aimOffsetY,         // << viaja por red
+            kind: 'fire',
+        })
     },
-    iceBall: () => {
-        castIceSkill({ speed: 12, radius: 0.2, damage: 20, yOffset: -0.25 });
+    iceBall: (ctx) => {
+       const sel = useTargetStore.getState().selectedTarget
+        if (!ctx.model || !sel?.position) return
+
+        // origen (cabeza jugador, ajusta si quieres)
+        const origin = ctx.model.getWorldPosition(new THREE.Vector3())
+
+        // hitPoint MUY importante: lo sincronizamos por red
+        const aim = sel.position.clone() // ya viene elevado desde tu dummy/selector
+
+        const dir = aim.clone().sub(origin).normalize()
+        const id = `p_${Date.now()}_${Math.random().toString(36).slice(2)}`
+        const world = useCharacterStore.getState().world
+        const m = useMonsterStore.getState().monsters[sel.id]
+
+        const baseY = m?.position?.y ?? sel.position.y
+
+        const aimOffsetY = Math.max(0.3, sel.position.y - baseY) // ej. 0.3 mínimo
+
+        // UNIFICA parámetros cliente/servidor
+        const speed = 10
+        const ttl = 6
+        const radius = 0.08
+        const damage = 15
+
+        // Cliente local
+        useProjectilesStore.getState().add({
+            id,
+            ownerId: socket.id,
+            world,
+            position: origin.clone(),
+            direction: dir.clone(),
+            speed,
+            ttl,
+            radius,
+            damage,
+            targetId: sel.id,
+            mesh: new THREE.Mesh(),
+            aim: aim.clone(),
+            aimOffsetY,          // << offset local
+            kind: 'ice',
+        })
+
+        // Aviso al servidor (para reemitir a los demás)
+        socket.emit('projectileSpawn', {
+            id,
+            ownerId: socket.id,
+            world,
+            position: origin.toArray(),
+            direction: dir.toArray(),
+            speed,
+            ttl,
+            radius,
+            damage,
+            targetId: sel.id,
+            aim: aim.toArray(),      // << viaja por red
+            aimOffsetY,         // << viaja por red
+            kind: 'ice',
+        })
     },
 
 
@@ -136,7 +206,7 @@ export const useAbilityStore = create<AbilityStore>((set, get) => ({
     slots: {
         Key1: "iceBall",
         Key2: "superJump",
-        Key3: "fireBolt",
+        Key3: "iceBall",
         Key4: "fireBolt",
     },
     setAbility: (key, ability) =>

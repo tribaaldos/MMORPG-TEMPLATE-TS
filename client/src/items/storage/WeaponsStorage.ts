@@ -1,8 +1,5 @@
 // Sword-Item.ts
-import FirstSwordModel from '../../old/head/Weapon1';
 import SwordSVG from '../../components/svg/Sword';
-import SecondSwordModel from '../../old/head/Weapon2';
-import ThirdSwordModel from '../../old/head/Weapon3';
 import BVHWeapon from '../weapons/WeaponBVH';
 
 
@@ -33,5 +30,5 @@ export const BasicSword2 = {
   },
   attack: 5,
   rarity: 'legendary',
-  Model: ThirdSwordModel,
+  Model: BVHWeapon,
 } as const;

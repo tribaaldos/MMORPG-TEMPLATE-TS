@@ -49,28 +49,28 @@ export function registerDragonHandlers(io: Server) {
 
       if (dist >= 2) {
         // caminar hacia el jugador
-        dragon.position[0] += (dx / dist) * 0.1;
-        dragon.position[2] += (dz / dist) * 0.1;
+        dragon.position[0] += (dx / dist) * 0.5;
+        dragon.position[2] += (dz / dist) * 0.5;
       }
       // rotación hacia el jugador
       const angle = Math.atan2(-dx, -dz);
       dragon.quaternion = [0, Math.sin(angle / 2), 0, Math.cos(angle / 2)];
-    // } else {
-    //   // volver a base
-    //   const dx = dragon.basePosition[0] - dragon.position[0];
-    //   const dz = dragon.basePosition[2] - dragon.position[2];
-    //   const dist = Math.hypot(dx, dz);
+    } else {
+      // volver a base
+      const dx = dragon.basePosition[0] - dragon.position[0];
+      const dz = dragon.basePosition[2] - dragon.position[2];
+      const dist = Math.hypot(dx, dz);
 
-    //   if (dist > 0.2) {
-    //     dragon.position[0] += (dx / dist) * 0.05;
-    //     dragon.position[2] += (dz / dist) * 0.05;
+      if (dist > 0.2) {
+        dragon.position[0] += (dx / dist) * 0.9;
+        dragon.position[2] += (dz / dist) * 0.9;
 
-    //     const angle = Math.atan2(-dx, -dz);
-    //     dragon.quaternion = [0, Math.sin(angle / 2), 0, Math.cos(angle / 2)];
-    //   } else {
-    //     // parado mirando a su rotación original
-    //     dragon.quaternion = [...dragon.baseQuaternion];
-    //   }
+        const angle = Math.atan2(-dx, -dz);
+        dragon.quaternion = [0, Math.sin(angle / 2), 0, Math.cos(angle / 2)];
+      } else {
+        // parado mirando a su rotación original
+        dragon.quaternion = [...dragon.baseQuaternion];
+      }
     }
 
     // 👇 Solo transform

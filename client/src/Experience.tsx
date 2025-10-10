@@ -18,26 +18,43 @@ import GrassBlock from './components/environmentModels/GrassBlock'
 import { PerfTracker } from './debug/Performance'
 import FullBVH from './character/noPhysicsCharacter/FullBVH'
 import { useTargetStore } from './store/useTargetStore'
-import ProjectilesLayer from './character/skills/ProjectilesLayer'
-import { IceSkillRenderer } from './character/skills/iceSkill/IceSkill'
+import ProjectilesLayer from '../../old-backup/oldprojectiles-backup/ProjectilesLayer'
 import DragonDungeon from './worlds/dungeons/DragonDungeon'
 import Inventory from './UI/components/inventory/Inventory'
 import RemoteCharactersBVH from './character/noPhysicsCharacter/extra/remoteBVHCharacter'
+import IceProjectile from './character/skills/ProjectileSkill'
+import { PostProcessing } from './VFXEngine/Effects'
+import IceBallProjectile from '../../old-backup/oldprojectiles-backup/ProjectilesLayer'
+import FireBallProjectile from '../../old-backup/oldprojectiles-backup/ProjectilesLayer'
 
 export default function Experience() {
 
 
     const setPlayerPosition = useCharacterStore((s) => s.setPosition)
 
-    const [currentWorld, setCurrentWorld] = useState<'world1' | 'world2' | 'dungeon' | 'dragonDungeon'>('dragonDungeon')
+
+    const worldControl = useControls({
+        World: {
+            options: { World1: 'world1', Dungeon: 'dungeon', DragonDungeon: 'dragonDungeon' },
+            value: 'dungeon',
+            onChange: (value) => {
+                setCurrentWorld(value)
+                useCharacterStore.getState().setWorld(value);
+                // setPlayerPosition([0, 1, 0]) // reset position on world change
+            }
+        },
+    })
+    const [currentWorld, setCurrentWorld] = useState<any>('dungeon');
     const [playerTargetPos, setPlayerTargetPos] = useState<[number, number, number] | null>(null)
 
     // Función que se pasa al TeleportZone
-    const handleTeleport = (worldId: 'world1' | 'world2' | 'dungeon' | 'dragonDungeon', targetPos?: [number, number, number]) => {
+    const handleTeleport = (worldId: any, targetPos?: [number, number, number]) => {
         setCurrentWorld(worldId)
         useCharacterStore.getState().setWorld(worldId);
         if (targetPos) setPlayerTargetPos(targetPos)
     }
+
+    // controls leva to change world 
 
     // Actualiza la posición del jugador cuando cambia de mundo
     useEffect(() => {
@@ -55,7 +72,9 @@ export default function Experience() {
         MeshStandardNodeMaterial: THREE.MeshStandardNodeMaterial,
     });
 
-    const [emoji, setEmoji] = useState("😀")
+    // type set emoji
+
+    const [emoji, setEmoji] = useState<any>("😀")
     const PlayGround = () => {
         const { scene } = useGLTF('/dungeons/Playground.glb');
         const EcctrlMapDebugSettings = useControls("Map Debug", {
@@ -79,7 +98,7 @@ export default function Experience() {
         )
     }
 
-  
+
     return (
         <>
             {/* <div style={{ position: 'absolute', left: 2000, top: 50, zIndex: 1000 }}>
@@ -89,7 +108,7 @@ export default function Experience() {
             {/* <Inventory /> */}
             {/* <EmojiCursor emoji={emoji} /> */}
             <Leva collapsed />
-            
+
             <MainUI />
             <SocketManager />
             <KeyboardControls
@@ -129,9 +148,9 @@ export default function Experience() {
                     }}
                     onPointerMissed={() => useTargetStore.getState().setSelectedTarget(null)}
                 >
-
-                    <ProjectilesLayer />
-                    <IceSkillRenderer />
+                    {/* <PostProcessing /> */}
+                    {/* <FireBallProjectile /> */}
+                    <IceProjectile />
                     <FullBVH />
                     <RemoteCharactersBVH />
                     {/* <PerfTracker /> */}
@@ -139,6 +158,8 @@ export default function Experience() {
                         <World1
                             key="world1"
                             onTeleport={handleTeleport}
+                            // @ts-ignore
+
                             setEmoji={setEmoji}
                         />
                     )}
@@ -146,6 +167,8 @@ export default function Experience() {
                         <IccDungeon
                             key="dungeon"
                             onTeleport={handleTeleport}
+                            // @ts-ignore
+
                             setEmoji={setEmoji}
                         />
                     )}
@@ -157,10 +180,10 @@ export default function Experience() {
                             setEmoji={setEmoji}
                         />
                     )}
-   
+
 
                 </Canvas>
-  
+
             </KeyboardControls>
 
         </>

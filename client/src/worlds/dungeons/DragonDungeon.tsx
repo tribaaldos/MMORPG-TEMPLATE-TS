@@ -5,10 +5,10 @@ import KinematicCollider from "../../character/noPhysicsCharacter/extra/Kinemati
 import RemoteBVHCharacters from "../../character/noPhysicsCharacter/extra/remoteBVHCharacter";
 import { Dragon } from "./monsters/Dragon";
 import TeleportZone from "../../components/testblocks/Teleport";
-import ProjectilesLayer from "../../character/skills/ProjectilesLayer";
+import ProjectilesLayer from "../../../../old-backup/oldprojectiles-backup/ProjectilesLayer";
 import BVHWeapon from "../../items/weapons/WeaponBVH";
 
-export default function DragonDungeon(onTeleport,) {
+export default function DragonDungeon(onTeleport: any,) {
     const Sky = (props: any) => {
         const { nodes, materials } = useGLTF('/sky-green.glb')
         const positionPersonaje = useCharacterStore((s) => s.position);

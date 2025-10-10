@@ -1,6 +1,6 @@
 // store/useInventoryStore.ts
 import { create } from 'zustand'
-import { BasicShoulder, ShoulderPincho2 } from '../items/storage/ShouldersStorage'
+import { BasicShoulder } from '../items/storage/ShouldersStorage'
 import { BasicSword, BasicSword2 } from '../items/storage/WeaponsStorage'
 import React from 'react'
 
@@ -48,7 +48,7 @@ const makeDefaultInventory = (): Array<Item | null> => {
   inv[0] = BasicSword
   inv[1] = BasicSword2
   inv[2] = null
-  inv[3] = ShoulderPincho2
+  inv[3] = null
   // if (i === 3) return HeadItem
   // if (i === 4) return HeadItem2
   return inv

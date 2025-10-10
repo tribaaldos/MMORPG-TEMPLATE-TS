@@ -81,7 +81,7 @@ export const SocketManager: React.FC = () => {
     const onProjectileSpawn = (p: {
       id: string;
       ownerId: string;
-      world: string;
+      world: string | null;
       position: [number, number, number];
       direction: [number, number, number];
       speed: number;
@@ -89,9 +89,13 @@ export const SocketManager: React.FC = () => {
       radius?: number;
       damage?: number;
       targetId?: string;
+      aim?: [number, number, number];
+      aimOffsetY?: number;
+      kind: 'fire' | 'ice' | 'lightning';
     }) => {
       // manejar el spawn del proyectil
       if (p.ownerId === socket.id) return;
+      const kind = p.kind === 'ice' ? 'ice' : 'fire'; // 👈 default seguro
       useProjectilesStore.getState().add({
         id: p.id,
         position: new THREE.Vector3(...p.position),
@@ -104,6 +108,9 @@ export const SocketManager: React.FC = () => {
         mesh: new THREE.Mesh(), // placeholder, se asigna en ProjectilesLayer
         ownerId: p.ownerId,
         world: p.world,
+        aim: p.aim ? new THREE.Vector3(...p.aim) : undefined,
+        aimOffsetY: p.aimOffsetY,
+        kind,
       });
     }
 
