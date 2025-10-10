@@ -53,4 +53,4 @@ export default function PantsModel({
     )
 }
 
-useGLTF.preload('/testPants (2).glb')
+useGLTF.preload('/items/pants/testPants (2).glb')

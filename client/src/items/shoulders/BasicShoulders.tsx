@@ -79,4 +79,4 @@ export default function BasicShoulders({
   )
 }
 
-useGLTF.preload('/basicShoulders.glb')
+useGLTF.preload('/items/shoulders/basicShoulders.glb')
