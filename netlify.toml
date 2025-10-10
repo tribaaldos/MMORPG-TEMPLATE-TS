@@ -1,5 +1,5 @@
 [build]
-  command = "cd client && vite build"
+  command = "cd client && yarn run build"
   publish = "client/dist"
 
 # Si tienes un server con handler
