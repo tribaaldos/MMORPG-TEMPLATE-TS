@@ -8,7 +8,8 @@ import * as THREE from "three";
 import { EquipmentSlot, useInventoryStore } from "../store/useInventoryStore";
 import { ItemKey } from "../items/itemRegistry";
 // Conexión socket
-export const socket: Socket = io("http://localhost:5174");
+// export const socket: Socket = io("http://localhost:5174");
+export const socket: Socket = io(import.meta.env.VITE_SOCKET_URL);
 
 // Atoms globales para jugadores
 export const usersAtom = atom<string[]>([]);
