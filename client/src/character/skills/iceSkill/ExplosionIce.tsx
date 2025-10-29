@@ -24,8 +24,8 @@ export const ProjectileIceExplosion: React.FC<ProjectileIceExplosionProps> = ({
     
     return {
       positionNode: positionLocal,
-      colorNode: uniform(color('blue')),
-      // emissiveNode: uniform(color('blue')),
+      colorNode: uniform(color('lightblue')),
+      emissiveNode: uniform(color('blue')),
     }
   }, [])
 

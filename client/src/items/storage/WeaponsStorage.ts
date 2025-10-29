@@ -1,15 +1,18 @@
 // Sword-Item.ts
 import SwordSVG from '../../components/svg/Sword';
 import BVHWeapon from '../weapons/WeaponBVH';
-
+import WeaponPhoto from '../../../public/items/weapons/weapon.png'
+import SwordImageSVG from '../../components/svg/Sword';
+import FireWeapon from '../weapons/FireWeapon';
+import FireWeaponImg from '../../../public/items/weapons/fireWeapon.png'
 
 export const BasicSword = {
   name: 'Iron Sword',
   type: 'weapon',
-  image: SwordSVG,                       // 👈 componente
+  image: SwordImageSVG,                       // 👈 componente
   imageProps: {                          // 👈 props ajustadas aquí
-    size: 48,
-    backgroundColor: 'red',
+    size: 52,
+    backgroundColor: 'blue',
     iconColor: '#FFD700',
   },
   attack: 500,
@@ -19,10 +22,11 @@ export const BasicSword = {
 } as const;
 
 
-export const BasicSword2 = {
-  name: 'Iron Sword',
+
+export const FireWeaponItem = {
+  name: 'Volcanic Axe',
   type: 'weapon',
-  image: SwordSVG,                       // 👈 componente
+  image: FireWeaponImg,                       // 👈 component
   imageProps: {                          // 👈 props ajustadas aquí
     size: 48,
     backgroundColor: 'blue',
@@ -30,5 +34,5 @@ export const BasicSword2 = {
   },
   attack: 5,
   rarity: 'legendary',
-  Model: BVHWeapon,
+  Model: FireWeapon,
 } as const;

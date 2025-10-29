@@ -3,7 +3,6 @@ import { useEffect, useRef } from "react";
 import { bloom } from "three/examples/jsm/tsl/display/BloomNode.js";
 import { emissive, mrt, output, pass } from "three/tsl";
 import * as THREE from "three/webgpu";
-
 interface PostProcessingProps {
   strength?: number;
   radius?: number;
@@ -11,8 +10,8 @@ interface PostProcessingProps {
 }
 
 export const PostProcessing: React.FC<PostProcessingProps> = ({
-  strength = 0.5,
-  radius = -0.6,
+  strength = 1,
+  radius = 0,
   threshold = 0,
 }) => {
   const { gl: renderer, scene, camera } = useThree<any>();

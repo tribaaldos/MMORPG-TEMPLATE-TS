@@ -9,12 +9,15 @@ import {
     mul, sin, add, sqrt, cos, tan, instanceIndex, uniform,
     normalize,
     abs,
-    sub
+    sub,
+    emissive,
+    range
 } from 'three/tsl'
 import { Trail } from '@react-three/drei'
 import { useTargetStore } from '../../../store/useTargetStore'
 import { useFrame } from '@react-three/fiber'
 import { useCharacterStore } from '../../../store/useCharacterStore'
+import { MeshPhysicalNodeMaterial } from 'three/webgpu'
 
 
 type ProjectileIceProps = {
@@ -52,12 +55,12 @@ export const ProjectileIce = React.forwardRef<THREE.InstancedMesh, ProjectileIce
             const dir = normalize(sub(emitterPos, u.uTargetPos))    // vector dirección al target
 
             // Parámetros del cono y movimiento
-            const coneAngle = float(0.35)
+            const coneAngle = float(0.15)
             const maxDist = float(2.0)
             const twoPI = float(6.283185307179586)
 
             // Vida / velocidad
-            const speed = add(mul(rnd(10.0), float(1.0)), float(1.0))
+            const speed = float(0.5)
             const seed = rnd(0.123)
             const lifeT = fract(add(mul(t, speed), seed))
             const dist = mul(lifeT, maxDist)
@@ -80,33 +83,58 @@ export const ProjectileIce = React.forwardRef<THREE.InstancedMesh, ProjectileIce
             // Offset radial y posición final del proyectil
             const radial = add(mul(t1, mul(cos(theta), rLocal)), mul(t2, mul(sin(theta), rLocal)))
             const conePos = add(mul(dir, dist), radial)
-            const finalPosition = add(positionLocal,  conePos)
+            const finalPosition = add(positionLocal, conePos)
 
+            // color 
 
             return {
                 positionNode: finalPosition,
-                colorNode: color('red'),
+                colorNode: color('darkblue'),
+                emissiveNode: mul(color('lightblue'), float(0.09)),
                 u,
             }
-        }, [])
+        }, [
+            // esto hace que vaya lento , pero hace que cambie al moverse el target
+            // selectedTarget, origenShot
+        ])
+        useFrame(() => {
+            if (selectedTarget) {
+                // @ts-ignore3
+                shaderNodes.u.uTargetPos.value.lerp(new THREE.Vector3(...selectedTarget), 0.95)
+            }
+        })
 
-        // cambia la key si quieres forzar recompilación cuando cambien nodos
-        const materialKey = useMemo(() => Date.now(), [shaderNodes])
- 
+        const shaderNodes2 = useMemo(() => {
+            3
+            const finalColor = color(vec3(0.4, 0.75, 1.0)) // azul hielo
+            return {
+                positionNode: positionLocal.add(new THREE.Vector3(0, 0, 0)),
+                colorNode: finalColor,
+                emissiveNode: mul(finalColor, float(0.3)),
+            }
+        }, [])
+        // cambia la key si quieres forzar recompila3ción cuando cambien nodos
+        const materialKey = useMemo(() => Date.now(), [shaderNodes, shaderNodes2])
+
         return (
             <>
                 <group position={[0, 0, 0]}>
 
-                    <mesh ref={ref}>
-                        <boxGeometry args={[0.5, 0.5, 0.5]} />
-                        <meshStandardMaterial color="blue" />
-                    </mesh>
+                    <instancedMesh args={[undefined, undefined, count]} ref={ref} scale={0.2} frustumCulled={false}>
+                        <sphereGeometry args={[1, 16, 16]} scale-y={0.001} />
+                        {/* @ts-ignore NodeMaterial (TSL) */}
+                        <meshPhysicalNodeMaterial {...shaderNodes2} key={materialKey} />
+                    </instancedMesh>
                     <instancedMesh args={[undefined, undefined, count]} ref={ref} frustumCulled={false}>
-                        <boxGeometry args={[0.1, 0.1, 0.1]} />
+                        <boxGeometry args={[0.05, 0.05, 0.05]} />
                         {/* <planeGeometry args={[0.2, 0.2, 1, 1]} /> */}
                         {/* @ts-ignore NodeMaterial (TSL) */}
                         <meshPhysicalNodeMaterial {...shaderNodes} key={materialKey} metalness={0} roughness={1} side={THREE.DoubleSide} />
                     </instancedMesh>
+                    {/* <sprite count={count} ref={ref} > */}
+                    {/* @ts-ignore NodeMaterial (TSL) */}
+                    {/* <spriteNodeMaterial {...shaderNodes} key={materialKey} depthWrite={false} blending={THREE.AdditiveBlending} />
+                    </sprite> */}
                 </group>
             </>
         )

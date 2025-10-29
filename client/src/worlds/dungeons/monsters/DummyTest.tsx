@@ -22,10 +22,10 @@ interface DummyProps {
 }
 
 export default function TrainingDummy({
-    position = [3, 0, 0],
+    position = [3, -4, 0],
     nameId = 'Dummy',
     id = 'dummy-1',
-    scale = 0.1,
+    scale = 0.3,
 }: DummyProps) {
     const group = useRef<THREE.Group>(null)
 

@@ -5,6 +5,8 @@ import { SkeletonUtils } from "three-stdlib";
 import { useAnimationStore } from "./extra/useAnimationStore";
 import { useInventoryStore } from "../../store/useInventoryStore";
 import { socket } from "../../socket/SocketManager";
+import NameTag from "../NameTag";
+import { useCharacterStore } from "../../store/useCharacterStore";
 
 type Props = {
   playerId?: string;        // opcional: si no lo pasas, coge socket.id
@@ -68,6 +70,7 @@ export default function AnimatedCharacterModel({
       JUMP_IDLE: "Jump_Loop",
       JUMP_FALL: "Jump_Loop",
       JUMP_LAND: "Jump_Land",
+      ATTACK: "Sword_Attack",
     }),
     []
   );
@@ -130,9 +133,17 @@ export default function AnimatedCharacterModel({
   }, [ensurePlayer, effectiveId]);
 
   const equipment = useInventoryStore((s) => s.equipmentByPlayer[effectiveId]);
-
+  const characterName = useCharacterStore((s) => s.name);
+  // date now material key 
+  const materialKey = useMemo(() => {
+    const weaponKey = equipment?.weapon ? equipment.weapon.name : "none";
+    const shouldersKey = equipment?.shoulders ? equipment.shoulders.name : "none";
+    const legsKey = equipment?.legs ? equipment.legs.name : "none";
+    return `w_${weaponKey}_s_${shouldersKey}_l_${legsKey}`;
+  }, [equipment]);
   return (
     <group ref={group} position={[0, -1.1, 0]}>
+      <NameTag text={characterName} position={[0, 2.2, 0]} />
       <primitive object={clone} />
 
       {equipment?.weapon?.Model && (
@@ -144,6 +155,16 @@ export default function AnimatedCharacterModel({
       {equipment?.legs?.Model && (
         <equipment.legs.Model skeleton={mainSkinned.current?.skeleton} />
       )}
+      {equipment?.boots?.Model && (
+        <equipment.boots.Model skeleton={mainSkinned.current?.skeleton} />
+      )}
+      {equipment?.gloves?.Model && (
+        <equipment.gloves.Model skeleton={mainSkinned.current?.skeleton} />
+      )}
+      {equipment?.shield?.Model && (
+        <equipment.shield.Model skeleton={mainSkinned.current?.skeleton} />
+      )}
+
     </group>
   );
 }

@@ -1,0 +1,73 @@
+.character-ui {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  display: flex;
+  align-items: center;
+  background: rgba(20, 20, 20, 0.75);
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  border-radius: 12px;
+  padding: 12px 18px;
+  color: #fff;
+  font-family: 'Cinzel', serif; /* estilo tipo fantasía */
+  backdrop-filter: blur(6px);
+  box-shadow: 0 4px 10px rgba(0,0,0,0.4);
+  gap: 16px;
+}
+
+.character-info {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.character-name {
+  font-size: 1.2rem;
+  font-weight: bold;
+  letter-spacing: 0.5px;
+  text-shadow: 0 0 4px #fff, 0 0 8px #ffcb74;
+}
+
+.character-level {
+  font-size: 0.95rem;
+  color: #ffcb74;
+  text-shadow: 0 0 3px rgba(255, 203, 116, 0.8);
+}
+
+.character-photo img {
+  width: 64px;
+  height: 64px;
+  object-fit: cover;
+  border-radius: 8px;
+  border: 2px solid #ffcb74;
+  box-shadow: 0 0 10px rgba(255, 203, 116, 0.5);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.character-photo img:hover {
+  transform: scale(1.05);
+  box-shadow: 0 0 15px rgba(255, 203, 116, 0.8);
+}
+
+/* Adaptación a pantallas pequeñas */
+@media (max-width: 600px) {
+  .character-ui {
+    top: 10px;
+    left: 10px;
+    padding: 8px 12px;
+    gap: 10px;
+  }
+
+  .character-photo img {
+    width: 50px;
+    height: 50px;
+  }
+
+  .character-name {
+    font-size: 1rem;
+  }
+
+  .character-level {
+    font-size: 0.85rem;
+  }
+}

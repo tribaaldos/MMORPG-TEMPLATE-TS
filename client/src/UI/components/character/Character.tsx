@@ -6,8 +6,9 @@ import BasicCharacterModel from '../../../old/newCharacter/BasicCharacterModel';
 import { PerspectiveCamera } from '@react-three/drei';
 import { useCharacterStore } from '../../../store/useCharacterStore';
 import { useInventoryStore, Item } from '../../../store/useInventoryStore';
-import { socket } from '../../../socket/SocketManager';
+import { emitPlayerEquipment, socket } from '../../../socket/SocketManager';
 import AnimatedCharacterModel from '../../../character/noPhysicsCharacter/CharacterModel';
+import { ItemKey, itemRegistry } from '../../../items/itemRegistry';
 
 interface DraggedItem { index: number; }
 
@@ -60,7 +61,9 @@ export default function UICharacter() {
       e.preventDefault();
       if (equipment && Object.prototype.hasOwnProperty.call(equipment, slot)) {
         unequipItem(playerId, slot as any);
+        emitPlayerEquipment(slot as any, null);
       }
+
     },
     [unequipItem, equipment, playerId]
   );

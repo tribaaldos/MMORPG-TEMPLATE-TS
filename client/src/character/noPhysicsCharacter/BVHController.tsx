@@ -1256,28 +1256,64 @@ const BVHEcctrl = forwardRef<BVHEcctrlApi, EcctrlProps>(({
             return isFalling.current ? "JUMP_FALL" : "JUMP_IDLE";
         }
     }, [])
+    // const updateCharacterStatus = useCallback((run: boolean, jump: boolean) => {
+    //     // Update character control status
+    //     characterModelRef.current?.getWorldPosition(characterStatus.position)
+    //     characterModelRef.current?.getWorldQuaternion(characterStatus.quaternion)
+    //     characterStatus.linvel.copy(currentLinVel.current)
+    //     characterStatus.inputDir.copy(inputDir.current)
+    //     characterStatus.movingDir.copy(movingDir.current)
+    //     characterStatus.isOnGround = isOnGround.current
+    //     characterStatus.isOnMovingPlatform = isOnMovingPlatform.current
+    //     // subir el personaje un poco al principio de la partida
+
+    //     // Update character animation status
+    //     characterStatus.animationStatus = updateCharacterAnimation(run, jump)
+    //     if (prevAnimation.current !== characterStatus.animationStatus) {
+    //         useAnimationStore.getState().setAnimationStatus(characterStatus.animationStatus)
+    //         prevAnimation.current = characterStatus.animationStatus
+    //         socket.emit("playerAnim", {
+    //             id: socket.id,
+    //             animation: characterStatus.animationStatus,
+    //         });
+    //     }
+    // }, [])
+
+    // Animación temporal de habilidad
+    const currentAbilityAnim = useAbilityStore((s) => s.currentAbilityAnim);
+
     const updateCharacterStatus = useCallback((run: boolean, jump: boolean) => {
         // Update character control status
-        characterModelRef.current?.getWorldPosition(characterStatus.position)
-        characterModelRef.current?.getWorldQuaternion(characterStatus.quaternion)
-        characterStatus.linvel.copy(currentLinVel.current)
-        characterStatus.inputDir.copy(inputDir.current)
-        characterStatus.movingDir.copy(movingDir.current)
-        characterStatus.isOnGround = isOnGround.current
-        characterStatus.isOnMovingPlatform = isOnMovingPlatform.current
-        // subir el personaje un poco al principio de la partida
+        characterModelRef.current?.getWorldPosition(characterStatus.position);
+        characterModelRef.current?.getWorldQuaternion(characterStatus.quaternion);
+        characterStatus.linvel.copy(currentLinVel.current);
+        characterStatus.inputDir.copy(inputDir.current);
+        characterStatus.movingDir.copy(movingDir.current);
+        characterStatus.isOnGround = isOnGround.current;
+        characterStatus.isOnMovingPlatform = isOnMovingPlatform.current;
 
-        // Update character animation status
-        characterStatus.animationStatus = updateCharacterAnimation(run, jump)
-        if (prevAnimation.current !== characterStatus.animationStatus) {
-            useAnimationStore.getState().setAnimationStatus(characterStatus.animationStatus)
-            prevAnimation.current = characterStatus.animationStatus
+        // --- Animación ---
+        let nextAnim;
+
+        if (currentAbilityAnim) {
+            // si hay animación de habilidad activa
+            nextAnim = currentAbilityAnim;
+        } else {
+            nextAnim = updateCharacterAnimation(run, jump);
+        }
+
+        characterStatus.animationStatus = nextAnim;
+
+        if (prevAnimation.current !== nextAnim) {
+            useAnimationStore.getState().setAnimationStatus(nextAnim);
+            prevAnimation.current = nextAnim;
             socket.emit("playerAnim", {
                 id: socket.id,
-                animation: characterStatus.animationStatus,
+                animation: nextAnim,
             });
         }
-    }, [])
+    }, [currentAbilityAnim]);
+
 
     /**
      * Bind controller functions to ref

@@ -4,8 +4,8 @@ import * as THREE from "three";
 import React from "react";
 import { useTargetStore } from "../../store/useTargetStore";
 import { useProjectilesStore } from "./useProjectileStore";
-import { useIceSkillStore } from "../../../../old-backup/oldprojectiles-backup/useIceSkillStore";
 import { socket } from "../../socket/SocketManager";
+import { useAnimationStore } from "../noPhysicsCharacter/extra/useAnimationStore";
 import { useCharacterStore } from "../../store/useCharacterStore";
 import { useMonsterStore } from "../../worlds/dungeons/monsters/useMonsterStore";
 export type AbilityContext = {
@@ -133,7 +133,7 @@ export const abilities: Record<string, Ability> = {
         })
     },
     iceBall: (ctx) => {
-       const sel = useTargetStore.getState().selectedTarget
+        const sel = useTargetStore.getState().selectedTarget
         if (!ctx.model || !sel?.position) return
 
         // origen (cabeza jugador, ajusta si quieres)
@@ -153,7 +153,7 @@ export const abilities: Record<string, Ability> = {
 
         // UNIFICA parámetros cliente/servidor
         const speed = 10
-        const ttl = 6
+        const ttl = 1000
         const radius = 0.08
         const damage = 15
 
@@ -193,6 +193,11 @@ export const abilities: Record<string, Ability> = {
         })
     },
 
+  
+    actionAbility: () => {
+        const { setAbilityAnim } = useAbilityStore.getState();
+        setAbilityAnim('ATTACK', 800); // dura 0.8 segundos
+    }
 
 };
 
@@ -200,11 +205,15 @@ interface AbilityStore {
     slots: Record<string, keyof typeof abilities | null>;
     setAbility: (key: string, ability: keyof typeof abilities | null) => void;
     triggerAbility: (key: string, ctx: AbilityContext) => void;
+
+    // new 
+    currentAbilityAnim: string | null;
+    setAbilityAnim: (anim: string, duration?: number) => void;
 }
 
 export const useAbilityStore = create<AbilityStore>((set, get) => ({
     slots: {
-        Key1: "iceBall",
+        Key1: "actionAbility",
         Key2: "superJump",
         Key3: "iceBall",
         Key4: "fireBolt",
@@ -219,5 +228,13 @@ export const useAbilityStore = create<AbilityStore>((set, get) => ({
         if (!abilityName) return;
         const ability = abilities[abilityName];
         if (ability) ability(ctx);
+    },
+
+    // new 
+    currentAbilityAnim: null as string | null,
+    setAbilityAnim: (anim, duration = 600) => {
+        set({ currentAbilityAnim: anim });
+        // limpiar después del tiempo indicado
+        setTimeout(() => set({ currentAbilityAnim: null }), duration);
     },
 }));

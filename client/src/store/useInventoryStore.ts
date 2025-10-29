@@ -1,11 +1,14 @@
 // store/useInventoryStore.ts
 import { create } from 'zustand'
-import { BasicShoulder } from '../items/storage/ShouldersStorage'
-import { BasicSword, BasicSword2 } from '../items/storage/WeaponsStorage'
+import { BasicGreenShoulderItem, BasicShoulder } from '../items/storage/ShouldersStorage'
+import { BasicSword, FireWeaponItem } from '../items/storage/WeaponsStorage'
 import React from 'react'
 
 import { BasicPants } from '../items/storage/PantsStorage'
 import { itemRegistry, ItemKey } from '../items/itemRegistry'
+import { DragonBootsItem } from '../items/storage/BootsStorage'
+import { IronGlovesItem } from '../items/storage/GlovesStorage'
+import { ShredShieldItem } from '../items/storage/ShieldStorage'
 
 /** Los slots de equipo válidos */
 export type EquipmentSlot =
@@ -46,9 +49,10 @@ export type PlayerId = string
 const makeDefaultInventory = (): Array<Item | null> => {
   const inv = Array<Item | null>(20).fill(null)
   inv[0] = BasicSword
-  inv[1] = BasicSword2
-  inv[2] = null
-  inv[3] = null
+  inv[1] = DragonBootsItem
+  inv[2] = IronGlovesItem
+  inv[3] = BasicGreenShoulderItem
+  inv[4] = ShredShieldItem
   // if (i === 3) return HeadItem
   // if (i === 4) return HeadItem2
   return inv
@@ -61,7 +65,7 @@ const makeDefaultEquipment = (): Equipment => ({
   legs: BasicPants,
   boots: null,
   gloves: null,
-  weapon: BasicSword, // ✅ inicializamos con la espada equipada
+  weapon: FireWeaponItem, // ✅ inicializamos con la espada equipada
   shield: null,
   ring: null,
   trinket: null,

@@ -1,0 +1,22 @@
+
+
+.chat-ui {
+    position: absolute;
+    left: 2.5%;
+    top: 75%;
+
+}
+
+.messages-scroll {
+    background-color: gray;
+    opacity: 0.2;
+    height: 20vh;
+    width: 35vw;
+}
+
+.sending-message {
+    background-color: black;
+    opacity: 0.4;
+    height: 2.5vh;
+    width: 35vw;
+}

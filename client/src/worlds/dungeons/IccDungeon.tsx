@@ -9,13 +9,16 @@ import TeleportZone from "../../components/testblocks/Teleport"
 import FullBVH from "../../character/noPhysicsCharacter/FullBVH"
 import RemoteBVHCharacters from "../../character/noPhysicsCharacter/extra/remoteBVHCharacter"
 import StaticCollider from "../../character/noPhysicsCharacter/extra/StaticCollider"
-import { useEffect } from "react"
+import { useEffect, useMemo } from "react"
 import { Wolf } from "./monsters/Wolf"
 
 import { Dragon } from "./monsters/Dragon"
 import Dummy from "./monsters/DummyTest"
 import { WolfLocal } from "./monsters/WolfLocal"
 import { ProjectileIce } from "../../character/skills/iceSkill/ProjectileIce"
+import { MeshStandardNodeMaterial } from "three/webgpu"
+import { color, mix } from "three/tsl"
+import FireWeapon from "../../items/weapons/FireWeapon"
 export default function IccDungeon({ onTeleport, setEmoji }: {
     physicsSettings: any,
     onTeleport: (worldId: string, targetPos?: [number, number, number]) => void
@@ -44,11 +47,23 @@ export default function IccDungeon({ onTeleport, setEmoji }: {
             </group>
         )
     }
-    function PlayGround() {
-        const { scene } = useGLTF('/dungeons/Playground.glb');
+    function PlayGround(props: any) {
+        // const { scene } = useGLTF('/dungeons/Playground.glb');
+        const { scene, nodes, materials } = useGLTF('/dungeons/arena.glb');
 
         return (
-            <primitive object={scene} />
+            // <primitive object={scene} scale={50} position={[0, 5, 0]} />
+            <group {...props} dispose={null} scale={50} position={[0, 5, 0]}>
+                <mesh
+                    castShadow
+                    receiveShadow
+                    geometry={(nodes.material as THREE.Mesh).geometry}
+                    material={materials['Material.001']}
+                    rotation={[Math.PI / 2, 0, 0]}
+                >
+                    {/* <meshStandardMaterial color="gray" /> */}
+                </mesh>
+            </group>
         )
     }
     useEffect(() => {
@@ -63,14 +78,14 @@ export default function IccDungeon({ onTeleport, setEmoji }: {
             {/* <WolfLocal /> */}
             {/* <Dragon position={[0, 0, 0]} nameId="Nibsy" /> */}
             <Dummy />
-
+            <pointLight position={[18, -1, -7]} intensity={100} color="red" scale={20} />
             <StaticCollider>
                 <PlayGround />
+
             </StaticCollider>
-            <ProjectileIce />
- 
-            <ambientLight intensity={0.7} />
-            <fog attach="fog" args={['lightblue', 15, 75]} />
+            {/* <ProjectileIce /> */}
+            <ambientLight intensity={1} />
+            <fog attach="fog" args={['lightblue', 30, 250]} />
             <TeleportZone
                 position={[10, 0, 0]}
                 radius={2}

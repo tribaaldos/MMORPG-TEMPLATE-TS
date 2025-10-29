@@ -24,7 +24,7 @@ type Explosion = {
 export default function ProjectilesLayer({
   homingLerp = 0.12,
   targetRadius = 0.4,
-  explosionLife = 1.0,
+  explosionLife = 0.2,
 }: {
   homingLerp?: number
   targetRadius?: number

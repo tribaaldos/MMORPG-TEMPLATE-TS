@@ -5,8 +5,8 @@ import KinematicCollider from "../../character/noPhysicsCharacter/extra/Kinemati
 import RemoteBVHCharacters from "../../character/noPhysicsCharacter/extra/remoteBVHCharacter";
 import { Dragon } from "./monsters/Dragon";
 import TeleportZone from "../../components/testblocks/Teleport";
-import ProjectilesLayer from "../../../../old-backup/oldprojectiles-backup/ProjectilesLayer";
 import BVHWeapon from "../../items/weapons/WeaponBVH";
+import SSGI from "../../VFXEngine/SSGI";
 
 export default function DragonDungeon(onTeleport: any,) {
     const Sky = (props: any) => {
@@ -46,6 +46,7 @@ export default function DragonDungeon(onTeleport: any,) {
                     <primitive object={scene} />
                 </group>
             </KinematicCollider>
+            {/* <SSGI /> */}
         </>
     )
 }

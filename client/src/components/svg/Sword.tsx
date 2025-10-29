@@ -1,34 +1,49 @@
 type Props = {
-  size?: number | string;              // opcional si quieres forzar tamaño
+  size?: number | string;
   backgroundColor?: string;
   strokeColor?: string;
   strokeWidth?: number;
-  iconColor?: string;
-  className?: string;                  // 👈 nuevo
-  style?: React.CSSProperties;         // 👈 nuevo
+  className?: string;
+  style?: React.CSSProperties;
 };
 
-export default function SwordSVG({
-  size,                                // si no lo pasas, ocupará 100%
-  backgroundColor = "red",
-  strokeColor = "#182a5b",
-  strokeWidth = 10,
-  iconColor = "black",
+export default function SwordImageSVG({
+  size,
+  backgroundColor = "#0a0018",
+  strokeColor = "#4422aa",
+  strokeWidth = 5,
   className,
   style,
 }: Props) {
-  const dim = size ? { width: size, height: size } : { width: '100%', height: '100%' };
+  const dim = size ? { width: size, height: size } : { width: "100%", height: "100%" };
+
   return (
     <svg
       viewBox="0 0 512 512"
       className={className}
-      style={{ display: 'block', ...dim, ...style }}  // 👈 llena el contenedor
+      style={{ display: "block", ...dim, ...style }}
       preserveAspectRatio="xMidYMid meet"
     >
-      <path d="M10 10h492v492H10z" fill={backgroundColor} stroke={strokeColor} strokeWidth={strokeWidth} />
-      <path
-        d="M482.403 42.826c-10.537-8.76-24.84-4.167-43.264 11.643-76.1 65.307-202.78 179.14-282.432 269.103l21.07 21.07c82.21-87.285 203.37-205.524 304.625-301.817zm-338.477 293.42-17.17 17.028 22.302 22.303a2546.608 2546.608 0 0 1 16.41-17.79zm-56.796.03-12.728 12.728 79.196 79.196 12.728-12.728zm2.942 54.185-60.475 60.475c.372 11.49 10.708 22.336 22.628 22.627l60.474-60.474-8.137-8.136c2.657 4.264 2.84 8.705.457 11.097-3.124 3.123-9.554 1.758-14.363-3.05 4.808 4.808 6.174 11.24 3.05 14.363-3.125 3.124-9.555 1.76-14.364-3.05 4.81 4.81 6.174 11.24 3.05 14.363-3.124 3.125-9.555 1.76-14.363-3.05 4.808 4.81 6.173 11.24 3.05 14.364-3.125 3.124-9.556 1.76-14.364-3.05 4.808-4.808 6.173-11.24 3.05-14.363 3.125-3.123 9.556-1.758 14.364 3.05-4.808-4.808-6.173-11.238-3.05-14.362 3.125-3.125 9.555-1.76 14.364 3.05-4.81-4.81-6.174-11.24-3.05-14.364 3.125-3.124 9.555-1.76 14.363 3.05-4.808-4.81-6.173-11.24-3.05-14.364 2.39-2.383 6.828-2.202 11.09.45z"
-        fill={iconColor}
+      {/* Fondo cuadrado */}
+      <rect
+        x="0"
+        y="0"
+        width="512"
+        height="512"
+        fill={backgroundColor}
+        stroke={strokeColor}
+        strokeWidth={strokeWidth}
+        rx="20"
+      />
+
+      {/* Imagen de la espada */}
+      <image
+        href="/public/items/weapons/weapon.png"   // 👈 ruta a tu imagen
+        x="0"
+        y="0"
+        width="512"
+        height="512"
+        preserveAspectRatio="xMidYMid meet"
       />
     </svg>
   );

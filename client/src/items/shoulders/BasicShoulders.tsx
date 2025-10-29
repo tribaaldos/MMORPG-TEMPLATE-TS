@@ -43,6 +43,8 @@ export default function BasicShoulders({
           {/* <primitive object={nodes.root} /> */}
           <group name="Object_18" >
             <skinnedMesh
+              frustumCulled={false}
+
               ref={mesh1}
               name="Object_11"
               geometry={nodes.Object_11.geometry}
@@ -50,7 +52,9 @@ export default function BasicShoulders({
               skeleton={nodes.Object_11.skeleton}
             />
             <skinnedMesh
-            ref={mesh2}
+              frustumCulled={false}
+
+              ref={mesh2}
               name="Object_11_1"
               geometry={nodes.Object_11_1.geometry}
               material={materials['Material.001']}
@@ -59,6 +63,7 @@ export default function BasicShoulders({
           </group>
           <group name="Object_19001" >
             <skinnedMesh
+              frustumCulled={false}
               ref={mesh3}
               name="Object_12003"
               geometry={nodes.Object_12003.geometry}
@@ -66,6 +71,8 @@ export default function BasicShoulders({
               skeleton={nodes.Object_12003.skeleton}
             />
             <skinnedMesh
+              frustumCulled={false}
+
               ref={mesh4}
               name="Object_12003_1"
               geometry={nodes.Object_12003_1.geometry}

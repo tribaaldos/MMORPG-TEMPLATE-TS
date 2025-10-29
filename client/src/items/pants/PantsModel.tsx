@@ -32,6 +32,7 @@ export default function PantsModel({
                 <group name="Rig">
                     <group name="Object_9001">
                         <skinnedMesh
+                            frustumCulled={false}
                             name="Object_2003"
                             ref={meshRef}
                             geometry={nodes.Object_2003.geometry}
@@ -39,6 +40,7 @@ export default function PantsModel({
                             skeleton={nodes.Object_2003.skeleton}
                         />
                         <skinnedMesh
+                            frustumCulled={false}
                             name="Object_2003_1"
                             ref={meshRef2}
                             geometry={nodes.Object_2003_1.geometry}

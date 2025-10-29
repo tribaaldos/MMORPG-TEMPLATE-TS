@@ -22,7 +22,7 @@ export default function Popups() {
     const selectedTarget = useTargetStore((s) => s.selectedTarget);
 
     // Alterna la apertura/cierre del popup de DiabloUI
-    const toggleCharacterPopup = () => {
+     const toggleCharacterPopup = () => {
         if (isCharacterOpen) {
             hideCharacter();
             setIsCharacterOpen(false);

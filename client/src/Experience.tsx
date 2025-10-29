@@ -8,24 +8,18 @@ import { folder, Leva, useControls } from 'leva'
 import { useCharacterStore } from './store/useCharacterStore'
 import { useState, useEffect, useRef } from 'react'
 import World1 from './worlds/StartWorld'
-import PhysicsWorld from './worlds/PhysicsWorld/PhysicsWorld'
 import { SocketManager } from './socket/SocketManager'
 import IccDungeon from './worlds/dungeons/IccDungeon'
 
 import StaticCollider from './character/noPhysicsCharacter/extra/StaticCollider'
-import RemoteBVHCharacters from './character/noPhysicsCharacter/extra/remoteBVHCharacter'
-import GrassBlock from './components/environmentModels/GrassBlock'
 import { PerfTracker } from './debug/Performance'
 import FullBVH from './character/noPhysicsCharacter/FullBVH'
 import { useTargetStore } from './store/useTargetStore'
-import ProjectilesLayer from '../../old-backup/oldprojectiles-backup/ProjectilesLayer'
 import DragonDungeon from './worlds/dungeons/DragonDungeon'
-import Inventory from './UI/components/inventory/Inventory'
 import RemoteCharactersBVH from './character/noPhysicsCharacter/extra/remoteBVHCharacter'
-import IceProjectile from './character/skills/ProjectileSkill'
+import ProjectilesLayer from './character/skills/ProjectileSkill'
 import { PostProcessing } from './VFXEngine/Effects'
-import IceBallProjectile from '../../old-backup/oldprojectiles-backup/ProjectilesLayer'
-import FireBallProjectile from '../../old-backup/oldprojectiles-backup/ProjectilesLayer'
+import MobileFullscreenGuard from './UI/OrientationLock'
 
 export default function Experience() {
 
@@ -108,7 +102,7 @@ export default function Experience() {
             {/* <Inventory /> */}
             {/* <EmojiCursor emoji={emoji} /> */}
             <Leva collapsed />
-
+            <MobileFullscreenGuard />
             <MainUI />
             <SocketManager />
             <KeyboardControls
@@ -148,12 +142,13 @@ export default function Experience() {
                     }}
                     onPointerMissed={() => useTargetStore.getState().setSelectedTarget(null)}
                 >
-                    {/* <PostProcessing /> */}
+                    <PostProcessing />
                     {/* <FireBallProjectile /> */}
-                    <IceProjectile />
+                    {/* <IceProjectile /> */}
+                    <ProjectilesLayer />
                     <FullBVH />
                     <RemoteCharactersBVH />
-                    {/* <PerfTracker /> */}
+                    <PerfTracker />
                     {currentWorld === 'world1' && (
                         <World1
                             key="world1"

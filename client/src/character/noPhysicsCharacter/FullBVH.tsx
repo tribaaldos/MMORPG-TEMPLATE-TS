@@ -132,6 +132,7 @@ export default function FullBVH() {
           key={EcctrlDebugSettings.floatCheckType} // Force remount on change
           colliderCapsuleArgs={[0.3, 0.8, 4, 8]}
         >
+          <pointLight position={[0, 1.8, 0]} intensity={3} />
           {/* <NewCharacter /> */}
           <AnimatedCharacterModel
             slowMotion={EcctrlDebugSettings.slowMotionFactor}

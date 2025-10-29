@@ -8,20 +8,29 @@ import UICharacter from './components/character/Character';
 import PerfWidget from './PerfState';
 import KShop from '../components/npc/Shop';
 import ShopPanel from './components/npcs/Shop';
+import CharacterTopLeftUi from './components/character/CharacterTopLeftUi';
+import SkillsBar from './skillsBar/SkillsBar';
+import MenuBar from './menuBar/MenuBar';
+import Chat from './chat/Chat';
 
 export default function MainUI() {
 
 
     return (
+        <>
         <div className="main-ui">
             {/* <ShowStats /> */}
             {/* <BotonPantallaCompleta /> */}
-            {/* <UICharacter /> */}
             {/* <PerfWidget /> */}
-            {/* <ShopPanel /> */}
+            <CharacterTopLeftUi />
+            <ShopPanel />
             <Popups />
-            {/* <ExpBar /> */}
+            <ExpBar />
+            <SkillsBar />
             {/* <DiabloUI /> */}
+            <MenuBar />
+            <Chat />
         </div>
+        </>
     );
 }

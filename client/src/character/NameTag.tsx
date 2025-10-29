@@ -35,7 +35,7 @@ function NameTag({ text = "Hola", position = [0, 0, 0], scale = 1 }: NameTagProp
 
     return (
         <mesh position={position} ref={meshRef} scale={scale}>
-            <planeGeometry args={[1.5, 0.4]} />
+            <planeGeometry args={[2, 0.4]} />
             <meshBasicMaterial map={texture} transparent />
         </mesh>
     );
