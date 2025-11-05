@@ -59,6 +59,7 @@ export default function ShaderVisualizer() {
                 <ShaderCard id={1} title="Water" imageSrc="/shader-visualizer/water.png" />
                 <ShaderCard id={2} title="Green Portal" imageSrc="/shader-visualizer/portal.png" />
                 <ShaderCard id={3} title="Magma" imageSrc="/shader-visualizer/magma.png" />
+                
                 <ShaderCard id={5} title="Grass" imageSrc="/shader-visualizer/grass.png" />
             </div>
 

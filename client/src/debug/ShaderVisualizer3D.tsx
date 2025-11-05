@@ -1,36 +1,89 @@
-import { useMemo, useState } from "react"
+import { useEffect, useMemo, useState } from "react"
 import { Canvas, useLoader } from "@react-three/fiber"
 import { Gltf, Html, OrbitControls, Text3D, useGLTF } from "@react-three/drei"
 import MagmaShader from "../components/shaders/MagmaShader"
 import * as THREE from 'three/webgpu'
 import { FontLoader, TextGeometry } from "three-stdlib"
 import GreenPortalShader from "../components/shaders/greenPortal/GreenPortalShader"
+import { Leva, useControls, useCreateStore } from "leva"
+import NoiseShader from "../components/shaders/NoiseShader"
 
 const shaders = ["standard", "shader1", "shader2"] // lista de shaders
 
-function DifferentShaders({ shader }: { shader: string }) {
+// function DifferentShaders({ shader }: { shader: string }) {
+//     useEffect(() => {
+//         const root = document.querySelector('.leva-c') // clase raíz de Leva
+//         if (root) root.innerHTML = '' // limpia controles anteriores
+//     }, [shader])
+//     switch (shader) {
+//         case "shader1":
+//             return (
+//                 <MagmaShader />
+//             )
+//         case "shader2":
+//             // leva controls
+//             const controls = useControls('Shader 2', {
+//                 colorA: { value: '#ff0000' },
+//             })
+//             return (
+//                 <mesh>
+//                     <sphereGeometry args={[0.75, 32, 32]} />
+//                     <meshStandardMaterial color={controls.colorA} />
+//                 </mesh>
+//             )
+//         default:
+//             // objeto inicial
+//             const controls1 = useControls('Shader 1', {
+//                 colorA: { value: '#000a48ff' },
+//             })
+//             return (
+//                 <mesh>
+//                     <boxGeometry args={[1, 1, 1]} />
+//                     <meshStandardMaterial color={controls1.colorA} />
+//                 </mesh>
+//             )
+//     }
+// }
+
+
+
+export function DifferentShaders({ shader }: { shader: string }) {
+    // Cada shader tiene su propio store
+    const store1 = useCreateStore()
+    const store2 = useCreateStore()
+    const store3 = useCreateStore()
+    const storeDefault = useCreateStore()
+
+    // Decidimos qué store mostrar
+    let currentStore = storeDefault
     switch (shader) {
         case "shader1":
-            return (
-                <MagmaShader />
-            )
+            currentStore = store1
+            break
         case "shader2":
-            return (
-                <mesh>
-                    <sphereGeometry args={[0.75, 32, 32]} />
-                    <meshStandardMaterial color="blue" />
-                </mesh>
-            )
-        default:
-            // objeto inicial
-            return (
+            currentStore = store2
+            break
+
+        case "shader3":
+            currentStore = store3
+    }
+
+    return (
+        <>
+            {/* Solo el panel activo de Leva */}
+
+            {shader === "shader1" && <MagmaShader store={store1} />}
+            {shader === "shader2" && <NoiseShader store={store2} />}
+            {shader === "standard" && (
                 <mesh>
                     <boxGeometry args={[1, 1, 1]} />
-                    <meshStandardMaterial color="orange" />
+                    <meshStandardMaterial color="#888" />
                 </mesh>
-            )
-    }
+            )}
+        </>
+    )
 }
+
 
 function ArrowButton({ direction = "up", onClick, position }: any) {
     let rotation: [number, number, number] = [0, 0, 0]
@@ -83,12 +136,16 @@ interface ShaderVisualizer3DProps {
 }
 
 export default function ShaderVisualizer3D({
-    position = [ 0, 0 , 0]
+    position = [0, 0, 0]
 }: ShaderVisualizer3DProps) {
     const [shaderIndex, setShaderIndex] = useState(0)
 
     const nextShader = () => {
         setShaderIndex((shaderIndex + 1) % shaders.length)
+    }   
+
+    const backShader = () => {
+        setShaderIndex((shaderIndex - 1) & shaders.length)
     }
 
 
@@ -154,14 +211,14 @@ export default function ShaderVisualizer3D({
             <ArrowButton
                 direction="left"
                 position={[-2, -1, 0]}
-                onClick={nextShader}
+                onClick={backShader}
             />
             <ArrowButton
                 direction="right"
                 position={[2, -1, 0]}
                 onClick={nextShader}
             />
-            <GreenPortalShader 
+            <GreenPortalShader
                 position={[0, -1.65, 0]}
                 geometry={new THREE.CircleGeometry(1, 64)}
                 scaleProp={2.1}

@@ -28,8 +28,9 @@ export default function World1({ onTeleport, setEmoji }: {
             enabled: { value: true },
             debug: { value: false },
             gravity: { value: [0, -9.81, 0], step: 0.1 },
-        })
-    })
+        }, {collapsed: true})
+    }, 
+    { collapsed: true });
     const Sky = (props: any) => {
         const { nodes, materials } = useGLTF('/sky-green.glb')
         const positionPersonaje = useCharacterStore((s) => s.position);
@@ -73,6 +74,7 @@ export default function World1({ onTeleport, setEmoji }: {
             <Floor />
             <Fountain />
             <GrassBlock position={[0, -1, 0]} />
+            <ShaderVisualizer3D />
             <TeleportZone
                 position={[10, 0, 0]}
                 radius={2}

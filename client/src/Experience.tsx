@@ -20,6 +20,7 @@ import RemoteCharactersBVH from './character/noPhysicsCharacter/extra/remoteBVHC
 import ProjectilesLayer from './character/skills/ProjectileSkill'
 import { PostProcessing } from './VFXEngine/Effects'
 import MobileFullscreenGuard from './UI/OrientationLock'
+import WorldShaderVisualizer from './worlds/WorldShaderVisualizer'
 
 export default function Experience() {
 
@@ -29,8 +30,8 @@ export default function Experience() {
 
     const worldControl = useControls({
         World: {
-            options: { World1: 'world1', Dungeon: 'dungeon', DragonDungeon: 'dragonDungeon' },
-            value: 'dungeon',
+            options: { World1: 'world1', Dungeon: 'dungeon', DragonDungeon: 'dragonDungeon', ShaderVisualizer: 'Shadervisualizer' },
+            value: 'ShaderVisualizer',
             onChange: (value) => {
                 setCurrentWorld(value)
                 useCharacterStore.getState().setWorld(value);
@@ -38,7 +39,7 @@ export default function Experience() {
             }
         },
     })
-    const [currentWorld, setCurrentWorld] = useState<any>('dungeon');
+    const [currentWorld, setCurrentWorld] = useState<any>('ShaderVisualizer');
     const [playerTargetPos, setPlayerTargetPos] = useState<[number, number, number] | null>(null)
 
     // Función que se pasa al TeleportZone
@@ -166,6 +167,10 @@ export default function Experience() {
 
                             setEmoji={setEmoji}
                         />
+                    )}
+
+                    {currentWorld === 'ShaderVisualizer' && (
+                        <WorldShaderVisualizer key='ShaderVisualizer' />
                     )}
 
                     {currentWorld === 'dragonDungeon' && (

@@ -87,7 +87,9 @@ export default function FullBVH() {
       },
       { collapsed: true }
     ),
-  });
+  },
+    { collapsed: true } // 👈 colapsa el grupo entero "Ecctrl Debug"
+  );
 
   const EcctrlMapDebugSettings = useControls("Map Debug", {
     MapDebug: false,
@@ -102,7 +104,7 @@ export default function FullBVH() {
       },
       { collapsed: true }
     ),
-  });
+  }, {collapsed: true});
 
   useFrame((state, delta) => {
     if (camControlRef.current && ecctrlRef.current) {

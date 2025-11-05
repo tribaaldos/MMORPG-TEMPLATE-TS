@@ -1,3 +1,4 @@
+import { useControls, useStoreContext } from 'leva';
 import { useMemo, } from 'react'
 import * as THREE from 'three'
 
@@ -8,7 +9,20 @@ import {
     abs,
     triNoise3D,
 } from 'three/tsl'
-export default function MagmaShader() {
+type Props = {
+    store?: any
+}
+
+export default function MagmaShader({ store }: Props) {
+    const controls = useControls('Magma Shader',
+
+        {
+            store
+            ,
+            colorA: { value: '#ff4500' },
+            numero: { value: 1, min: 0.1, max: 100}
+        }
+    )
     function PracticeNodeMaterial() {
 
         // vertex shader
@@ -32,7 +46,7 @@ export default function MagmaShader() {
 
                 animatedPos,
             );
-            const glow = abs(noise.sub(0.5).mul(2.0)).pow(3).clamp(0.0, 50.0).mul(1);
+            const glow = abs(noise.sub(0.5).mul(2.0)).pow(controls.numero).clamp(0.0, 50.0).mul(1);
             const lava = vec3(1.0, 0.3, 0.0);
             const roca = vec3(1, 0., 0.01);
             const color = lava.mul(glow).add(roca.mul(float(1.0).sub(glow)))
