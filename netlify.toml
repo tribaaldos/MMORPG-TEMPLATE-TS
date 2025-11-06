@@ -6,3 +6,8 @@
 # Si tienes un server con handler
 [functions]
   directory = "server"
+
+[[redirects]]
+from = "/*"
+to = "index.html"
+status = 200
