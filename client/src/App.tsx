@@ -20,9 +20,9 @@ function App() {
         <Route path="/shader-visualizer" element={<ShaderVisualizer />} />
         <Route path="/shader-visualizer/:id" element={<ShaderVisualizer />} />
         <Route path="/" element={<Experience />} />
-        <Route path="/cad-threejs" element={<CADScene />} />
-        {/* <Route path="/" element={name ? <Experience /> : <NameEntryScreen />} /> */}
-        {/* <Route path="/" element={name ? <ExperienceTest /> : <NameEntryScreen />} /> */}
+        {/* <Route path="/" element={<CADScene />} /> */}
+        <Route path="/" element={name ? <Experience /> : <NameEntryScreen />} />
+        <Route path="/" element={name ? <ExperienceTest /> : <NameEntryScreen />} />
       </Routes>
     </>
   )

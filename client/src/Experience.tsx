@@ -21,6 +21,7 @@ import ProjectilesLayer from './character/skills/ProjectileSkill'
 import { PostProcessing } from './VFXEngine/Effects'
 import MobileFullscreenGuard from './UI/OrientationLock'
 import WorldShaderVisualizer from './worlds/WorldShaderVisualizer'
+import { WebGLRenderer } from 'three'
 
 export default function Experience() {
 
@@ -31,7 +32,7 @@ export default function Experience() {
     const worldControl = useControls({
         World: {
             options: { World1: 'world1', Dungeon: 'dungeon', DragonDungeon: 'dragonDungeon', ShaderVisualizer: 'Shadervisualizer' },
-            value: 'ShaderVisualizer',
+            value: 'world1',
             onChange: (value) => {
                 setCurrentWorld(value)
                 useCharacterStore.getState().setWorld(value);
@@ -39,7 +40,7 @@ export default function Experience() {
             }
         },
     })
-    const [currentWorld, setCurrentWorld] = useState<any>('ShaderVisualizer');
+    const [currentWorld, setCurrentWorld] = useState<any>('world1');
     const [playerTargetPos, setPlayerTargetPos] = useState<[number, number, number] | null>(null)
 
     // Función que se pasa al TeleportZone
@@ -69,7 +70,7 @@ export default function Experience() {
 
     // type set emoji
 
-    const [emoji, setEmoji] = useState<any>("😀")
+    // const [emoji, setEmoji] = useState<any>("😀")
     const PlayGround = () => {
         const { scene } = useGLTF('/dungeons/Playground.glb');
         const EcctrlMapDebugSettings = useControls("Map Debug", {
@@ -102,7 +103,7 @@ export default function Experience() {
             {/* <EnvironmentSound /> */}
             {/* <Inventory /> */}
             {/* <EmojiCursor emoji={emoji} /> */}
-            <Leva collapsed />
+            <Leva collapsed hidden />
             <MobileFullscreenGuard />
             <MainUI />
             <SocketManager />
@@ -123,23 +124,43 @@ export default function Experience() {
             >
                 {/* <Loader /> */}
                 <Canvas
-                    // style={{ cursor: 'none' }}
-                    className='canvas'
+                    className="canvas"
                     shadows
-                    // high performance
                     camera={{ fov: 75, position: [0, 4, 5] }}
-                    // frameloop='demand'
-                    gl={(props) => {
-                        extend(THREE as any)
-                        // @ts-ignore                        
-                        const renderer = new THREE.WebGPURenderer({
+                    gl={async (props) => {
+                        // Detectar soporte de WebGPU
+                        const supportsWebGPU = navigator.gpu !== undefined
+
+                        if (supportsWebGPU) {
+                            // Intentar usar WebGPURenderer
+                            try {
+                                extend(THREE as any)
+                                // @ts-ignore
+                                const renderer = new THREE.WebGPURenderer({
+                                    ...props,
+                                    powerPreference: 'high-performance',
+                                    antialias: true,
+                                    alpha: false,
+                                    stencil: false,
+                                })
+                                await renderer.init()
+                                console.log('✅ Usando WebGPURenderer')
+                                return renderer
+                            } catch (err) {
+                                console.warn('⚠️ Falló WebGPURenderer, usando WebGLRenderer', err)
+                            }
+                        }
+
+                        // Fallback: WebGLRenderer
+                        const renderer = new WebGLRenderer({
                             ...props,
-                            powerPreference: "high-performance",
+                            powerPreference: 'high-performance',
                             antialias: true,
                             alpha: false,
                             stencil: false,
                         })
-                        return renderer.init().then(() => renderer)
+                        console.log('🔁 Usando WebGLRenderer')
+                        return renderer
                     }}
                     onPointerMissed={() => useTargetStore.getState().setSelectedTarget(null)}
                 >
@@ -156,8 +177,9 @@ export default function Experience() {
                             onTeleport={handleTeleport}
                             // @ts-ignore
 
-                            setEmoji={setEmoji}
+                            // setEmoji={setEmoji}
                         />
+                    
                     )}
                     {currentWorld === 'dungeon' && (
                         <IccDungeon
@@ -165,7 +187,7 @@ export default function Experience() {
                             onTeleport={handleTeleport}
                             // @ts-ignore
 
-                            setEmoji={setEmoji}
+                            // setEmoji={setEmoji}
                         />
                     )}
 
@@ -177,7 +199,7 @@ export default function Experience() {
                         <DragonDungeon
                             key="dragonDungeon"
                             onTeleport={handleTeleport}
-                            setEmoji={setEmoji}
+                            // setEmoji={setEmoji}
                         />
                     )}
 

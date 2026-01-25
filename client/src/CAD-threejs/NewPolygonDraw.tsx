@@ -18,6 +18,8 @@ function DrawingPlane() {
     setHoverPoint(event.point.clone())
   }
 
+  // const random color 
+
   return (
     <>
       <mesh

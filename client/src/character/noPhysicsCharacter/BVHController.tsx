@@ -183,6 +183,43 @@ const BVHEcctrl = forwardRef<BVHEcctrlApi, EcctrlProps>(({
         return unsubscribeJoystick;
     }, []);
 
+    /**
+     * Keyboard listeners for ability keys (1-4)
+     * These are handled separately to avoid conflicts with movement keys
+     */
+    useEffect(() => {
+        const handleKeyDown = (e: KeyboardEvent) => {
+            // Handle both numpad and main keyboard number keys
+            if (e.code === 'Digit1') key1State.current = true;
+            if (e.code === 'Numpad1') key1State.current = true;
+            if (e.code === 'Digit2') key2State.current = true;
+            if (e.code === 'Numpad2') key2State.current = true;
+            if (e.code === 'Digit3') key3State.current = true;
+            if (e.code === 'Numpad3') key3State.current = true;
+            if (e.code === 'Digit4') key4State.current = true;
+            if (e.code === 'Numpad4') key4State.current = true;
+        };
+
+        const handleKeyUp = (e: KeyboardEvent) => {
+            // Handle both numpad and main keyboard number keys
+            if (e.code === 'Digit1') key1State.current = false;
+            if (e.code === 'Numpad1') key1State.current = false;
+            if (e.code === 'Digit2') key2State.current = false;
+            if (e.code === 'Numpad2') key2State.current = false;
+            if (e.code === 'Digit3') key3State.current = false;
+            if (e.code === 'Numpad3') key3State.current = false;
+            if (e.code === 'Digit4') key4State.current = false;
+            if (e.code === 'Numpad4') key4State.current = false;
+        };
+
+        window.addEventListener('keydown', handleKeyDown);
+        window.addEventListener('keyup', handleKeyUp);
+
+        return () => {
+            window.removeEventListener('keydown', handleKeyDown);
+            window.removeEventListener('keyup', handleKeyUp);
+        };
+    }, []);
 
     /**
      * Physics preset

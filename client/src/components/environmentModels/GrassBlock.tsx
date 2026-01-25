@@ -1,6 +1,6 @@
 // GrassBlock.tsx — infinito, estable, “hoja por hoja”, frondoso, batches (<=100k),
 // con wave (viento) y ZONAS SIN CÉSPED (3 círculos editables + borde suave)
-import React from 'react'
+import React, { useMemo } from 'react'
 import { useFrame } from '@react-three/fiber'
 import { useControls } from 'leva'
 import {
@@ -274,6 +274,7 @@ export const ShaderMaterial = ({
     }
   }, [uniforms])
 
+  // const key = useMemo(() => new Date.now(), [])
   return (
     // @ts-ignore
     <meshStandardNodeMaterial

@@ -23,6 +23,7 @@ export function registerDragonHandlers(io: Server) {
       delete players[socket.id];
     });
   });
+  
 
   setInterval(() => {
     const playerEntries = Object.entries(players);

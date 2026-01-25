@@ -7,7 +7,7 @@ import * as THREE from 'three'
 import SwordSVG from '../svg/Sword'
 import { AnvilIcon, StandardCursor } from './EmojiCursor'
 export default function KShop({
-  setEmoji,
+  // setEmoji,
 }) {
   const openShop = useShopStore((s) => s.openShop)
   const [hovered, setHovered] = useState(false)
@@ -118,18 +118,26 @@ export default function KShop({
   // }
 
   return (
-    <group>
+    <group
+      onClick={(e) => {
+        e.stopPropagation();
+      }}
+    >
       {/* Cubo de prueba */}
       <mesh
       position={[0, 1.35, 0]}
-        onPointerOver={() => {
+        onPointerOver={(e) => {
+          e.stopPropagation();
           setHovered(true);
-          setEmoji(AnvilIcon); // emoji mientras pasas por encima
+          // setEmoji(AnvilIcon); // emoji mientras pasas por encima
         }} onPointerOut={(e) => {
+          e.stopPropagation();
           setHovered(false)
-          setEmoji(StandardCursor); // emoji al hacer clic
+          // setEmoji(StandardCursor); // emoji al hacer clic
         }}
         onClick={(e) => {
+          e.stopPropagation();
+          e.nativeEvent.stopImmediatePropagation?.();
           openShop('Blacksmith', swordsForSale as any)
         }}
       >

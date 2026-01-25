@@ -18,8 +18,9 @@ import KShop from '../components/npc/Shop'
 import FullBVH from '../character/noPhysicsCharacter/FullBVH'
 import RemoteBVHCharacters from '../character/noPhysicsCharacter/extra/remoteBVHCharacter'
 import { useEffect } from 'react'
-export default function World1({ onTeleport, setEmoji }: {
-    physicsSettings: any,
+export default function World1({ onTeleport }: {
+    // physicsSettings: any,
+    // setEmoji: (emoji: string) => void,
     onTeleport: (worldId: string, targetPos?: [number, number, number]) => void
 }) {
     const playerPosition = useCharacterStore((s) => s.position)
@@ -92,7 +93,8 @@ export default function World1({ onTeleport, setEmoji }: {
                 onTeleport={onTeleport}
             />
             <Model position={[3, 0, 5]} />
-            <KShop setEmoji={setEmoji} />
+            {/* <KShop setEmoji={setEmoji} /> */}
+            <KShop />
             <Sky />
             <fog attach="fog" args={['lightblue', 15, 200]} />
         </>

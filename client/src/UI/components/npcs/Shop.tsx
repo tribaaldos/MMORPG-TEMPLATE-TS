@@ -6,12 +6,15 @@ import { useShopStore } from '../../../store/npcs/useShop'
 import { useCharacterStore } from '../../../store/useCharacterStore'
 import { getBuyPrice, getSellPrice } from './Pricing'
 import { currencyToString, currencyToStringFull } from './Currency'
+import { socket } from '../../../socket/SocketManager'
 
 export default function ShopPanel() {
     const { isOpen, vendorName, items, closeShop } = useShopStore()
+    const playerId = socket.id ?? 'local-player'
+    const getInventory = useInventoryStore(s => s.getInventory)
     const addItem = useInventoryStore(s => s.addItem)
     const removeItem = useInventoryStore(s => s.removeItem)
-    const inventory = useInventoryStore(s => s.inventory)
+    const inventory = getInventory(playerId)
 
     const gold = useCharacterStore(s => s.gold)
     const addGold = useCharacterStore(s => s.addGold)
@@ -66,7 +69,7 @@ export default function ShopPanel() {
                                         disabled={!can}
                                         onClick={() => {
                                             if (!spendGold(price)) return
-                                            addItem(it as any)
+                                            addItem(playerId, it as any)
                                         }}
                                     >
                                         Buy
@@ -80,35 +83,41 @@ export default function ShopPanel() {
 
             {tab === 'sell' && (
                 <div style={list}>
-                    {inventory.map((it, idx) => {
-                        if (!it) return null
-                        const price = getSellPrice(it as any)
-                        return (
-                            <div key={idx} style={row}>
-                                <div style={left}>
-                                    {renderItemIcon(it as any, 32)}
-                                    <div>
-                                        <div className={`shop-name ${it.rarity || 'common'}`}>{it.name}</div>
-                                        <div style={subStats}>
-                                            {it.attack && <>⚔ {it.attack} </>}
-                                            {it.defense && <>· 🛡 {it.defense}</>}
+                    {!inventory || inventory.length === 0 ? (
+                        <div style={{ padding: '20px', textAlign: 'center', color: '#999' }}>
+                            No items to sell
+                        </div>
+                    ) : (
+                        inventory.map((it, idx) => {
+                            if (!it) return null
+                            const price = getSellPrice(it as any)
+                            return (
+                                <div key={idx} style={row}>
+                                    <div style={left}>
+                                        {renderItemIcon(it as any, 32)}
+                                        <div>
+                                            <div className={`shop-name ${it.rarity || 'common'}`}>{it.name}</div>
+                                            <div style={subStats}>
+                                                {it.attack && <>⚔ {it.attack} </>}
+                                                {it.defense && <>· 🛡 {it.defense}</>}
+                                            </div>
                                         </div>
                                     </div>
+                                    <div style={right}>
+                                        <span>{currencyToString(price)}</span>
+                                        <button
+                                            onClick={() => {
+                                                addGold(price)
+                                                removeItem(playerId, idx)
+                                            }}
+                                        >
+                                            Sell
+                                        </button>
+                                    </div>
                                 </div>
-                                <div style={right}>
-                                    <span>{currencyToString(price)}</span>
-                                    <button
-                                        onClick={() => {
-                                            addGold(price)
-                                            removeItem(idx)
-                                        }}
-                                    >
-                                        Sell
-                                    </button>
-                                </div>
-                            </div>
-                        )
-                    })}
+                            )
+                        })
+                    )}
                 </div>
             )}
         </div>

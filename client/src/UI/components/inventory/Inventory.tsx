@@ -81,7 +81,7 @@ const InventorySlot: React.FC<InventorySlotProps> = ({ item, index, onDrop, onRi
     <div ref={dropRef} className="inventory-slot" onContextMenu={handleRightClick}>
       {item ? (
         <div
-          ref={dragRef as React.Ref<HTMLDivElement>}
+          ref={dragRef as unknown as React.Ref<HTMLDivElement>}
           className="item-wrapper"
           style={{ opacity: isDragging ? 0.5 : 1 }}
         >

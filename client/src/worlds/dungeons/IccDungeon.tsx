@@ -19,8 +19,9 @@ import { ProjectileIce } from "../../character/skills/iceSkill/ProjectileIce"
 import { MeshStandardNodeMaterial } from "three/webgpu"
 import { color, mix } from "three/tsl"
 import FireWeapon from "../../items/weapons/FireWeapon"
-export default function IccDungeon({ onTeleport, setEmoji }: {
-    physicsSettings: any,
+export default function IccDungeon({ onTeleport }: {
+    // physicsSettings: any,
+    // setEmoji: (emoji: string) => void,
     onTeleport: (worldId: string, targetPos?: [number, number, number]) => void
 }) {
     const playerPosition = useCharacterStore((s) => s.position)
@@ -48,22 +49,22 @@ export default function IccDungeon({ onTeleport, setEmoji }: {
         )
     }
     function PlayGround(props: any) {
-        // const { scene } = useGLTF('/dungeons/Playground.glb');
-        const { scene, nodes, materials } = useGLTF('/dungeons/arena.glb');
+        const { scene } = useGLTF('/dungeons/Playground.glb');
+        // const { scene, nodes, materials } = useGLTF('/dungeons/arena.glb');
 
         return (
-            // <primitive object={scene} scale={50} position={[0, 5, 0]} />
-            <group {...props} dispose={null} scale={50} position={[0, 5, 0]}>
-                <mesh
-                    castShadow
-                    receiveShadow
-                    geometry={(nodes.material as THREE.Mesh).geometry}
-                    material={materials['Material.001']}
-                    rotation={[Math.PI / 2, 0, 0]}
-                >
-                    {/* <meshStandardMaterial color="gray" /> */}
-                </mesh>
-            </group>
+            <primitive object={scene} scale={1} position={[0, 0, 0]} />
+            // <group {...props} dispose={null} scale={50} position={[0, 5, 0]}>
+            //     <mesh
+            //         castShadow
+            //         receiveShadow
+            //         geometry={(nodes.material as THREE.Mesh).geometry}
+            //         material={materials['Material.001']}
+            //         rotation={[Math.PI / 2, 0, 0]}
+            //     >
+            //         {/* <meshStandardMaterial color="gray" /> */}
+            //     </mesh>
+            // </group>
         )
     }
     useEffect(() => {
