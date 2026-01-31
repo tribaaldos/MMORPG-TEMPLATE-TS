@@ -18,18 +18,32 @@ export default function MainUI() {
 
     return (
         <>
-        <div className="main-ui">
+        <div className="main-ui mmorpg-ui">
             {/* <ShowStats /> */}
             {/* <BotonPantallaCompleta /> */}
             {/* <PerfWidget /> */}
-            <CharacterTopLeftUi />
-            <ShopPanel />
-            <Popups />
-            <ExpBar />
-            <SkillsBar />
+            <div className="ui-region ui-top-left">
+                <CharacterTopLeftUi />
+            </div>
+            <div className="ui-region ui-top-right">
+                <ShopPanel />
+            </div>
+            <div className="ui-region ui-center">
+                <Popups />
+            </div>
+            <div className="ui-region ui-bottom-left">
+                <Chat />
+            </div>
+            <div className="ui-region ui-bottom-center">
+                <SkillsBar />
+            </div>
+            <div className="ui-region ui-bottom-right">
+                <MenuBar />
+            </div>
+            <div className="ui-region ui-bottom-bar">
+                <ExpBar />
+            </div>
             {/* <DiabloUI /> */}
-            <MenuBar />
-            <Chat />
         </div>
         </>
     );

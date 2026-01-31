@@ -96,7 +96,9 @@ export default function World1({ onTeleport }: {
             {/* <KShop setEmoji={setEmoji} /> */}
             <KShop />
             <Sky />
+            
             <fog attach="fog" args={['lightblue', 15, 200]} />
+           
         </>
     )
 }

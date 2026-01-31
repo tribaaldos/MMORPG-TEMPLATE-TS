@@ -103,7 +103,7 @@ export default function Experience() {
             {/* <EnvironmentSound /> */}
             {/* <Inventory /> */}
             {/* <EmojiCursor emoji={emoji} /> */}
-            <Leva collapsed hidden />
+            <Leva collapsed hidden={false} />
             <MobileFullscreenGuard />
             <MainUI />
             <SocketManager />

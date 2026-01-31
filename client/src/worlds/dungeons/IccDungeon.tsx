@@ -75,9 +75,9 @@ export default function IccDungeon({ onTeleport }: {
     return (
         <>
 
-            {/* <Wolf position={[2, 0, 0]} /> */}
-            {/* <WolfLocal /> */}
-            {/* <Dragon position={[0, 0, 0]} nameId="Nibsy" /> */}
+            <Wolf position={[2, 0, 0]} />
+            <WolfLocal />
+            <Dragon position={[0, 0, 0]} nameId="Nibsy" />
             <Dummy />
             <pointLight position={[18, -1, -7]} intensity={100} color="red" scale={20} />
             <StaticCollider>

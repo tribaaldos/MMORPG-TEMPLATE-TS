@@ -7,6 +7,7 @@ import { useCharacterStore } from '../../../store/useCharacterStore'
 import { getBuyPrice, getSellPrice } from './Pricing'
 import { currencyToString, currencyToStringFull } from './Currency'
 import { socket } from '../../../socket/SocketManager'
+import './Shop.css'
 
 export default function ShopPanel() {
     const { isOpen, vendorName, items, closeShop } = useShopStore()
@@ -25,45 +26,45 @@ export default function ShopPanel() {
     if (!isOpen) return null
 
     return (
-        <div style={panel}>
-            <div style={header}>
+        <div className="shop-panel">
+            <div className="shop-header">
                 <strong>{vendorName ?? 'Shop'}</strong>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                    <span title="Gold"> {currencyToStringFull(gold)}</span>
-                    <button onClick={closeShop} style={closeBtn}>×</button>
+                <div className="shop-header-right">
+                    <span className="shop-gold" title="Gold"> {currencyToStringFull(gold)}</span>
+                    <button onClick={closeShop} className="shop-close">×</button>
                 </div>
             </div>
 
-            <div style={tabs}>
+            <div className="shop-tabs">
                 <button
-                    style={{ ...tabBtn, ...(tab === 'buy' ? tabBtnActive : null) }}
+                    className={`shop-tab ${tab === 'buy' ? 'shop-tab-active' : ''}`}
                     onClick={() => setTab('buy')}
                 >Buy</button>
                 <button
-                    style={{ ...tabBtn, ...(tab === 'sell' ? tabBtnActive : null) }}
+                    className={`shop-tab ${tab === 'sell' ? 'shop-tab-active' : ''}`}
                     onClick={() => setTab('sell')}
                 >Sell</button>
             </div>
 
             {tab === 'buy' && (
 
-                <div style={list}>
+                <div className="shop-list">
                     {items.map((it) => {
                         const price = getBuyPrice(it as any)
                         const can = gold >= price
                         return (
-                            <div key={(it as any).id} style={row}>
-                                <div style={left}>
+                            <div key={(it as any).id} className="shop-row">
+                                <div className="shop-left">
                                     {renderItemIcon(it as any, 32)}
                                     <div>
                                         <div className={`shop-name ${it.rarity || 'common'}`}>{it.name}</div>
-                                        <div style={subStats}>
+                                        <div className="shop-substats">
                                             {it.attack && <>⚔ {it.attack} </>}
                                             {it.defense && <>· 🛡 {it.defense}</>}
                                         </div>
                                     </div>
                                 </div>
-                                <div style={right}>
+                                <div className="shop-right">
                                     <span>{currencyToString(price)}</span>
                                     <button
                                         disabled={!can}
@@ -82,9 +83,9 @@ export default function ShopPanel() {
             )}
 
             {tab === 'sell' && (
-                <div style={list}>
+                <div className="shop-list">
                     {!inventory || inventory.length === 0 ? (
-                        <div style={{ padding: '20px', textAlign: 'center', color: '#999' }}>
+                        <div className="shop-empty">
                             No items to sell
                         </div>
                     ) : (
@@ -92,18 +93,18 @@ export default function ShopPanel() {
                             if (!it) return null
                             const price = getSellPrice(it as any)
                             return (
-                                <div key={idx} style={row}>
-                                    <div style={left}>
+                                <div key={idx} className="shop-row">
+                                    <div className="shop-left">
                                         {renderItemIcon(it as any, 32)}
                                         <div>
                                             <div className={`shop-name ${it.rarity || 'common'}`}>{it.name}</div>
-                                            <div style={subStats}>
+                                            <div className="shop-substats">
                                                 {it.attack && <>⚔ {it.attack} </>}
                                                 {it.defense && <>· 🛡 {it.defense}</>}
                                             </div>
                                         </div>
                                     </div>
-                                    <div style={right}>
+                                    <div className="shop-right">
                                         <span>{currencyToString(price)}</span>
                                         <button
                                             onClick={() => {
@@ -123,29 +124,3 @@ export default function ShopPanel() {
         </div>
     )
 }
-
-const panel: React.CSSProperties = { position: 'fixed', right: 564, bottom: 544, width: 360, background: 'rgba(18,18,28,0.96)', border: '1px solid #3a3a4a', borderRadius: 10, color: '#eee', padding: 12, zIndex: 1000, boxShadow: '0 10px 24px rgba(0,0,0,0.35)', backdropFilter: 'blur(4px)' }
-const header: React.CSSProperties = { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }
-const closeBtn: React.CSSProperties = { background: 'transparent', color: '#aaa', border: 'none', fontSize: 20, cursor: 'pointer' }
-const tabs: React.CSSProperties = { display: 'flex', gap: 6, margin: '6px 0 10px' }
-const tabBtn: React.CSSProperties = {
-    flex: 1,
-    padding: '6px 8px',
-    background: 'rgba(255,255,255,0.06)',
-    color: '#eee',
-    borderWidth: 1,          // 👈 longhand
-    borderStyle: 'solid',    // 👈 longhand
-    borderColor: '#3a3a4a',  // 👈 longhand
-    borderRadius: 6,
-    cursor: 'pointer',
-}
-const tabBtnActive: React.CSSProperties = {
-    background: '#00e5ff',
-    color: '#071018',
-    borderColor: '#00e5ff',  // 👈 cambiamos solo color, sin shorthand
-}
-const list: React.CSSProperties = { display: 'grid', gap: 8, maxHeight: 320, overflowY: 'auto' }
-const row: React.CSSProperties = { display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '6px 8px', background: 'rgba(255,255,255,0.04)', borderRadius: 8 }
-const left: React.CSSProperties = { display: 'flex', alignItems: 'center', gap: 10 }
-const right: React.CSSProperties = { display: 'flex', alignItems: 'center', gap: 8 }
-const subStats: React.CSSProperties = { fontSize: 12, opacity: .85 }
