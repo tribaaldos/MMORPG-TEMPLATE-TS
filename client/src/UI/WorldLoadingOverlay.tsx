@@ -62,23 +62,7 @@ export default function WorldLoadingOverlay({ forceVisible }: Props) {
         background: 'radial-gradient(circle at top, #2a1a08 0%, #0e0a05 100%)',
       }}
     >
-      {/* Marco dorado WoW */}
-      <div
-        style={{
-          position: 'absolute',
-          top: 0,
-          left: 0,
-          width: '100vw',
-          height: '100dvh',
-          minHeight: '100dvh',
-          border: '24px solid #bfa25a',
-          boxSizing: 'border-box',
-          borderImage: 'linear-gradient(90deg, #e6c77a 0%, #bfa25a 100%) 1',
-          borderRadius: 32,
-          pointerEvents: 'none',
-          zIndex: 1,
-        }}
-      />
+
       {/* Imagen de fondo */}
       <img
         src={MMO_LOADING_IMAGE}

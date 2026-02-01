@@ -4,6 +4,7 @@ import { is } from "@react-three/fiber/dist/declarations/src/core/utils";
 import { usePopup } from "react-hook-popup";
 import './MenuBar.css'
 import Inventory from "../components/inventory/Inventory";
+import { useAbilityStore } from "../../character/skills/useAbilityStore";
 
 export default function MenuBar() {
     const [showCharacter, hideCharacter] = usePopup('character', () => <UICharacter />);
@@ -11,6 +12,7 @@ export default function MenuBar() {
 
     const [isCharacterOpen, setIsCharacterOpen] = useState(false);
     const [isInventoryOpen, setIsInventoryOpen] = useState(false);
+    const toggleSkillsOpen = useAbilityStore((s) => s.toggleSkillsOpen);
 
     const toggleCharacterPopup = () => {
         if (isCharacterOpen) {
@@ -41,7 +43,7 @@ export default function MenuBar() {
                     <button onClick={toggleCharacterPopup}>
                         <img className="imagen" src="/imagesUI/character.png" />
                     </button>
-                    <button onClick={toggleCharacterPopup}>
+                    <button onClick={toggleSkillsOpen}>
                         <img className="imagen" src="/imagesUI/skills.png" />
                     </button>
 

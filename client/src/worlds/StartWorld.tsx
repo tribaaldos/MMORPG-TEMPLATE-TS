@@ -83,6 +83,8 @@ export default function World1({ onTeleport }: {
                 color="gray"
                 target={[5, 2, 0]}
                 onTeleport={onTeleport}
+                label={"Dragon Dungeon"}
+                labelOffset={[ 10, 2, 0]}
             />
             <TeleportZone
                 position={[15, 0, 0]}
@@ -91,6 +93,8 @@ export default function World1({ onTeleport }: {
                 color="blue"
                 target={[0, 2, 0]}
                 onTeleport={onTeleport}
+                label={"ICC Dungeon"}   
+                labelOffset={[ 15, 2, 0]}
             />
             <TeleportZone
                 position={[4, 0, 0]}
@@ -99,6 +103,8 @@ export default function World1({ onTeleport }: {
                 color="blue"
                 target={[0, 2, 0]}
                 onTeleport={onTeleport}
+                label={"Shader Visualizer"} 
+                labelOffset={[ 4, 2, 0]}
             />
 
             <Model position={[3, 0, 5]} />

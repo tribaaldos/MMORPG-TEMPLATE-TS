@@ -1,0 +1,61 @@
+.minimap {
+	position: relative;
+	border-radius: 50%;
+	overflow: hidden;
+	background: radial-gradient(circle at 30% 20%, rgba(80, 60, 40, 0.55), rgba(20, 14, 8, 0.95));
+	border: 2px solid rgba(255, 210, 140, 0.45);
+	box-shadow: 0 12px 24px rgba(0, 0, 0, 0.55), inset 0 0 20px rgba(0, 0, 0, 0.5);
+}
+
+.minimap::after {
+	content: '';
+	position: absolute;
+	inset: 6px;
+	border-radius: 50%;
+	border: 1px solid rgba(255, 214, 153, 0.2);
+	pointer-events: none;
+}
+
+.minimap-surface {
+	position: absolute;
+	inset: 0;
+	background-image:
+		linear-gradient(0deg, rgba(255, 220, 160, 0.12) 1px, transparent 1px),
+		linear-gradient(90deg, rgba(255, 220, 160, 0.12) 1px, transparent 1px),
+		radial-gradient(circle at center, rgba(80, 120, 90, 0.25), rgba(10, 12, 8, 0.9));
+	background-size: 24px 24px, 24px 24px, cover;
+	filter: saturate(1.1);
+}
+
+.minimap-center {
+	position: absolute;
+	inset: 0;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.minimap-player {
+	width: 0;
+	height: 0;
+	border-left: 6px solid transparent;
+	border-right: 6px solid transparent;
+	border-bottom: 24px solid #ffdf9c;
+	filter: drop-shadow(0 0 6px rgba(255, 223, 156, 0.6));
+}
+
+.minimap-compass {
+	position: absolute;
+	top: 8px;
+	left: 50%;
+	transform: translateX(-50%);
+	font-family: 'Cinzel', 'Trajan Pro', 'Georgia', serif;
+	font-size: 0.8rem;
+	font-weight: 700;
+	color: #ffe5ba;
+	text-shadow: 0 2px 6px rgba(0, 0, 0, 0.6);
+	background: rgba(20, 14, 8, 0.65);
+	padding: 2px 8px;
+	border-radius: 999px;
+	border: 1px solid rgba(255, 214, 153, 0.35);
+}

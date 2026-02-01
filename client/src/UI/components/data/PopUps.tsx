@@ -8,6 +8,7 @@ import Shop from '../../../components/npc/Shop';
 import '../../MainUI.css';
 import TargetPopup from '../monsters/TargetPopUp';
 import { useTargetStore } from '../../../store/useTargetStore';
+import { useAbilityStore } from '../../../character/skills/useAbilityStore';
 
 export default function Popups() {
     const [showCharacter, hideCharacter] = usePopup('character', () => <UICharacter />);
@@ -19,6 +20,7 @@ export default function Popups() {
     const [isInventoryOpen, setIsInventoryOpen] = useState(false);
     const [isShopOpen, setIsShopOpen] = useState(false);
     const [isTargetOpen, setIsTargetOpen] = useState(false);
+    const toggleSkillsOpen = useAbilityStore((s) => s.toggleSkillsOpen);
     const selectedTarget = useTargetStore((s) => s.selectedTarget);
 
     // Alterna la apertura/cierre del popup de DiabloUI
@@ -83,18 +85,23 @@ export default function Popups() {
     // Escucha la tecla 'c' para alternar el popup
     useEffect(() => {
         const handleKeyDown = (e: KeyboardEvent) => {
-            if (e.key.toLowerCase() === 'c') toggleCharacterPopup();
-            if (e.key.toLowerCase() === 'b') toggleInventoryPopup();
-            // if (e.key.toLowerCase() === 'k') toggleShopPopup();
+            if (e.repeat) return
+            if (e.code === 'KeyC') toggleCharacterPopup()
+            if (e.code === 'KeyB') toggleInventoryPopup()
+            if (e.code === 'KeyK') {
+                e.preventDefault()
+                toggleSkillsOpen()
+            }
+            // if (e.code === 'KeyK') toggleShopPopup();
             if (e.key === 'Escape') {
                 const { setSelectedTarget } = useTargetStore.getState()
                 setSelectedTarget(null)
             }
 
         };
-        window.addEventListener('keydown', handleKeyDown);
-        return () => window.removeEventListener('keydown', handleKeyDown);
-    }, [isCharacterOpen, isInventoryOpen]);
+        window.addEventListener('keydown', handleKeyDown, true);
+        return () => window.removeEventListener('keydown', handleKeyDown, true);
+    }, [isCharacterOpen, isInventoryOpen, toggleSkillsOpen]);
     return null
     // (
     //     <div className="popups">

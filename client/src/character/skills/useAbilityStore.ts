@@ -201,10 +201,52 @@ export const abilities: Record<string, Ability> = {
 
 };
 
+export type AbilityId = keyof typeof abilities
+
+export const abilityMeta: Record<AbilityId, { name: string; icon?: string; description?: string }> = {
+    actionAbility: {
+        name: 'Ataque',
+        icon: '/skills/sword.svg',
+        description: 'Ataque básico',
+    },
+    superJump: {
+        name: 'Super Salto',
+        icon: '/skills/dash.svg',
+        description: 'Doble salto y smash',
+    },
+    iceBall: {
+        name: 'Bola de Hielo',
+        icon: '/skills/heal.svg',
+        description: 'Proyectil de hielo',
+    },
+    fireBolt: {
+        name: 'Bola de Fuego',
+        icon: '/skills/sword.svg',
+        description: 'Proyectil de fuego',
+    },
+    dash: {
+        name: 'Dash',
+        icon: '/skills/dash.svg',
+        description: 'Desplazamiento rápido',
+    },
+};
+
+export const abilityList: AbilityId[] = [
+    'actionAbility',
+    'superJump',
+    'dash',
+    'iceBall',
+    'fireBolt',
+];
+
 interface AbilityStore {
-    slots: Record<string, keyof typeof abilities | null>;
-    setAbility: (key: string, ability: keyof typeof abilities | null) => void;
+    slots: Record<string, AbilityId | null>;
+    setAbility: (key: string, ability: AbilityId | null) => void;
     triggerAbility: (key: string, ctx: AbilityContext) => void;
+
+    isSkillsOpen: boolean;
+    setSkillsOpen: (open: boolean) => void;
+    toggleSkillsOpen: () => void;
 
     // new 
     currentAbilityAnim: string | null;
@@ -229,6 +271,10 @@ export const useAbilityStore = create<AbilityStore>((set, get) => ({
         const ability = abilities[abilityName];
         if (ability) ability(ctx);
     },
+
+    isSkillsOpen: false,
+    setSkillsOpen: (open) => set({ isSkillsOpen: open }),
+    toggleSkillsOpen: () => set((s) => ({ isSkillsOpen: !s.isSkillsOpen })),
 
     // new 
     currentAbilityAnim: null as string | null,

@@ -51,6 +51,7 @@
 .ui-top-right {
     top: var(--ui-gap);
     right: var(--ui-gap);
+    flex-direction: column;
     align-items: flex-start;
     justify-content: flex-end;
 }

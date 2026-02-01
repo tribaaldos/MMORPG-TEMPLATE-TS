@@ -3,6 +3,7 @@ import { useGLTF, useAnimations } from '@react-three/drei'
 import { useFrame } from '@react-three/fiber'
 import * as THREE from 'three'
 import { useCharacterStore } from '../../store/useCharacterStore'
+import NameTag from '../../character/NameTag'
 
 interface TeleportZoneProps {
     position?: [number, number, number]
@@ -12,6 +13,9 @@ interface TeleportZoneProps {
     autoRotate?: boolean
     onTeleport?: (worldId: string, targetPos?: [number, number, number]) => void
     color?: string
+    label?: string
+    labelOffset?: [number, number, number]
+    labelScale?: number
 }
 function CircleShader({
     color = 'blue',
@@ -32,6 +36,9 @@ export default function TeleportZone({
     autoRotate = true,
     color = 'blue',
     onTeleport = () => { },
+    label,
+    labelOffset = [0, 2.6, 0],
+    labelScale = 0.7,
 }: TeleportZoneProps) {
     const { nodes, animations } = useGLTF('/environment/portal.glb')
 
@@ -58,8 +65,17 @@ export default function TeleportZone({
 
 
 
+    const displayLabel = label ?? targetWorld
+
     return (
         <group ref={group} position={position} dispose={null} >
+            {displayLabel && (
+                <NameTag
+                    text={displayLabel}
+                    position={labelOffset}
+                    scale={labelScale}
+                />
+            )}
             <group name="Sketchfab_Scene">
                 <CircleShader color={color} />
                 {/* <pointLight castShadow receiveShadow position={[1, 3, 0]} intensity={10} color="red" /> */}

@@ -128,6 +128,8 @@ export default function Experience() {
         return () => { cancelled = true; };
     }, []);
 
+    const [ isDebug, setIsDebug ] = useState<boolean>(true);
+
     return (
         <>
             {/* <div style={{ position: 'absolute', left: 2000, top: 50, zIndex: 1000 }}>
@@ -136,9 +138,9 @@ export default function Experience() {
             {/* <EnvironmentSound /> */}
             {/* <Inventory /> */}
             {/* <EmojiCursor emoji={emoji} /> */}
-            <Leva collapsed hidden={false} />
+            <Leva collapsed hidden={isDebug ? false : true} />
             <MobileFullscreenGuard />
-            <MainUI />
+            <MainUI isDebug={isDebug} />
             <SocketManager />
             <WorldLoadingOverlay forceVisible={loadingWorld} />
             {webgpuReady === false && (
@@ -189,7 +191,7 @@ export default function Experience() {
                             // @ts-ignore
                             const renderer = new WebGPURenderer({
                                 ...props,
-                                powerPreference: 'high-performance',
+                                powerPreference: 'low-power',
                                 antialias: true,
                                 alpha: false,
                                 stencil: false,
@@ -200,7 +202,7 @@ export default function Experience() {
                         }}
                         onPointerMissed={() => useTargetStore.getState().setSelectedTarget(null)}
                     >
-                        <PostProcessing />
+                        {/* <PostProcessing /> */}
                         {/* <FireBallProjectile /> */}
                         {/* <IceProjectile /> */}
                         <ProjectilesLayer />
