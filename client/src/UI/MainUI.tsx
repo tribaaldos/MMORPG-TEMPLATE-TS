@@ -19,9 +19,9 @@ export default function MainUI() {
     return (
         <>
         <div className="main-ui mmorpg-ui">
-            {/* <ShowStats /> */}
+            <ShowStats />
             {/* <BotonPantallaCompleta /> */}
-            {/* <PerfWidget /> */}
+            <PerfWidget />
             <div className="ui-region ui-top-left">
                 <CharacterTopLeftUi />
             </div>

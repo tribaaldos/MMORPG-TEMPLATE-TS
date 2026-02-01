@@ -1,129 +1,129 @@
-import { useEffect, useMemo, useRef } from 'react';
-import { useGLTF, useAnimations } from '@react-three/drei';
-import { SkeletonUtils } from 'three-stdlib';
-import * as THREE from 'three';
-import { useFrame, useThree } from '@react-three/fiber';
-import { SkinnedMesh, Bone } from 'three';
-import { useInventoryStore } from '../store/useInventoryStore';
+// import { useEffect, useMemo, useRef } from 'react';
+// import { useGLTF, useAnimations } from '@react-three/drei';
+// import { SkeletonUtils } from 'three-stdlib';
+// import * as THREE from 'three';
+// import { useFrame, useThree } from '@react-three/fiber';
+// import { SkinnedMesh, Bone } from 'three';
+// import { useInventoryStore } from '../store/useInventoryStore';
 
-type Props = {
-  animation: string;
-  name: string;
-};
+// type Props = {
+//   animation: string;
+//   name: string;
+// };
 
-export default function BasicCharacter({ animation, name }: Props) {
-  const avatarRef = useRef<THREE.Group>(null!);
-  const groupRef = useRef<THREE.Group>(null!);
-  const { scene, animations } = useGLTF('/BasicCharacter3.glb');
-  const clonedScene = useMemo(() => SkeletonUtils.clone(scene), [scene]);
-  const { actions } = useAnimations(animations, avatarRef);
+// export default function BasicCharacter({ animation, name }: Props) {
+//   const avatarRef = useRef<THREE.Group>(null!);
+//   const groupRef = useRef<THREE.Group>(null!);
+//   const { scene, animations } = useGLTF('/BasicCharacter3.glb');
+//   const clonedScene = useMemo(() => SkeletonUtils.clone(scene), [scene]);
+//   const { actions } = useAnimations(animations, avatarRef);
 
-  const equipment = useInventoryStore((s) => s.equipment);
+//   const equipment = useInventoryStore((s) => s.equipment);
 
-  const rightHandBoneRef = useRef<Bone | null>(null);
-  const headBoneRef = useRef<Bone | null>(null);
+//   const rightHandBoneRef = useRef<Bone | null>(null);
+//   const headBoneRef = useRef<Bone | null>(null);
 
-  const helmetRef = useRef<THREE.Group>(null!);
-  const weaponRef = useRef<THREE.Group>(null!);
+//   const helmetRef = useRef<THREE.Group>(null!);
+//   const weaponRef = useRef<THREE.Group>(null!);
 
-  const tempPos = useMemo(() => new THREE.Vector3(), []);
-  const tempQuat = useMemo(() => new THREE.Quaternion(), []);
-  const parentPos = useMemo(() => new THREE.Vector3(), []);
-  const parentQuat = useMemo(() => new THREE.Quaternion(), []);
+//   const tempPos = useMemo(() => new THREE.Vector3(), []);
+//   const tempQuat = useMemo(() => new THREE.Quaternion(), []);
+//   const parentPos = useMemo(() => new THREE.Vector3(), []);
+//   const parentQuat = useMemo(() => new THREE.Quaternion(), []);
 
-  // --- Animación ---
-  useEffect(() => {
-    if (!actions[animation]) return;
-    actions[animation].reset().fadeIn(0.25).play();
-    return () => actions[animation]?.fadeOut(0.25);
-  }, [animation, actions]);
+//   // --- Animación ---
+//   useEffect(() => {
+//     if (!actions[animation]) return;
+//     actions[animation].reset().fadeIn(0.25).play();
+//     return () => actions[animation]?.fadeOut(0.25);
+//   }, [animation, actions]);
 
-  // --- Buscar huesos ---
-  useEffect(() => {
-    clonedScene.traverse((child) => {
-      if ((child as SkinnedMesh).isSkinnedMesh) {
-        const skinned = child as SkinnedMesh;
-        const handBone = skinned.skeleton.bones.find((b) => b.name === 'mixamorigRightHand');
-        const headBone = skinned.skeleton.bones.find((b) => b.name === 'mixamorigHead');
-        if (handBone) rightHandBoneRef.current = handBone;
-        if (headBone) headBoneRef.current = headBone;
-      }
-    });
-  }, [clonedScene]);
+//   // --- Buscar huesos ---
+//   useEffect(() => {
+//     clonedScene.traverse((child) => {
+//       if ((child as SkinnedMesh).isSkinnedMesh) {
+//         const skinned = child as SkinnedMesh;
+//         const handBone = skinned.skeleton.bones.find((b) => b.name === 'mixamorigRightHand');
+//         const headBone = skinned.skeleton.bones.find((b) => b.name === 'mixamorigHead');
+//         if (handBone) rightHandBoneRef.current = handBone;
+//         if (headBone) headBoneRef.current = headBone;
+//       }
+//     });
+//   }, [clonedScene]);
 
-  // --- Seguir huesos cada frame ---
-  useFrame(() => {
-    if (!groupRef.current) return;
+//   // --- Seguir huesos cada frame ---
+//   useFrame(() => {
+//     if (!groupRef.current) return;
 
-    // Weapon → mano derecha
-    if (rightHandBoneRef.current && equipment.weapon?.Model && weaponRef.current) {
-      rightHandBoneRef.current.getWorldPosition(tempPos);
-      rightHandBoneRef.current.getWorldQuaternion(tempQuat);
-      groupRef.current.getWorldPosition(parentPos);
-      groupRef.current.getWorldQuaternion(parentQuat);
+//     // Weapon → mano derecha
+//     if (rightHandBoneRef.current && equipment.weapon?.Model && weaponRef.current) {
+//       rightHandBoneRef.current.getWorldPosition(tempPos);
+//       rightHandBoneRef.current.getWorldQuaternion(tempQuat);
+//       groupRef.current.getWorldPosition(parentPos);
+//       groupRef.current.getWorldQuaternion(parentQuat);
 
-      weaponRef.current.position.copy(tempPos).sub(parentPos).applyQuaternion(parentQuat.clone().invert());
-      weaponRef.current.quaternion.copy(tempQuat).premultiply(parentQuat.clone().invert());
-    }
+//       weaponRef.current.position.copy(tempPos).sub(parentPos).applyQuaternion(parentQuat.clone().invert());
+//       weaponRef.current.quaternion.copy(tempQuat).premultiply(parentQuat.clone().invert());
+//     }
 
-    // Helmet → cabeza
-    if (headBoneRef.current && equipment.helmet?.Model && helmetRef.current) {
-      headBoneRef.current.getWorldPosition(tempPos);
-      headBoneRef.current.getWorldQuaternion(tempQuat);
-      groupRef.current.getWorldPosition(parentPos);
-      groupRef.current.getWorldQuaternion(parentQuat);
+//     // Helmet → cabeza
+//     if (headBoneRef.current && equipment.helmet?.Model && helmetRef.current) {
+//       headBoneRef.current.getWorldPosition(tempPos);
+//       headBoneRef.current.getWorldQuaternion(tempQuat);
+//       groupRef.current.getWorldPosition(parentPos);
+//       groupRef.current.getWorldQuaternion(parentQuat);
 
-      helmetRef.current.position.copy(tempPos).sub(parentPos).applyQuaternion(parentQuat.clone().invert());
-      helmetRef.current.quaternion.copy(tempQuat).premultiply(parentQuat.clone().invert());
-    }
-  });
+//       helmetRef.current.position.copy(tempPos).sub(parentPos).applyQuaternion(parentQuat.clone().invert());
+//       helmetRef.current.quaternion.copy(tempQuat).premultiply(parentQuat.clone().invert());
+//     }
+//   });
 
-  // --- NameTag ---
-  function NameTag({ text }: { text: string }) {
-    const { camera } = useThree();
-    const meshRef = useRef<THREE.Mesh>(null!);
+//   // --- NameTag ---
+//   function NameTag({ text }: { text: string }) {
+//     const { camera } = useThree();
+//     const meshRef = useRef<THREE.Mesh>(null!);
 
-    const canvas = useMemo(() => {
-      const c = document.createElement('canvas');
-      const ctx = c.getContext('2d')!;
-      c.width = 256;
-      c.height = 64;
-      ctx.fillStyle = 'transparent';
-      ctx.fillRect(0, 0, c.width, c.height);
-      ctx.fillStyle = 'white';
-      ctx.font = '24px sans-serif';
-      ctx.textAlign = 'center';
-      ctx.fillText(text, c.width / 2, 40);
-      return c;
-    }, [text]);
+//     const canvas = useMemo(() => {
+//       const c = document.createElement('canvas');
+//       const ctx = c.getContext('2d')!;
+//       c.width = 256;
+//       c.height = 64;
+//       ctx.fillStyle = 'transparent';
+//       ctx.fillRect(0, 0, c.width, c.height);
+//       ctx.fillStyle = 'white';
+//       ctx.font = '24px sans-serif';
+//       ctx.textAlign = 'center';
+//       ctx.fillText(text, c.width / 2, 40);
+//       return c;
+//     }, [text]);
 
-    const texture = useMemo(() => new THREE.CanvasTexture(canvas), [canvas]);
+//     const texture = useMemo(() => new THREE.CanvasTexture(canvas), [canvas]);
 
-    useFrame(() => {
-      if (meshRef.current) meshRef.current.lookAt(camera.position);
-    });
+//     useFrame(() => {
+//       if (meshRef.current) meshRef.current.lookAt(camera.position);
+//     });
 
-    return (
-      <mesh position={[0, 2.2, 0]} ref={meshRef}>
-        <planeGeometry args={[1.5, 0.4]} />
-        <meshBasicMaterial map={texture} transparent />
-      </mesh>
-    );
-  }
+//     return (
+//       <mesh position={[0, 2.2, 0]} ref={meshRef}>
+//         <planeGeometry args={[1.5, 0.4]} />
+//         <meshBasicMaterial map={texture} transparent />
+//       </mesh>
+//     );
+//   }
 
-  return (
-    <group ref={groupRef}>
-      <pointLight position={[0, 2, 0]} intensity={10} castShadow />
-      <NameTag text={name} />
+//   return (
+//     <group ref={groupRef}>
+//       <pointLight position={[0, 2, 0]} intensity={10} castShadow />
+//       <NameTag text={name} />
 
-      {/* Personaje animado */}
-      <primitive object={clonedScene} ref={avatarRef} />
+//       {/* Personaje animado */}
+//       <primitive object={clonedScene} ref={avatarRef} />
 
-      {/* Weapon y Helmet usando el Inventario */}
-      {equipment.weapon?.Model && <equipment.weapon.Model ref={weaponRef} />}
-      {equipment.helmet?.Model && <equipment.helmet.Model ref={helmetRef} />}
-    </group>
-  );
-}
+//       {/* Weapon y Helmet usando el Inventario */}
+//       {equipment.weapon?.Model && <equipment.weapon.Model ref={weaponRef} />}
+//       {equipment.helmet?.Model && <equipment.helmet.Model ref={helmetRef} />}
+//     </group>
+//   );
+// }
 
-useGLTF.preload('/BasicCharacter3.glb');
+// useGLTF.preload('/BasicCharacter3.glb');

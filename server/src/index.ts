@@ -25,6 +25,16 @@ type EquipmentSlot =
 type ItemKey = string | null;
 const equipmentByPlayer: Record<string, Partial<Record<EquipmentSlot, ItemKey>>> = {};
 
+type ChatMessage = {
+    id: string;
+    name: string;
+    message: string;
+    t: number;
+};
+
+const chatHistory: ChatMessage[] = [];
+const CHAT_LIMIT = 50;
+
 
 io.listen(5174);
 
@@ -33,6 +43,9 @@ io.on('connection', (socket) => {
 
     // ✅ Enviar nombres de jugadores ya conectados
     socket.emit('existingPlayers', playerNames);
+
+    // ✅ Enviar historial de chat
+    socket.emit('chatHistory', chatHistory);
 
 
 
@@ -74,6 +87,27 @@ io.on('connection', (socket) => {
         socket.broadcast.emit('projectileSpawn', payload);
     }
     );
+
+    // 💬 Chat
+    socket.on('chatMessage', (msg: ChatMessage) => {
+        if (!msg || typeof msg.message !== 'string') return;
+        const safeMessage = msg.message.trim().slice(0, 280);
+        if (!safeMessage) return;
+
+        const safeName = typeof msg.name === 'string' ? msg.name.slice(0, 24) : 'Player';
+
+        const payload: ChatMessage = {
+            id: msg.id || socket.id,
+            name: safeName,
+            message: safeMessage,
+            t: typeof msg.t === 'number' ? msg.t : Date.now(),
+        };
+
+        chatHistory.push(payload);
+        if (chatHistory.length > CHAT_LIMIT) chatHistory.shift();
+
+        io.emit('chatMessage', payload);
+    });
 
     // 📡 Posición del jugador
     socket.on('updatePosition', (data) => {

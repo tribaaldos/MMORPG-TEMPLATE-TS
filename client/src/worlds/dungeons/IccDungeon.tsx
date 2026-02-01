@@ -92,7 +92,7 @@ export default function IccDungeon({ onTeleport }: {
                 radius={2}
                 targetWorld="world1"
                 color="black"
-                target={[100, 100, 0]} // posición en world2
+                target={[5, 2, 0]}
                 onTeleport={onTeleport}
             />
 

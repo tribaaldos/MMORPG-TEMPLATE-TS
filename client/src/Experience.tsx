@@ -6,7 +6,7 @@ import MainUI from './UI/MainUI'
 import { KeyboardControls, Loader, useGLTF } from '@react-three/drei'
 import { folder, Leva, useControls } from 'leva'
 import { useCharacterStore } from './store/useCharacterStore'
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, Suspense } from 'react'
 import World1 from './worlds/StartWorld'
 import { SocketManager } from './socket/SocketManager'
 import IccDungeon from './worlds/dungeons/IccDungeon'
@@ -21,7 +21,8 @@ import ProjectilesLayer from './character/skills/ProjectileSkill'
 import { PostProcessing } from './VFXEngine/Effects'
 import MobileFullscreenGuard from './UI/OrientationLock'
 import WorldShaderVisualizer from './worlds/WorldShaderVisualizer'
-import { WebGLRenderer } from 'three'
+import { WebGPURenderer } from 'three/webgpu'
+import WorldLoadingOverlay from './UI/WorldLoadingOverlay'
 
 export default function Experience() {
 
@@ -42,26 +43,40 @@ export default function Experience() {
     })
     const [currentWorld, setCurrentWorld] = useState<any>('world1');
     const [playerTargetPos, setPlayerTargetPos] = useState<[number, number, number] | null>(null)
+    const [loadingWorld, setLoadingWorld] = useState(false);
+    const allowedWorlds = useRef(new Set(['world1', 'dungeon', 'dragonDungeon', 'Shadervisualizer']));
 
     // Función que se pasa al TeleportZone
     const handleTeleport = (worldId: any, targetPos?: [number, number, number]) => {
-        setCurrentWorld(worldId)
-        useCharacterStore.getState().setWorld(worldId);
-        if (targetPos) setPlayerTargetPos(targetPos)
+        if (!allowedWorlds.current.has(worldId)) return;
+        setLoadingWorld(true);
+        setTimeout(() => {
+            setCurrentWorld(worldId);
+            useCharacterStore.getState().setWorld(worldId);
+            if (targetPos) {
+                const [x, y, z] = targetPos;
+                setPlayerTargetPos([x, Math.max(y, 2), z]);
+            }
+            setLoadingWorld(false);
+        }, 100); // Small delay to trigger loader
     }
 
     // controls leva to change world 
 
     // Actualiza la posición del jugador cuando cambia de mundo
     useEffect(() => {
-        if (playerTargetPos) {
+        if (!playerTargetPos) return;
+        const t = window.setTimeout(() => {
             setPlayerPosition(playerTargetPos)
             setPlayerTargetPos(null)
-        }
+        }, 100);
+        return () => window.clearTimeout(t);
     }, [playerTargetPos, setPlayerPosition])
 
 
     const [frameloop, setFrameloop] = useState("never");
+    const [webgpuReady, setWebgpuReady] = useState<boolean | null>(null);
+
 
     extend({
         MeshBasicNodeMaterial: THREE.MeshBasicNodeMaterial,
@@ -95,6 +110,24 @@ export default function Experience() {
     }
 
 
+    useEffect(() => {
+        let cancelled = false;
+        const checkWebGPU = async () => {
+            if (!navigator.gpu) {
+                if (!cancelled) setWebgpuReady(false);
+                return;
+            }
+            try {
+                const adapter = await navigator.gpu.requestAdapter();
+                if (!cancelled) setWebgpuReady(!!adapter);
+            } catch (err) {
+                if (!cancelled) setWebgpuReady(false);
+            }
+        };
+        checkWebGPU();
+        return () => { cancelled = true; };
+    }, []);
+
     return (
         <>
             {/* <div style={{ position: 'absolute', left: 2000, top: 50, zIndex: 1000 }}>
@@ -107,6 +140,29 @@ export default function Experience() {
             <MobileFullscreenGuard />
             <MainUI />
             <SocketManager />
+            <WorldLoadingOverlay forceVisible={loadingWorld} />
+            {webgpuReady === false && (
+                <div style={{
+                    position: 'fixed',
+                    inset: 0,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    zIndex: 9999,
+                    background: 'rgba(0,0,0,0.85)',
+                    color: '#f0e3c2',
+                    fontFamily: 'Cinzel, Georgia, serif',
+                    textAlign: 'center',
+                    padding: 24,
+                }}>
+                    <div>
+                        <div style={{ fontSize: 20, marginBottom: 8 }}>WebGPU no disponible</div>
+                        <div style={{ fontSize: 14, opacity: 0.85 }}>
+                            Este juego requiere WebGPU. Activa WebGPU o usa un navegador compatible.
+                        </div>
+                    </div>
+                </div>
+            )}
             <KeyboardControls
                 map={[
                     { name: 'forward', keys: ['ArrowUp', 'KeyW'] },
@@ -123,88 +179,71 @@ export default function Experience() {
 
             >
                 {/* <Loader /> */}
-                <Canvas
-                    className="canvas"
-                    shadows
-                    camera={{ fov: 75, position: [0, 4, 5] }}
-                    gl={async (props) => {
-                        // Detectar soporte de WebGPU
-                        const supportsWebGPU = navigator.gpu !== undefined
-
-                        if (supportsWebGPU) {
-                            // Intentar usar WebGPURenderer
-                            try {
-                                extend(THREE as any)
+                {webgpuReady && (
+                    <Canvas
+                        className="canvas"
+                        shadows
+                        camera={{ fov: 75, position: [0, 4, 5] }}
+                        gl={async (props) => {
+                            extend(THREE as any)
+                            // @ts-ignore
+                            const renderer = new WebGPURenderer({
+                                ...props,
+                                powerPreference: 'high-performance',
+                                antialias: true,
+                                alpha: false,
+                                stencil: false,
+                            })
+                            await renderer.init()
+                            console.log('✅ Usando WebGPURenderer')
+                            return renderer
+                        }}
+                        onPointerMissed={() => useTargetStore.getState().setSelectedTarget(null)}
+                    >
+                        <PostProcessing />
+                        {/* <FireBallProjectile /> */}
+                        {/* <IceProjectile /> */}
+                        <ProjectilesLayer />
+                        <FullBVH />
+                        <RemoteCharactersBVH />
+                        <PerfTracker />
+                        <Suspense fallback={null}>
+                            {currentWorld === 'world1' && (
+                                <World1
+                                    key="world1"
+                                    onTeleport={handleTeleport}
                                 // @ts-ignore
-                                const renderer = new THREE.WebGPURenderer({
-                                    ...props,
-                                    powerPreference: 'high-performance',
-                                    antialias: true,
-                                    alpha: false,
-                                    stencil: false,
-                                })
-                                await renderer.init()
-                                console.log('✅ Usando WebGPURenderer')
-                                return renderer
-                            } catch (err) {
-                                console.warn('⚠️ Falló WebGPURenderer, usando WebGLRenderer', err)
-                            }
-                        }
 
-                        // Fallback: WebGLRenderer
-                        const renderer = new WebGLRenderer({
-                            ...props,
-                            powerPreference: 'high-performance',
-                            antialias: true,
-                            alpha: false,
-                            stencil: false,
-                        })
-                        console.log('🔁 Usando WebGLRenderer')
-                        return renderer
-                    }}
-                    onPointerMissed={() => useTargetStore.getState().setSelectedTarget(null)}
-                >
-                    <PostProcessing />
-                    {/* <FireBallProjectile /> */}
-                    {/* <IceProjectile /> */}
-                    <ProjectilesLayer />
-                    <FullBVH />
-                    <RemoteCharactersBVH />
-                    <PerfTracker />
-                    {currentWorld === 'world1' && (
-                        <World1
-                            key="world1"
-                            onTeleport={handleTeleport}
-                            // @ts-ignore
+                                // setEmoji={setEmoji}
+                                />
 
-                            // setEmoji={setEmoji}
-                        />
-                    
-                    )}
-                    {currentWorld === 'dungeon' && (
-                        <IccDungeon
-                            key="dungeon"
-                            onTeleport={handleTeleport}
-                            // @ts-ignore
+                            )}
+                            {currentWorld === 'dungeon' && (
+                                <IccDungeon
+                                    key="dungeon"
+                                    onTeleport={handleTeleport}
+                                // @ts-ignore
 
-                            // setEmoji={setEmoji}
-                        />
-                    )}
+                                // setEmoji={setEmoji}
+                                />
+                            )}
 
-                    {currentWorld === 'ShaderVisualizer' && (
-                        <WorldShaderVisualizer key='ShaderVisualizer' />
-                    )}
+                            {currentWorld === 'ShaderVisualizer' && (
+                                <WorldShaderVisualizer key='ShaderVisualizer' />
+                            )}
 
-                    {currentWorld === 'dragonDungeon' && (
-                        <DragonDungeon
-                            key="dragonDungeon"
-                            onTeleport={handleTeleport}
-                            // setEmoji={setEmoji}
-                        />
-                    )}
+                            {currentWorld === 'dragonDungeon' && (
+                                <DragonDungeon
+                                    key="dragonDungeon"
+                                    onTeleport={handleTeleport}
+                                // setEmoji={setEmoji}
+                                />
+                            )}
+                        </Suspense>
 
 
-                </Canvas>
+                    </Canvas>
+                )}
 
             </KeyboardControls>
 

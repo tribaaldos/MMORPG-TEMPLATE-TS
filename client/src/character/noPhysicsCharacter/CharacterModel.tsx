@@ -7,6 +7,8 @@ import { useInventoryStore } from "../../store/useInventoryStore";
 import { socket } from "../../socket/SocketManager";
 import NameTag from "../NameTag";
 import { useCharacterStore } from "../../store/useCharacterStore";
+import { useAtom } from "jotai";
+import { chatByIdAtom } from "../../socket/SocketManager";
 
 type Props = {
   playerId?: string;        // opcional: si no lo pasas, coge socket.id
@@ -100,11 +102,19 @@ export default function AnimatedCharacterModel({
       ) {
         setCanPlayNext(false);
         (next as any).timeScale = 1.6;
-        next.reset().setLoop(THREE.LoopOnce, 1).crossFadeFrom(prev || null, 0.1, true).play();
+        if (prev) {
+          next.reset().setLoop(THREE.LoopOnce, 1).crossFadeFrom(prev, 0.1, true).play();
+        } else {
+          next.reset().setLoop(THREE.LoopOnce, 1).play();
+        }
         (next as any).clampWhenFinished = true;
       } else {
         (next as any).timeScale = 1;
-        next.reset().crossFadeFrom(prev || null, 0.2, true).play();
+        if (prev) {
+          next.reset().crossFadeFrom(prev, 0.2, true).play();
+        } else {
+          next.reset().play();
+        }
       }
       prevActionNameRef.current = nextName;
     }
@@ -133,7 +143,17 @@ export default function AnimatedCharacterModel({
   }, [ensurePlayer, effectiveId]);
 
   const equipment = useInventoryStore((s) => s.equipmentByPlayer[effectiveId]);
-  const characterName = useCharacterStore((s) => s.name);
+  const characterName = useCharacterStore((s) => s.name) ?? 'Player';
+  const [chatById] = useAtom(chatByIdAtom);
+  const [bubble, setBubble] = useState<{ message: string; t: number } | null>(null);
+  const latestChat = chatById[effectiveId];
+
+  useEffect(() => {
+    if (!latestChat?.message) return;
+    setBubble({ message: latestChat.message, t: latestChat.t });
+    const timer = window.setTimeout(() => setBubble(null), 6000);
+    return () => window.clearTimeout(timer);
+  }, [latestChat?.t]);
   // date now material key 
   const materialKey = useMemo(() => {
     const weaponKey = equipment?.weapon ? equipment.weapon.name : "none";
@@ -144,6 +164,14 @@ export default function AnimatedCharacterModel({
   return (
     <group ref={group} position={[0, -1.1, 0]}>
       <NameTag text={characterName} position={[0, 2.2, 0]} />
+      {bubble && (
+        <NameTag
+          text={bubble.message}
+          position={[0, 2.8, 0]}
+          scale={0.5}
+          variant="chat"
+        />
+      )}
       <primitive object={clone} />
 
       {equipment?.weapon?.Model && (

@@ -3,6 +3,7 @@ import { create } from 'zustand'
 import { BasicGreenShoulderItem, BasicShoulder } from '../items/storage/ShouldersStorage'
 import { BasicSword, FireWeaponItem } from '../items/storage/WeaponsStorage'
 import React from 'react'
+import { EquipmentModel } from '../character/EquipmentType'
 
 import { BasicPants } from '../items/storage/PantsStorage'
 import { itemRegistry, ItemKey } from '../items/itemRegistry'
@@ -38,7 +39,7 @@ export interface Item {
   rarity?: 'common' | 'uncommon' | 'rare' | 'epic' | 'legendary'
   attack?: number
   defense?: number
-  Model?: React.FC // Componente 3D asociado (si tiene)
+  Model?: EquipmentModel // Componente 3D asociado (si tiene)
   // ...otros campos que necesites
 }
 

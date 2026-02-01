@@ -28,6 +28,13 @@ export const remotePlayersAtom = atom<{
 }>({});
 export const remoteAnimationsAtom = atom<{ [id: string]: string }>({});
 export const remoteNamesAtom = atom<{ [id: string]: string }>({});
+export const chatByIdAtom = atom<{
+  [id: string]: {
+    message: string;
+    name: string;
+    t: number;
+  };
+}>({});
 
 
 export const SocketManager: React.FC = () => {
@@ -35,6 +42,7 @@ export const SocketManager: React.FC = () => {
   const [_, setRemotePlayers] = useAtom(remotePlayersAtom);
   const [__, setRemoteAnimations] = useAtom(remoteAnimationsAtom);
   const [___, setRemoteNames] = useAtom(remoteNamesAtom);
+  const [____, setChatById] = useAtom(chatByIdAtom);
 
   const setWolf = useWolfStore((s) => s.setWolf);
   const setSpider = useSpiderStore((s) => s.setSpider);
@@ -156,6 +164,11 @@ export const SocketManager: React.FC = () => {
         delete updated[data.id];
         return updated;
       });
+      setChatById((prev) => {
+        const updated = { ...prev };
+        delete updated[data.id];
+        return updated;
+      });
     };
 
     const onWolfUpdate = (data: {
@@ -192,6 +205,18 @@ export const SocketManager: React.FC = () => {
       }
     };
 
+    const onChatMessage = (msg: { id: string; name: string; message: string; t: number }) => {
+      if (!msg || !msg.id || !msg.message) return;
+      setChatById((prev) => ({
+        ...prev,
+        [msg.id]: {
+          name: msg.name,
+          message: msg.message,
+          t: msg.t ?? Date.now(),
+        },
+      }));
+    };
+
     socket.on("connect", onConnect);
     socket.on("disconnect", onDisconnect);
     socket.on("hello", onHello);
@@ -205,6 +230,7 @@ export const SocketManager: React.FC = () => {
     socket.on("projectileSpawn", onProjectileSpawn);
     socket.on("remoteEquipment", onRemoteEquip);
     socket.on("equipmentSnapshot", onEquipmentSnapshot);
+    socket.on("chatMessage", onChatMessage);
 
     return () => {
       socket.off("connect", onConnect);
@@ -220,6 +246,7 @@ export const SocketManager: React.FC = () => {
       socket.off("projectileSpawn", onProjectileSpawn)
       socket.off("remoteEquipment", onRemoteEquip);
       socket.off("equipmentSnapshot", onEquipmentSnapshot);
+      socket.off("chatMessage", onChatMessage);
     };
   }, [setWolf]);
 

@@ -74,14 +74,14 @@ export default function World1({ onTeleport }: {
             <ambientLight intensity={0.4} />
             <Floor />
             <Fountain />
-            <GrassBlock position={[0, -1, 0]} />
+            {/* <GrassBlock position={[0, -1, 0]} /> */}
             <ShaderVisualizer3D />
             <TeleportZone
                 position={[10, 0, 0]}
                 radius={2}
-                targetWorld="world2"
+                targetWorld="dragonDungeon"
                 color="gray"
-                target={[5, 5, 0]} // posición en world2
+                target={[5, 2, 0]}
                 onTeleport={onTeleport}
             />
             <TeleportZone
@@ -89,9 +89,18 @@ export default function World1({ onTeleport }: {
                 radius={2}
                 targetWorld="dungeon"
                 color="blue"
-                target={[0, 10, 0]} // posición en world2
+                target={[0, 2, 0]}
                 onTeleport={onTeleport}
             />
+            <TeleportZone
+                position={[4, 0, 0]}
+                radius={2}
+                targetWorld="ShaderVisualizer"
+                color="blue"
+                target={[0, 2, 0]}
+                onTeleport={onTeleport}
+            />
+
             <Model position={[3, 0, 5]} />
             {/* <KShop setEmoji={setEmoji} /> */}
             <KShop />
