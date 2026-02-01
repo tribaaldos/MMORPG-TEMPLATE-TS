@@ -128,7 +128,7 @@ export default function Experience() {
         return () => { cancelled = true; };
     }, []);
 
-    const [ isDebug, setIsDebug ] = useState<boolean>(true);
+    const [ isDebug, setIsDebug ] = useState<boolean>(false);
 
     return (
         <>

@@ -48,19 +48,19 @@ export default function World1({ onTeleport }: {
             </group>
         )
     }
-    function LordMarrowgar() {
-        const { scene } = useGLTF('/dungeons/icc.glb');
-        const { scene: scenePhysics } = useGLTF('/dungeons/iccPhysics.glb');
-        return (
-            <>
-                <primitive object={scene} />
+    // function LordMarrowgar() {
+    //     const { scene } = useGLTF('/dungeons/icc.glb');
+    //     const { scene: scenePhysics } = useGLTF('/dungeons/iccPhysics.glb');
+    //     return (
+    //         <>
+    //             <primitive object={scene} />
 
-                <RigidBody type="fixed" colliders="trimesh" userData={{ floor: true }}>
-                    <primitive object={scenePhysics} position={[0, -1, 0]} />
-                </RigidBody>
-            </>
-        )
-    }
+    //             <RigidBody type="fixed" colliders="trimesh" userData={{ floor: true }}>
+    //                 <primitive object={scenePhysics} position={[0, -1, 0]} />
+    //             </RigidBody>
+    //         </>
+    //     )
+    // }
     useEffect(() => {
         console.log("Mount world1")
         return () => console.log("Unmount world1")
