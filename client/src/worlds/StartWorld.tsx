@@ -18,10 +18,11 @@ import KShop from '../components/npc/Shop'
 import FullBVH from '../character/noPhysicsCharacter/FullBVH'
 import RemoteBVHCharacters from '../character/noPhysicsCharacter/extra/remoteBVHCharacter'
 import { useEffect } from 'react'
-export default function World1({ onTeleport }: {
+export default function World1({ onTeleport, isDebug }: {
     // physicsSettings: any,
     // setEmoji: (emoji: string) => void,
     onTeleport: (worldId: string, targetPos?: [number, number, number]) => void
+    isDebug?: boolean
 }) {
     const playerPosition = useCharacterStore((s) => s.position)
     const physicsSettings1 = useControls({
@@ -29,9 +30,9 @@ export default function World1({ onTeleport }: {
             enabled: { value: true },
             debug: { value: false },
             gravity: { value: [0, -9.81, 0], step: 0.1 },
-        }, {collapsed: true})
-    }, 
-    { collapsed: true });
+        }, { collapsed: true })
+    },
+        { collapsed: true });
     const Sky = (props: any) => {
         const { nodes, materials } = useGLTF('/sky-green.glb')
         const positionPersonaje = useCharacterStore((s) => s.position);
@@ -74,7 +75,11 @@ export default function World1({ onTeleport }: {
             <ambientLight intensity={0.4} />
             <Floor />
             <Fountain />
-            {/* <GrassBlock position={[0, -1, 0]} /> */}
+            {!isDebug && (
+                <GrassBlock position={[0, -1, 0]} />
+
+
+            )}
             <ShaderVisualizer3D />
             <TeleportZone
                 position={[10, 0, 0]}
@@ -84,7 +89,7 @@ export default function World1({ onTeleport }: {
                 target={[5, 2, 0]}
                 onTeleport={onTeleport}
                 label={"Dragon Dungeon"}
-                labelOffset={[ 10, 2, 0]}
+                labelOffset={[10, 2, 0]}
             />
             <TeleportZone
                 position={[15, 0, 0]}
@@ -93,8 +98,8 @@ export default function World1({ onTeleport }: {
                 color="blue"
                 target={[0, 2, 0]}
                 onTeleport={onTeleport}
-                label={"ICC Dungeon"}   
-                labelOffset={[ 15, 2, 0]}
+                label={"ICC Dungeon"}
+                labelOffset={[15, 2, 0]}
             />
             <TeleportZone
                 position={[4, 0, 0]}
@@ -103,17 +108,17 @@ export default function World1({ onTeleport }: {
                 color="blue"
                 target={[0, 2, 0]}
                 onTeleport={onTeleport}
-                label={"Shader Visualizer"} 
-                labelOffset={[ 4, 2, 0]}
+                label={"Shader Visualizer"}
+                labelOffset={[4, 2, 0]}
             />
 
             <Model position={[3, 0, 5]} />
             {/* <KShop setEmoji={setEmoji} /> */}
             <KShop />
             <Sky />
-            
+
             <fog attach="fog" args={['lightblue', 15, 200]} />
-           
+
         </>
     )
 }

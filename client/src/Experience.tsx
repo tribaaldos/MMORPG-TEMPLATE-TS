@@ -212,6 +212,7 @@ export default function Experience() {
                         <Suspense fallback={null}>
                             {currentWorld === 'world1' && (
                                 <World1
+                                    isDebug={isDebug}
                                     key="world1"
                                     onTeleport={handleTeleport}
                                 // @ts-ignore
