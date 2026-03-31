@@ -23,9 +23,11 @@ import MobileFullscreenGuard from './UI/OrientationLock'
 import WorldShaderVisualizer from './worlds/WorldShaderVisualizer'
 import { WebGPURenderer } from 'three/webgpu'
 import WorldLoadingOverlay from './UI/WorldLoadingOverlay'
+import { useSavePosition } from './hooks/useSavePosition'
+import { useAuthStore } from './store/useAuthStore'
 
 export default function Experience() {
-
+    useSavePosition()
 
     const setPlayerPosition = useCharacterStore((s) => s.setPosition)
 
@@ -41,8 +43,9 @@ export default function Experience() {
             }
         },
     })
-    const [currentWorld, setCurrentWorld] = useState<any>('world1');
-    const [playerTargetPos, setPlayerTargetPos] = useState<[number, number, number] | null>(null)
+    const { startPos, startWorld } = useAuthStore.getState()
+    const [currentWorld, setCurrentWorld] = useState<any>(startWorld || 'world1');
+    const [playerTargetPos, setPlayerTargetPos] = useState<[number, number, number] | null>(startPos || null)
     const [loadingWorld, setLoadingWorld] = useState(false);
     const allowedWorlds = useRef(new Set(['world1', 'dungeon', 'dragonDungeon', 'Shadervisualizer']));
 
@@ -128,7 +131,7 @@ export default function Experience() {
         return () => { cancelled = true; };
     }, []);
 
-    const [ isDebug, setIsDebug ] = useState<boolean>(false );
+    const isDebug : boolean = false;
 
     return (
         <>

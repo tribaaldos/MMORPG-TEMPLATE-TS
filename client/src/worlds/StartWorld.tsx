@@ -68,13 +68,13 @@ export default function World1({ onTeleport, isDebug }: {
         console.log("Mount world1")
         return () => console.log("Unmount world1")
     }, [])
-    function MainPlace () {
+    function MainPlace() {
         const { scene } = useGLTF('/environment/Mainplacewater.glb');
 
-        return ( 
+        return (
             <>
-            <WaterShader geometry="circle" position={[0, 0.1, 0]} scaleProp={3.5} />
-            <primitive object={scene} />
+                <WaterShader geometry="circle" position={[0, 0.1, 0]} scaleProp={3.5} />
+                <primitive object={scene} />
             </>
         )
     }
@@ -83,14 +83,11 @@ export default function World1({ onTeleport, isDebug }: {
         // minimized leva
         <>
 
-            <ambientLight intensity={5} />
+            <ambientLight intensity={1} />
             <Floor />
             <Fountain />
-            {!isDebug && (
-                <GrassBlock position={[0, 0, 0]} />
+            <GrassBlock position={[0, 0, 0]} isDebug={isDebug} />
 
-
-            )}
             <MainPlace />
             <TreeMainPlace range={250} count={isDebug ? 3 : 30} />
             {/* <ShaderVisualizer3D position={[0, 5, 0]} /> */}
@@ -100,7 +97,7 @@ export default function World1({ onTeleport, isDebug }: {
                 radius={2}
                 scale={3}
                 targetWorld="dragonDungeon"
-                colorNode="red"             
+                colorNode="red"
                 target={[5, 2, 0]}
                 onTeleport={onTeleport}
                 label={"Dragon Dungeon"}

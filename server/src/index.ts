@@ -1,16 +1,25 @@
 import express from 'express';
 import http from 'http';
-import { register } from 'module';
 import { Server } from 'socket.io';
 import { registerWolfHandlers } from './wolfManager';
 import { registerSpiderHandlers } from './spiderManager';
 import { registerDragonHandlers } from './dragonManager';
+import authRoutes from './authRoutes';
 
 const app = express();
+app.use((req, res, next) => {
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+    if (req.method === 'OPTIONS') { res.sendStatus(204); return; }
+    next();
+});
+app.use(express.json());
+app.use('/auth', authRoutes);
 const server = http.createServer(app);
 const io = new Server(server, {
     cors: {
-        origin: 'http://localhost:5173',
+        origin: '*',
         methods: ['GET', 'POST'],
     },
 });
@@ -36,7 +45,9 @@ const chatHistory: ChatMessage[] = [];
 const CHAT_LIMIT = 50;
 
 
-io.listen(5174);
+server.listen(5174, () => {
+    console.log('🚀 Server running on port 5174');
+});
 
 io.on('connection', (socket) => {
     console.log(`🟢 User connected: ${socket.id} (total: ${io.engine.clientsCount})`);

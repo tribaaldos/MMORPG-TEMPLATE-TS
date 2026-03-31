@@ -1,0 +1,107 @@
+.auth-screen {
+  width: 100vw;
+  height: 100vh;
+  background: #0a0a0f;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Segoe UI', sans-serif;
+}
+
+.auth-box {
+  background: #13131a;
+  border: 1px solid #2a2a3a;
+  border-radius: 12px;
+  padding: 40px 36px;
+  width: 360px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.auth-title {
+  text-align: center;
+  color: #c89b3c;
+  font-size: 28px;
+  letter-spacing: 6px;
+  margin: 0;
+  text-transform: uppercase;
+}
+
+.auth-tabs {
+  display: flex;
+  gap: 8px;
+}
+
+.auth-tabs button {
+  flex: 1;
+  padding: 8px;
+  background: transparent;
+  border: 1px solid #2a2a3a;
+  color: #888;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 13px;
+  transition: all 0.2s;
+}
+
+.auth-tabs button.active {
+  background: #1e1e2e;
+  border-color: #c89b3c;
+  color: #c89b3c;
+}
+
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.auth-form input {
+  background: #1a1a28;
+  border: 1px solid #2a2a3a;
+  border-radius: 6px;
+  color: #e0e0e0;
+  padding: 10px 14px;
+  font-size: 14px;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.auth-form input:focus {
+  border-color: #c89b3c;
+}
+
+.auth-form input::placeholder {
+  color: #555;
+}
+
+.auth-form button[type='submit'] {
+  margin-top: 4px;
+  padding: 12px;
+  background: #c89b3c;
+  border: none;
+  border-radius: 6px;
+  color: #0a0a0f;
+  font-weight: 700;
+  font-size: 14px;
+  cursor: pointer;
+  letter-spacing: 1px;
+  transition: background 0.2s;
+}
+
+.auth-form button[type='submit']:hover:not(:disabled) {
+  background: #e0b44a;
+}
+
+.auth-form button[type='submit']:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.auth-error {
+  color: #e05555;
+  font-size: 13px;
+  margin: 0;
+  text-align: center;
+}
