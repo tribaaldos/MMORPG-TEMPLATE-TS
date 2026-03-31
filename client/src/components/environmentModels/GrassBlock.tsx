@@ -374,7 +374,7 @@ export default function GrassBlock({
     ditherWidth: { value: 0.08, min: 0.01, max: 0.5, step: 0.005 },
 
     // ——— Colores y viento ———
-    colorTop: { value: '#c7ff7c' },
+    colorTop: { value: '#c6ff7c65' },
     colorBottom: { value: 'darkgreen' },
     speed: { value: 1.2, min: 0, max: 10, step: 0.05 }, // factor de tiempo del viento
     windAmp: { value: 0.25, min: 0, max: 0.2, step: 0.005 },

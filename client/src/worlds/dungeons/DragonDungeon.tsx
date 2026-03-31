@@ -8,6 +8,7 @@ import TeleportZone from "../../components/testblocks/Teleport";
 import BVHWeapon from "../../items/weapons/WeaponBVH";
 import SSGI from "../../VFXEngine/SSGI";
 import StaticCollider from "../../character/noPhysicsCharacter/extra/StaticCollider";
+import { vec3 } from "three/tsl";
 
 export default function DragonDungeon({ onTeleport }: 
     {
@@ -41,7 +42,7 @@ export default function DragonDungeon({ onTeleport }:
                                 position={[10, 0, 0]}
                                 radius={2}
                                 targetWorld="world1"
-                                color="black"
+                                color={vec3(1.0, 0.2, 0.5)}
                                 // Cambia la posición de destino para evitar caer sobre otro portal
                                 target={[20, 2, 0]}
                                 onTeleport={(worldId, targetPos) => {

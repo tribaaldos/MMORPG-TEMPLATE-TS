@@ -46,15 +46,19 @@
 
 .skills-popup-card {
   display: flex;
-  gap: 8px;
+  flex-direction: column;
+  gap: 4px;
   align-items: center;
-  justify-content: flex-start;
-  padding: 8px 10px;
+  justify-content: center;
+  width: var(--ui-slot-size);
+  height: var(--ui-slot-size);
+  padding: 6px;
   border-radius: 10px;
   border: 1px solid rgba(255, 212, 130, 0.25);
   background: rgba(18, 14, 10, 0.75);
   color: inherit;
   cursor: pointer;
+  text-align: center;
 }
 
 .skills-popup-card.active {
@@ -63,14 +67,25 @@
 }
 
 .skills-popup-card img {
-  width: 28px;
-  height: 28px;
+  width: 75%;
+  height: 75%;
+  object-fit: contain;
+}
+
+.skills-popup-card span {
+  font-size: 10px;
+  line-height: 1.1;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .skills-popup-slots {
   display: grid;
-  grid-template-columns: repeat(4, minmax(90px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(var(--ui-slot-size), 1fr));
   gap: 10px;
+  justify-items: center;
 }
 
 .skills-popup-slot {

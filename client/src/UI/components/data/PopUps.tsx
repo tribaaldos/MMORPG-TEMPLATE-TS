@@ -9,6 +9,7 @@ import '../../MainUI.css';
 import TargetPopup from '../monsters/TargetPopUp';
 import { useTargetStore } from '../../../store/useTargetStore';
 import { useAbilityStore } from '../../../character/skills/useAbilityStore';
+import { useUIStore } from '../../../store/useUIStore';
 
 export default function Popups() {
     const [showCharacter, hideCharacter] = usePopup('character', () => <UICharacter />);
@@ -85,6 +86,7 @@ export default function Popups() {
     // Escucha la tecla 'c' para alternar el popup
     useEffect(() => {
         const handleKeyDown = (e: KeyboardEvent) => {
+            if (useUIStore.getState().isTextInputActive) return
             if (e.repeat) return
             if (e.code === 'KeyC') toggleCharacterPopup()
             if (e.code === 'KeyB') toggleInventoryPopup()

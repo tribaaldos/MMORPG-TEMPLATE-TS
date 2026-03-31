@@ -115,6 +115,8 @@ export default function WaterShader({
             <planeGeometry args={[4, 4, 128, 128]} />
           ) : geometry === "sphere" ? (
             <sphereGeometry args={[2, 64, 64]} />
+          ) : geometry === 'circle' ? (
+            <circleGeometry args={[2, 64]} />
           ) : (
             <boxGeometry args={[2, 2, 2]} />
           )

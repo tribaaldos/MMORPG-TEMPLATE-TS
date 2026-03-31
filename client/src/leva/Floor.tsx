@@ -66,9 +66,9 @@ export default function InfiniteGridTiles() {
 
           <group position={tile.position}>
             {/* <GridShader />  */}
-            <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -1, 0]}>
+            <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0, 0]}>
               <planeGeometry args={[1000, 1000]} />
-              <meshStandardMaterial color="darkgreen" />
+              <meshStandardMaterial color="rgb(5, 46, 5)" />
             </mesh>
           </group>
         </StaticCollider>

@@ -1,4 +1,4 @@
-import { Physics, RigidBody } from '@react-three/rapier'
+import { Physics, RigidBody, vec3 } from '@react-three/rapier'
 import { useCharacterStore } from '../store/useCharacterStore'
 import TeleportZone from '../components/testblocks/Teleport'
 import { GridShader } from '../components/CustomGrid'
@@ -18,6 +18,8 @@ import KShop from '../components/npc/Shop'
 import FullBVH from '../character/noPhysicsCharacter/FullBVH'
 import RemoteBVHCharacters from '../character/noPhysicsCharacter/extra/remoteBVHCharacter'
 import { useEffect } from 'react'
+import { TreeMainPlace } from '../components/environmentModels/trees/TreeMainPlace'
+import WaterShader from '../components/shaders/water/WaterShader'
 export default function World1({ onTeleport, isDebug }: {
     // physicsSettings: any,
     // setEmoji: (emoji: string) => void,
@@ -66,50 +68,67 @@ export default function World1({ onTeleport, isDebug }: {
         console.log("Mount world1")
         return () => console.log("Unmount world1")
     }, [])
+    function MainPlace () {
+        const { scene } = useGLTF('/environment/Mainplacewater.glb');
 
+        return ( 
+            <>
+            <WaterShader geometry="circle" position={[0, 0.1, 0]} scaleProp={3.5} />
+            <primitive object={scene} />
+            </>
+        )
+    }
 
     return (
         // minimized leva
         <>
 
-            <ambientLight intensity={0.4} />
+            <ambientLight intensity={5} />
             <Floor />
             <Fountain />
             {!isDebug && (
-                <GrassBlock position={[0, -1, 0]} />
+                <GrassBlock position={[0, 0, 0]} />
 
 
             )}
-            <ShaderVisualizer3D />
+            <MainPlace />
+            <TreeMainPlace range={250} count={isDebug ? 3 : 30} />
+            {/* <ShaderVisualizer3D position={[0, 5, 0]} /> */}
             <TeleportZone
-                position={[10, 0, 0]}
+                rotation={[0, 0, 0]}
+                position={[0, 0, -5]}
                 radius={2}
+                scale={3}
                 targetWorld="dragonDungeon"
-                color="gray"
+                colorNode="red"             
                 target={[5, 2, 0]}
                 onTeleport={onTeleport}
                 label={"Dragon Dungeon"}
-                labelOffset={[10, 2, 0]}
+                labelOffset={[0, 2.2, 0]}
             />
             <TeleportZone
-                position={[15, 0, 0]}
+                rotation={[0, -1.3, 0]}
+                position={[6, 0, 0]}
                 radius={2}
+                scale={3}
                 targetWorld="dungeon"
-                color="blue"
+                colorNode="blue"
                 target={[0, 2, 0]}
                 onTeleport={onTeleport}
                 label={"ICC Dungeon"}
-                labelOffset={[15, 2, 0]}
+                labelOffset={[0, 2.2, 0]}
             />
             <TeleportZone
-                position={[4, 0, 0]}
+                position={[-6, 0, 0]}
+                rotation={[0, 1.3, 0]}
                 radius={2}
+                scale={3}
                 targetWorld="ShaderVisualizer"
-                color="blue"
+                colorNode="blue"
                 target={[0, 2, 0]}
                 onTeleport={onTeleport}
                 label={"Shader Visualizer"}
-                labelOffset={[4, 2, 0]}
+                labelOffset={[0, 2.2, 0]}
             />
 
             <Model position={[3, 0, 5]} />

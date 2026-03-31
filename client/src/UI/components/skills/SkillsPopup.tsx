@@ -26,7 +26,7 @@ export default function SkillsPopup() {
         <p>Selecciona una habilidad y asígnala a un slot.</p>
       </div>
 
-      <div className="skills-popup-grid">
+      <div className="skills-popup-slots">
         {abilities.map((id) => {
           const meta = abilityMeta[id]
           const [{ isDragging }, dragRef] = useDrag(() => ({
@@ -36,7 +36,7 @@ export default function SkillsPopup() {
           }), [id])
 
           return (
-            <button
+            <button 
               key={id}
               ref={dragRef}
               className={`skills-popup-card ${selected === id ? 'active' : ''}`}
@@ -45,13 +45,13 @@ export default function SkillsPopup() {
               style={{ opacity: isDragging ? 0.5 : 1 }}
             >
               {meta.icon && <img src={meta.icon} alt={meta.name} />}
-              <span>{meta.name}</span>
+              {/* <span>{meta.name}</span> */}
             </button>
           )
         })}
       </div>
 
-      <div className="skills-popup-slots">
+      {/* <div className="skills-popup-slots">
         {SLOT_KEYS.map((key) => {
           const id = slots[key]
           const meta = id ? abilityMeta[id] : null
@@ -97,11 +97,11 @@ export default function SkillsPopup() {
             </button>
           )
         })}
-      </div>
-
+      </div> */}
+{/* 
       <div className="skills-popup-footer">
         <button className="skills-clear" onClick={() => setSelected(null)}>Limpiar selección</button>
-      </div>
+      </div> */}
     </div>
   )
 }

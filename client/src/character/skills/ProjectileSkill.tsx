@@ -1,11 +1,13 @@
 // ProjectilesLayer.tsx (lógica + render por tipo)
 import React, { useMemo, useState } from 'react'
 import { useFrame } from '@react-three/fiber'
+import { Html } from '@react-three/drei'
 import * as THREE from 'three'
 import { socket } from '../../socket/SocketManager'
 import { useMonsterStore } from '../../worlds/dungeons/monsters/useMonsterStore'
 import { useCharacterStore } from '../../store/useCharacterStore'
 import { useProjectilesStore } from './useProjectileStore'
+import './ProjectileSkill.css'
 
 // Tus componentes shader ya existentes (asegúrate de exportar con estos nombres)
 import { ProjectileIce } from './iceSkill/ProjectileIce'
@@ -21,6 +23,16 @@ type Explosion = {
   kind: 'fire' | 'ice'
 }
 
+type DamagePopup = {
+  id: string
+  pos: THREE.Vector3
+  age: number
+  life: number
+  value: number
+  world: string | null
+  drift: number
+}
+
 export default function ProjectilesLayer({
   homingLerp = 0.12,
   targetRadius = 0.4,
@@ -33,6 +45,7 @@ export default function ProjectilesLayer({
   const { list, remove } = useProjectilesStore()
   const world = useCharacterStore((s) => s.world)
   const [explosions, setExplosions] = useState<Explosion[]>([])
+  const [damagePopups, setDamagePopups] = useState<DamagePopup[]>([])
 
   // Solo proyectiles del mundo actual
   const visible = useMemo(
@@ -50,6 +63,21 @@ export default function ProjectilesLayer({
         life: explosionLife,
         world: world ?? null,
         kind,
+      },
+    ])
+  }
+
+  const spawnDamage = (pos: THREE.Vector3, value: number) => {
+    setDamagePopups((prev) => [
+      ...prev,
+      {
+        id: `dmg_${performance.now()}_${Math.random().toString(36).slice(2)}`,
+        pos: pos.clone(),
+        age: 0,
+        life: 0.9,
+        value,
+        world: world ?? null,
+        drift: (Math.random() - 0.5) * 0.6,
       },
     ])
   }
@@ -91,6 +119,7 @@ export default function ProjectilesLayer({
         const m = p.targetId ? monsters[p.targetId] : null
         if (m) {
           damage(m.id, p.damage)
+          spawnDamage(hitPos, p.damage)
           try {
             socket.emit?.('hitMonster', { id: m.id, damage: p.damage })
           } catch { }
@@ -110,6 +139,20 @@ export default function ProjectilesLayer({
         .filter((fx) => (fx.world ?? null) === (world ?? null) && fx.age < fx.life)
 
       // ¡IMPORTANTE! devolvemos siempre 'next' para que React re-renderice
+      return next
+    })
+
+    setDamagePopups((prev) => {
+      const next = prev
+        .map((fx) => {
+          if ((fx.world ?? null) !== (world ?? null)) return fx
+          const pos = fx.pos.clone()
+          pos.y += delta * 0.8
+          pos.x += fx.drift * delta
+          return { ...fx, age: fx.age + delta, pos }
+        })
+        .filter((fx) => (fx.world ?? null) === (world ?? null) && fx.age < fx.life)
+
       return next
     })
   })
@@ -139,6 +182,18 @@ export default function ProjectilesLayer({
         return (
           <group key={fx.id} position={fx.pos}>
             <Exp />
+          </group>
+        )
+      })}
+
+      {/* Números de daño */}
+      {damagePopups.map((fx) => {
+        const opacity = Math.max(0, 1 - fx.age / fx.life)
+        return (
+          <group key={fx.id} position={fx.pos}>
+            <Html center className="damage-popup" style={{ opacity }}>
+              {fx.value}
+            </Html>
           </group>
         )
       })}

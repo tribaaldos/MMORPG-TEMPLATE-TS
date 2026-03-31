@@ -40,6 +40,7 @@ import { useAnimationStore } from "./extra/useAnimationStore";
 import { useButtonStore } from "./extra/useButtonStore";
 import { socket } from "../../socket/SocketManager";
 import { useCharacterStore } from "../../store/useCharacterStore";
+import { useUIStore } from "../../store/useUIStore";
 import { useAbilityStore } from "../skills/useAbilityStore";
 // const getAzimuthalAngle = (camera: THREE.Camera, upAxis: THREE.Vector3): number => {
 //     const viewDir = new THREE.Vector3();
@@ -153,6 +154,7 @@ const BVHEcctrl = forwardRef<BVHEcctrlApi, EcctrlProps>(({
         jump: false, run: false,
         Key1: false, Key2: false, Key3: false, Key4: false,
     };
+    const isTextInputActive = useUIStore((s) => s.isTextInputActive)
 
     /**
      * Keyboard controls subscribe setup
@@ -189,6 +191,7 @@ const BVHEcctrl = forwardRef<BVHEcctrlApi, EcctrlProps>(({
      */
     useEffect(() => {
         const handleKeyDown = (e: KeyboardEvent) => {
+            if (useUIStore.getState().isTextInputActive) return;
             // Handle both numpad and main keyboard number keys
             if (e.code === 'Digit1') key1State.current = true;
             if (e.code === 'Numpad1') key1State.current = true;
@@ -273,6 +276,23 @@ const BVHEcctrl = forwardRef<BVHEcctrlApi, EcctrlProps>(({
     const joystickState = useRef<THREE.Vector2>(new THREE.Vector2())
     const runState = useRef<boolean>(false)
     const jumpState = useRef<boolean>(false)
+    const prevActions = useRef({ a1: false, a2: false, a3: false, a4: false })
+
+    useEffect(() => {
+        if (!isTextInputActive) return
+        forwardState.current = false
+        backwardState.current = false
+        leftwardState.current = false
+        rightwardState.current = false
+        runState.current = false
+        jumpState.current = false
+        key1State.current = false
+        key2State.current = false
+        key3State.current = false
+        key4State.current = false
+        joystickState.current.set(0, 0)
+        prevActions.current = { a1: false, a2: false, a3: false, a4: false }
+    }, [isTextInputActive])
     const isOnGround = useRef<boolean>(false)
     const prevIsOnGround = useRef<boolean>(false)
     const prevAnimation = useRef<CharacterAnimationStatus>("IDLE");
@@ -1430,7 +1450,6 @@ const BVHEcctrl = forwardRef<BVHEcctrlApi, EcctrlProps>(({
         Key4: "tuOtraHabilidad", // cambia/borra si no la usas
     };
     // ↑ fuera de useFrame, una sola vez
-    const prevActions = useRef({ a1: false, a2: false, a3: false, a4: false });
 
     useFrame((state, delta) => {
         /**
@@ -1459,16 +1478,17 @@ const BVHEcctrl = forwardRef<BVHEcctrlApi, EcctrlProps>(({
          */
         // const { forward, backward, leftward, rightward, jump, run } = isInsideKeyboardControls && getKeys ? getKeys() : presetKeys;
         const keys = isInsideKeyboardControls && getKeys ? getKeys() : presetKeys;
-        const forward = forwardState.current || keys.forward;
-        const backward = backwardState.current || keys.backward;
-        const leftward = leftwardState.current || keys.leftward;
-        const rightward = rightwardState.current || keys.rightward;
-        const run = runState.current || keys.run || buttons.run;
-        const jump = jumpState.current || keys.jump || buttons.jump;
-        const action1 = key1State.current || keys.Key1 || buttons.Key1;
-        const action2 = key2State.current || keys.Key2 || buttons.Key2;
-        const action3 = key3State.current || keys.Key3 || buttons.Key3;
-        const action4 = key4State.current || keys.Key4 || buttons.Key4;
+        const inputBlocked = isTextInputActive
+        const forward = inputBlocked ? false : (forwardState.current || keys.forward);
+        const backward = inputBlocked ? false : (backwardState.current || keys.backward);
+        const leftward = inputBlocked ? false : (leftwardState.current || keys.leftward);
+        const rightward = inputBlocked ? false : (rightwardState.current || keys.rightward);
+        const run = inputBlocked ? false : (runState.current || keys.run || buttons.run);
+        const jump = inputBlocked ? false : (jumpState.current || keys.jump || buttons.jump);
+        const action1 = inputBlocked ? false : (key1State.current || keys.Key1 || buttons.Key1);
+        const action2 = inputBlocked ? false : (key2State.current || keys.Key2 || buttons.Key2);
+        const action3 = inputBlocked ? false : (key3State.current || keys.Key3 || buttons.Key3);
+        const action4 = inputBlocked ? false : (key4State.current || keys.Key4 || buttons.Key4);
 
         // ...
         const ctx = {

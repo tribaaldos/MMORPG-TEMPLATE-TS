@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import './Chat.css'
 import { socket } from '../../socket/SocketManager'
 import { useCharacterStore } from '../../store/useCharacterStore'
+import { useUIStore } from '../../store/useUIStore'
 
 type ChatMessage = {
     id: string
@@ -15,6 +16,7 @@ export default function Chat() {
     const [input, setInput] = useState('')
     const name = useCharacterStore((s) => s.name) ?? 'Player'
     const scrollRef = useRef<HTMLDivElement | null>(null)
+    const setTextInputActive = useUIStore((s) => s.setTextInputActive)
 
     const selfId = socket.id
     const isEmpty = messages.length === 0
@@ -57,7 +59,14 @@ export default function Chat() {
     }
 
     const onKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-        if (e.key === 'Enter') sendMessage()
+        if (e.key === 'Enter') {
+            sendMessage()
+            return
+        }
+        if (e.key === 'Escape') {
+            e.currentTarget.blur()
+            setTextInputActive(false)
+        }
     }
 
     return (
@@ -89,6 +98,8 @@ export default function Chat() {
                     value={input}
                     onChange={(e) => setInput(e.target.value)}
                     onKeyDown={onKeyDown}
+                    onFocus={() => setTextInputActive(true)}
+                    onBlur={() => setTextInputActive(false)}
                     maxLength={280}
                 />
                 <button className="chat-send" onClick={sendMessage} disabled={!canSend}>
