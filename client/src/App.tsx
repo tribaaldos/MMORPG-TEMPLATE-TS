@@ -87,7 +87,11 @@ function App() {
     <Routes>
       <Route path="/shader-visualizer" element={<ShaderVisualizer />} />
       <Route path="/shader-visualizer/:id" element={<ShaderVisualizer />} />
-      <Route path="/" element={token ? <Experience /> : <AuthScreen />} />
+      {/* PROD*/}
+      {/* <Route path="/" element={token ? <Experience /> : <AuthScreen />} /> */}
+      {/* DEV */}
+      <Route path="/" element={ <Experience /> } />
+
     </Routes>
   )
 }
