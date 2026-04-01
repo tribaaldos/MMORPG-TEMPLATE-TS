@@ -24,10 +24,21 @@ import WorldShaderVisualizer from './worlds/WorldShaderVisualizer'
 import { WebGPURenderer } from 'three/webgpu'
 import WorldLoadingOverlay from './UI/WorldLoadingOverlay'
 import { useSavePosition } from './hooks/useSavePosition'
+import { useSaveGold } from './hooks/useSaveGold'
+import { useSaveEquipment } from './hooks/useSaveEquipment'
 import { useAuthStore } from './store/useAuthStore'
-
+import { socket } from './socket/SocketManager'
 export default function Experience() {
     useSavePosition()
+    useSaveGold()
+
+    const [socketId, setSocketId] = useState(() => socket.id ?? '')
+    useEffect(() => {
+        const onConnect = () => setSocketId(socket.id!)
+        socket.on('connect', onConnect)
+        return () => { socket.off('connect', onConnect) }
+    }, [])
+    useSaveEquipment(socketId)
 
     const setPlayerPosition = useCharacterStore((s) => s.setPosition)
 

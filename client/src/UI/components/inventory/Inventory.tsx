@@ -137,9 +137,9 @@ const Inventory: React.FC = () => {
       // 1) local
       equipItem(playerId, index, slot)
 
-      // 2) obtener clave compacta
+      // 2) obtener clave compacta (por nombre para soportar spread copies del shop)
       const key = (Object.keys(itemRegistry) as ItemKey[])
-        .find(k => itemRegistry[k] === item) ?? null
+        .find(k => itemRegistry[k].name === item.name) ?? null
 
       // 3) emitir usando el helper centralizado
       emitPlayerEquipment(slot, key)

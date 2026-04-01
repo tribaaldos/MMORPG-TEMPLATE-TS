@@ -9,6 +9,7 @@ type ChatMessage = {
     name: string
     message: string
     t: number
+    system?: boolean
 }
 
 export default function Chat() {
@@ -30,12 +31,27 @@ export default function Chat() {
             setMessages((prev) => [...prev, msg])
         }
 
+        const onPlayerJoined = (data: { id: string; name: string }) => {
+            setMessages((prev) => [...prev, {
+                id: data.id, name: '🟢 Sistema', message: `${data.name} ha entrado [${data.id.slice(0, 6)}]`, t: Date.now(), system: true
+            }])
+        }
+        const onUserDisconnected = (data: { id: string }) => {
+            setMessages((prev) => [...prev, {
+                id: data.id, name: '🔴 Sistema', message: `${data.id.slice(0, 6)} ha salido`, t: Date.now(), system: true
+            }])
+        }
+
         socket.on('chatHistory', onHistory)
         socket.on('chatMessage', onMessage)
+        socket.on('playerJoined', onPlayerJoined)
+        socket.on('userDisconnected', onUserDisconnected)
 
         return () => {
             socket.off('chatHistory', onHistory)
             socket.off('chatMessage', onMessage)
+            socket.off('playerJoined', onPlayerJoined)
+            socket.off('userDisconnected', onUserDisconnected)
         }
     }, [])
 
@@ -78,7 +94,7 @@ export default function Chat() {
                     messages.map((msg, idx) => (
                         <div
                             key={`${msg.t}-${idx}`}
-                            className={`chat-message ${msg.id === selfId ? 'chat-message--self' : ''}`}
+                            className={`chat-message ${msg.system ? 'chat-message--system' : msg.id === selfId ? 'chat-message--self' : ''}`}
                         >
                             <div className="chat-meta">
                                 <span className="chat-name">{msg.name}</span>

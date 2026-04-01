@@ -1,6 +1,6 @@
 // store/useCharacterStore.ts
 import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
+import { persist, createJSONStorage } from 'zustand/middleware';
 import { Coins, toBronze } from '../UI/components/npcs/Currency';
 // ES UN VECTOR 3 
 type Position = [number, number, number];
@@ -125,7 +125,7 @@ export const useCharacterStore = create<CharacterState>()(
       },
 
       // economía
-      gold: 10001,
+      gold: 9999999,
       addGold: (amt) => set((s) => ({ gold: s.gold + Math.max(0, amt) })),
       spendGold: (amt) => {
         const g = get().gold;
@@ -142,9 +142,9 @@ export const useCharacterStore = create<CharacterState>()(
     }),
     {
       name: 'character-storage',
+      storage: createJSONStorage(() => sessionStorage),
       // Solo persistimos lo “estable”
       partialize: (state) => ({
-        name: state.name,
         world: state.world,
         level: state.level,
         exp: state.exp,

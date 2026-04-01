@@ -7,6 +7,9 @@ import { useProjectilesStore } from "../character/skills/useProjectileStore";
 import * as THREE from "three";
 import { EquipmentSlot, useInventoryStore } from "../store/useInventoryStore";
 import { ItemKey } from "../items/itemRegistry";
+import { useAuthStore } from "../store/useAuthStore";
+import { useCharacterStore } from "../store/useCharacterStore";
+import { itemRegistry } from "../items/itemRegistry";
 // Conexión socket
 
 // local
@@ -51,6 +54,27 @@ export const SocketManager: React.FC = () => {
   useEffect(() => {
     const onConnect = () => {
       console.log("🟢 Connected to the server");
+      // Solo para reconexiones (cuando ya tenemos userId cargado)
+      const { userId, savedEquipment, savedInventory } = useAuthStore.getState();
+      const name = useCharacterStore.getState().name;
+      if (name && userId) {
+        socket.emit("playerJoin", { name, userId });
+        // Re-aplicar loadout con el nuevo socket.id tras reconexión
+        if (socket.id && Object.keys(savedEquipment).length > 0) {
+          const { ensurePlayer, setEquipmentSlot } = useInventoryStore.getState();
+          ensurePlayer(socket.id);
+          for (const [slot, key] of Object.entries(savedEquipment) as [EquipmentSlot, ItemKey | null][]) {
+            setEquipmentSlot(socket.id, slot, key);
+          }
+          if (savedInventory.length > 0) {
+            const inv = savedInventory.map((key) => key ? itemRegistry[key] ?? null : null);
+            while (inv.length < 20) inv.push(null);
+            useInventoryStore.setState((s) => ({
+              inventoryByPlayer: { ...s.inventoryByPlayer, [socket.id!]: inv }
+            }));
+          }
+        }
+      }
     };
 
     const onDisconnect = () => {
@@ -136,16 +160,23 @@ export const SocketManager: React.FC = () => {
       }));
     };
 
-    const onPlayerJoined = (data: { id: string; name: string }) => {
+    const onPlayerJoined = (data: { id: string; name: string; equipment?: Partial<Record<EquipmentSlot, ItemKey | null>> }) => {
       if (!data.id || data.id === socket.id) return;
-      setRemoteNames((prev) => ({
-        ...prev,
-        [data.id]: data.name,
-      }));
+      setRemoteNames((prev) => ({ ...prev, [data.id]: data.name }));
+      if (data.equipment) {
+        const { ensurePlayer, setEquipmentSlot } = useInventoryStore.getState();
+        ensurePlayer(data.id);
+        for (const [slot, key] of Object.entries(data.equipment) as [EquipmentSlot, ItemKey | null][]) {
+          setEquipmentSlot(data.id, slot, key);
+        }
+      }
     };
 
     const onExistingPlayers = (players: { [id: string]: string }) => {
-      setRemoteNames(players);
+      const filtered = Object.fromEntries(
+        Object.entries(players).filter(([id]) => id !== socket.id)
+      );
+      setRemoteNames(filtered);
     };
 
     const onUserDisconnected = (data: { id: string }) => {
@@ -198,6 +229,7 @@ export const SocketManager: React.FC = () => {
     }) => {
       const { ensurePlayer, setEquipmentSlot } = useInventoryStore.getState();
       for (const [pid, slots] of Object.entries(snapshot)) {
+        if (pid === socket.id) continue; // no sobreescribir el propio equipo
         ensurePlayer(pid);
         for (const [slot, key] of Object.entries(slots) as [EquipmentSlot, ItemKey | null][]) {
           setEquipmentSlot(pid, slot, key);
@@ -218,6 +250,8 @@ export const SocketManager: React.FC = () => {
     };
 
     socket.on("connect", onConnect);
+    // Si ya estaba conectado cuando el SocketManager montó, disparar manualmente
+    if (socket.connected) onConnect();
     socket.on("disconnect", onDisconnect);
     socket.on("hello", onHello);
     socket.on("remotePosition", onRemotePosition);

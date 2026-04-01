@@ -112,3 +112,9 @@
         width: clamp(200px, 70vw, 360px);
     }
 }
+.chat-message--system .chat-name,
+.chat-message--system .chat-text {
+    color: #aaa;
+    font-style: italic;
+    font-size: 11px;
+}

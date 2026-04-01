@@ -47,26 +47,16 @@ export type Equipment = Record<EquipmentSlot, Item | null>
 export type PlayerId = string
 
 // ——— Defaults por jugador (mismos que tenías, encapsulados) ———
-const makeDefaultInventory = (): Array<Item | null> => {
-  const inv = Array<Item | null>(20).fill(null)
-  inv[0] = BasicSword
-  inv[1] = DragonBootsItem
-  inv[2] = IronGlovesItem
-  inv[3] = BasicGreenShoulderItem
-  inv[4] = ShredShieldItem
-  // if (i === 3) return HeadItem
-  // if (i === 4) return HeadItem2
-  return inv
-}
+const makeDefaultInventory = (): Array<Item | null> => Array<Item | null>(20).fill(null)
 
 const makeDefaultEquipment = (): Equipment => ({
   helmet: null,
   chest: null,
-  shoulders: BasicShoulder,
-  legs: BasicPants,
+  shoulders: null,
+  legs: null,
   boots: null,
   gloves: null,
-  weapon: FireWeaponItem, // ✅ inicializamos con la espada equipada
+  weapon: null,
   shield: null,
   ring: null,
   trinket: null,

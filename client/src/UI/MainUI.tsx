@@ -15,9 +15,11 @@ import MenuBar from './menuBar/MenuBar';
 import Chat from './chat/Chat';
 import SkillsPopup from './components/skills/SkillsPopup';
 import { useAbilityStore } from '../character/skills/useAbilityStore';
+import { useAuthStore } from '../store/useAuthStore';
 
 export default function MainUI({ isDebug }: { isDebug: boolean }) {
     const isSkillsOpen = useAbilityStore((s) => s.isSkillsOpen)
+    const logout = useAuthStore((s) => s.logout)
 
     return (
         <>
@@ -35,6 +37,12 @@ export default function MainUI({ isDebug }: { isDebug: boolean }) {
                     <CharacterTopLeftUi />
                 </div>
                 <div className="ui-region ui-top-right">
+                    <button
+                        onClick={() => { logout(); window.location.reload() }}
+                        style={{ position: 'absolute', top: 8, right: 8, padding: '6px 14px', background: '#c0392b', color: '#fff', border: 'none', borderRadius: 6, cursor: 'pointer', zIndex: 9999 }}
+                    >
+                        Logout
+                    </button>
                     <Minimap />
                     <ShopPanel />
                 </div>

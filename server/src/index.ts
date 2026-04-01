@@ -5,6 +5,7 @@ import { registerWolfHandlers } from './wolfManager';
 import { registerSpiderHandlers } from './spiderManager';
 import { registerDragonHandlers } from './dragonManager';
 import authRoutes from './authRoutes';
+import { prisma } from './db';
 
 const app = express();
 app.use((req, res, next) => {
@@ -24,15 +25,27 @@ const io = new Server(server, {
     },
 });
 
-// 🌐 Almacén temporal de nombres
 const playerNames: { [id: string]: string } = {};
-// equipamiento 
+// socketId → userId (para buscar en DB)
+const socketToUserId: Record<string, string> = {};
+
 type EquipmentSlot =
     | 'helmet' | 'chest' | 'legs' | 'boots' | 'gloves'
     | 'weapon' | 'shield' | 'shoulders' | 'ring' | 'trinket';
 
 type ItemKey = string | null;
-const equipmentByPlayer: Record<string, Partial<Record<EquipmentSlot, ItemKey>>> = {};
+type EquipmentMap = Partial<Record<EquipmentSlot, ItemKey>>;
+// equipo en memoria (se sincroniza con DB al hacer playerJoin)
+const equipmentByPlayer: Record<string, EquipmentMap> = {};
+
+async function loadEquipmentFromDb(userId: string): Promise<EquipmentMap> {
+    const items = await prisma.inventoryItem.findMany({ where: { userId } });
+    const map: EquipmentMap = {};
+    for (const item of items) {
+        if (item.equipSlot) map[item.equipSlot as EquipmentSlot] = item.itemKey;
+    }
+    return map;
+}
 
 type ChatMessage = {
     id: string;
@@ -60,30 +73,36 @@ io.on('connection', (socket) => {
 
 
 
-    // ✅ Cuando alguien se une con nombre
-    socket.on('playerJoin', ({ name }) => {
+    // ✅ Cuando alguien se une con nombre y userId
+    socket.on('playerJoin', async ({ name, userId }: { name: string; userId?: string }) => {
         if (typeof name === 'string') {
             playerNames[socket.id] = name;
-            console.log(`👤 ${socket.id} se llama ${name}`);
 
-            // Avisar al resto
+            // Cargar equipo desde DB si tenemos userId
+            if (userId) {
+                socketToUserId[socket.id] = userId;
+                try {
+                    equipmentByPlayer[socket.id] = await loadEquipmentFromDb(userId);
+                } catch { /* no crítico */ }
+            }
+
+            // Avisar al resto con el equipo incluido
             socket.broadcast.emit('playerJoined', {
                 id: socket.id,
                 name,
+                equipment: equipmentByPlayer[socket.id] ?? {},
             });
         }
-        socket.emit("existingPlayers", playerNames);
-
+        socket.emit('existingPlayers', playerNames);
+        // Mandar snapshot completo al nuevo jugador (con equipo de todos)
+        socket.emit('equipmentSnapshot', equipmentByPlayer);
     });
 
-    // equipamiento 
-    socket.emit('equipmentSnapshot', equipmentByPlayer);
-
-    socket.on('playerEquipment', (msg: { id: string; slot: EquipmentSlot; itemKey: ItemKey }) => {
+    socket.on('playerEquipment', async (msg: { id: string; slot: EquipmentSlot; itemKey: ItemKey }) => {
         const { id, slot, itemKey } = msg || {};
         if (!id || !slot) return;
 
-        // Actualiza snapshot del servidor
+        // Actualiza snapshot en memoria
         if (!equipmentByPlayer[id]) equipmentByPlayer[id] = {};
         equipmentByPlayer[id][slot] = itemKey ?? null;
 
@@ -140,8 +159,9 @@ io.on('connection', (socket) => {
         // Avisar a los demás
         socket.broadcast.emit('userDisconnected', { id: socket.id });
 
-        // Limpiar nombre
         delete playerNames[socket.id];
+        delete socketToUserId[socket.id];
+        delete equipmentByPlayer[socket.id];
     });
 });
 

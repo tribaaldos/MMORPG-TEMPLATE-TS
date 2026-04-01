@@ -1,7 +1,7 @@
 import { useAnimations, useCursor, useGLTF } from '@react-three/drei'
 import { useRef, useState } from 'react'
 import { useShopStore } from '../../store/npcs/useShop'
-import { BasicSword } from '../../items/storage/WeaponsStorage'
+import { BasicSword, FireWeaponItem } from '../../items/storage/WeaponsStorage'
 import { SkeletonUtils } from 'three-stdlib'
 import * as THREE from 'three'
 import SwordSVG from '../svg/Sword'
@@ -26,6 +26,7 @@ export default function KShop({
 
   const swordsForSale = [
     { id: 'sword1', price: 100, ...BasicSword },
+    { id: 'sword2', price: 200, ...FireWeaponItem },
   ] as const
 
 

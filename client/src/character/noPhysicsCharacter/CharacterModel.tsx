@@ -7,8 +7,8 @@ import { useInventoryStore } from "../../store/useInventoryStore";
 import { socket } from "../../socket/SocketManager";
 import NameTag from "../NameTag";
 import { useCharacterStore } from "../../store/useCharacterStore";
-import { useAtom } from "jotai";
-import { chatByIdAtom } from "../../socket/SocketManager";
+import { useAtom, useAtomValue } from "jotai";
+import { chatByIdAtom, remoteNamesAtom } from "../../socket/SocketManager";
 
 type Props = {
   playerId?: string;        // opcional: si no lo pasas, coge socket.id
@@ -143,7 +143,12 @@ export default function AnimatedCharacterModel({
   }, [ensurePlayer, effectiveId]);
 
   const equipment = useInventoryStore((s) => s.equipmentByPlayer[effectiveId]);
-  const characterName = useCharacterStore((s) => s.name) ?? 'Player';
+  const localName = useCharacterStore((s) => s.name)
+  const remoteNames = useAtomValue(remoteNamesAtom)
+  const isLocal = effectiveId === socket?.id
+  const characterName = isLocal
+    ? (localName ?? 'Player')
+    : (remoteNames[effectiveId] ?? 'Player')
   const [chatById] = useAtom(chatByIdAtom);
   const [bubble, setBubble] = useState<{ message: string; t: number } | null>(null);
   const latestChat = chatById[effectiveId];
