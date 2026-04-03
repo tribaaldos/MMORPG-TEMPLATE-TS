@@ -2,6 +2,7 @@
 import React, { useEffect } from 'react'
 import './Inventory.css'
 import { useDrag, useDrop, DragSourceMonitor, DropTargetMonitor } from 'react-dnd'
+import { getEmptyImage } from 'react-dnd-html5-backend'
 import { useInventoryStore, Item, EquipmentSlot } from '../../../store/useInventoryStore'
 import { useCharacterStore } from '../../../store/useCharacterStore'
 import { currencyToStringFull } from '../npcs/Currency'
@@ -50,7 +51,7 @@ function renderIcon(item: Item, className: string, size: number) {
 }
 
 const InventorySlot: React.FC<InventorySlotProps> = ({ item, index, onDrop, onRightClick }) => {
-  const [{ isDragging }, dragRef] = useDrag<DraggedItem, void, { isDragging: boolean }>(
+  const [{ isDragging }, dragRef, dragPreview] = useDrag<DraggedItem, void, { isDragging: boolean }>(
     () => ({
       type: 'ITEM',
       item: { index },
@@ -60,6 +61,11 @@ const InventorySlot: React.FC<InventorySlotProps> = ({ item, index, onDrop, onRi
     }),
     [index]
   )
+
+  // Suprime el preview nativo del browser (que captura el tooltip)
+  useEffect(() => {
+    dragPreview(getEmptyImage(), { captureDraggingState: true })
+  }, [dragPreview])
 
   const [, dropRef] = useDrop<DraggedItem, void, unknown>(
     () => ({
@@ -80,22 +86,19 @@ const InventorySlot: React.FC<InventorySlotProps> = ({ item, index, onDrop, onRi
     // @ts-ignore
     <div ref={dropRef} className="inventory-slot" onContextMenu={handleRightClick}>
       {item ? (
-        <div
-          ref={dragRef as unknown as React.Ref<HTMLDivElement>}
-          className="item-wrapper"
-          style={{ opacity: isDragging ? 0.5 : 1 }}
-        >
+        <div ref={dragRef as unknown as React.Ref<HTMLDivElement>} className={`item-wrapper${isDragging ? ' is-dragging' : ''}`}>
           {renderIcon(item, 'item-icon', 32)}
-
-          <div className="tooltip">
-            {renderIcon(item, 'tooltip-icon', 48)}
-            <h4 className={`tooltip-name ${item.rarity || 'common'}`}>{item.name}</h4>
-            {item.description && <p className="tooltip-desc">{item.description}</p>}
-            <ul className="tooltip-stats">
-              {item.attack && <li>⚔️ Attack: {item.attack}</li>}
-              {item.defense && <li>🛡️ Defense: {item.defense}</li>}
-            </ul>
-          </div>
+          {!isDragging && (
+            <div className="tooltip">
+              {renderIcon(item, 'tooltip-icon', 48)}
+              <h4 className={`tooltip-name ${item.rarity || 'common'}`}>{item.name}</h4>
+              {item.description && <p className="tooltip-desc">{item.description}</p>}
+              <ul className="tooltip-stats">
+                {item.attack && <li>⚔️ Attack: {item.attack}</li>}
+                {item.defense && <li>🛡️ Defense: {item.defense}</li>}
+              </ul>
+            </div>
+          )}
         </div>
       ) : (
         <span className="slot-index">{index + 1}</span>
@@ -103,6 +106,7 @@ const InventorySlot: React.FC<InventorySlotProps> = ({ item, index, onDrop, onRi
     </div>
   )
 }
+
 
 const Inventory: React.FC = () => {
   // playerId SIEMPRE local (socket.id) con fallback
@@ -114,9 +118,9 @@ const Inventory: React.FC = () => {
 
   // Inventario y acciones
   const inventory = useInventoryStore(s => s.inventoryByPlayer[playerId] ?? [])
-  const moveItem  = useInventoryStore(s => s.moveItem)
+  const moveItem = useInventoryStore(s => s.moveItem)
   const equipItem = useInventoryStore(s => s.equipItem)
-  const useItem   = useInventoryStore(s => s.useItem)
+  const useItem = useInventoryStore(s => s.useItem)
 
   // Stats/Currency
   const gold = useCharacterStore(s => s.gold)

@@ -1,0 +1,110 @@
+.dialogue-overlay {
+  position: fixed;
+  bottom: 90px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: min(680px, 92vw);
+  z-index: 3000;
+  pointer-events: all;
+  animation: dialogue-in 0.18s ease-out;
+}
+
+@keyframes dialogue-in {
+  from { opacity: 0; transform: translateX(-50%) translateY(12px); }
+  to   { opacity: 1; transform: translateX(-50%) translateY(0); }
+}
+
+.dialogue-box {
+  background: linear-gradient(160deg, #0d0d18 0%, #111122 100%);
+  border: 1px solid #3a3a6a;
+  border-radius: 10px;
+  box-shadow: 0 8px 40px rgba(0, 0, 0, 0.8), inset 0 1px 0 rgba(255,255,255,0.04);
+  overflow: hidden;
+}
+
+/* Header: nombre del NPC */
+.dialogue-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 16px;
+  background: rgba(60, 60, 120, 0.25);
+  border-bottom: 1px solid #2a2a50;
+}
+
+.dialogue-avatar {
+  font-size: 22px;
+  line-height: 1;
+}
+
+.dialogue-npc-name {
+  font-size: 13px;
+  font-weight: 700;
+  color: #c9a84c;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  font-family: 'Segoe UI', sans-serif;
+}
+
+/* Texto del diálogo */
+.dialogue-text {
+  padding: 16px 18px;
+  font-size: 14px;
+  line-height: 1.7;
+  color: #d8d8e8;
+  white-space: pre-line;
+  font-family: 'Segoe UI', sans-serif;
+  min-height: 80px;
+}
+
+/* Opciones */
+.dialogue-choices {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 6px 14px 14px;
+}
+
+.dialogue-choice {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid #2e2e55;
+  border-radius: 6px;
+  color: #a8c8ff;
+  font-size: 13px;
+  font-family: 'Segoe UI', sans-serif;
+  padding: 8px 14px;
+  cursor: pointer;
+  text-align: left;
+  transition: background 0.12s, border-color 0.12s, color 0.12s;
+}
+
+.dialogue-choice:hover {
+  background: rgba(100, 120, 220, 0.2);
+  border-color: #5566cc;
+  color: #ddeeff;
+}
+
+/* Hint de proximidad (flotante sobre el NPC en 3D) */
+.npc-interact-hint {
+  background: rgba(0,0,0,0.75);
+  border: 1px solid #4a4a8a;
+  border-radius: 20px;
+  padding: 4px 10px;
+  font-size: 18px;
+  pointer-events: none;
+  white-space: nowrap;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #fff;
+  font-family: 'Segoe UI', sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  animation: hint-bounce 1.2s ease-in-out infinite;
+}
+
+@keyframes hint-bounce {
+  0%, 100% { transform: translateY(0); }
+  50%       { transform: translateY(-4px); }
+}

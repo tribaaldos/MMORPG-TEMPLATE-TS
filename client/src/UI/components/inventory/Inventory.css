@@ -102,6 +102,11 @@
   opacity: 1;
 }
 
+.inventory-slot:hover .is-dragging .tooltip {
+  opacity: 0 !important;
+  pointer-events: none;
+}
+
 .tooltip-icon {
   width: 48px;
   height: 48px;

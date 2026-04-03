@@ -30,6 +30,7 @@ export default function FireWeapon({
                 <group name="Rig">
 
                     <skinnedMesh
+                        frustumCulled={false}
                         ref={mesh}
                         name="lavaAxe"
                         geometry={nodes.lavaAxe.geometry}

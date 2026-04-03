@@ -8,6 +8,8 @@ import UICharacter from './components/character/Character';
 import PerfWidget from './PerfState';
 import KShop from '../components/npc/Shop';
 import ShopPanel from './components/npcs/Shop';
+import Dialogue from './components/npcs/Dialogue';
+import LootPopup from './components/loot/LootPopup';
 import CharacterTopLeftUi from './components/character/CharacterTopLeftUi';
 import Minimap from './minimap/Minimap';
 import SkillsBar from './skillsBar/SkillsBar';
@@ -62,6 +64,8 @@ export default function MainUI({ isDebug }: { isDebug: boolean }) {
                 <div className="ui-region ui-bottom-bar">
                     <ExpBar />
                 </div>
+                <Dialogue />
+                <LootPopup />
                 {/* <DiabloUI /> */}
             </div>
         </>
