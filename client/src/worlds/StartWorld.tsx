@@ -18,9 +18,11 @@ import KShop from '../components/npc/Shop'
 import { Dragon } from './dungeons/monsters/Dragon'
 import FullBVH from '../character/noPhysicsCharacter/FullBVH'
 import RemoteBVHCharacters from '../character/noPhysicsCharacter/extra/remoteBVHCharacter'
-import { useEffect } from 'react'
+import { use, useEffect, useState } from 'react'
 import { TreeMainPlace } from '../components/environmentModels/trees/TreeMainPlace'
 import WaterShader from '../components/shaders/water/WaterShader'
+import SkyShader, { getHorizonColor, useTimeStore } from '../components/shaders/sky/SkyShader'
+import { useFrame, useThree } from '@react-three/fiber'
 export default function World1({ onTeleport, isDebug }: {
     // physicsSettings: any,
     // setEmoji: (emoji: string) => void,
@@ -36,22 +38,6 @@ export default function World1({ onTeleport, isDebug }: {
         }, { collapsed: true })
     },
         { collapsed: true });
-    const Sky = (props: any) => {
-        const { nodes, materials } = useGLTF('/sky-green.glb')
-        const positionPersonaje = useCharacterStore((s) => s.position);
-
-        return (
-            <group {...props} dispose={null} position={positionPersonaje}>
-                <mesh
-                    castShadow
-                    receiveShadow
-                    geometry={(nodes.Skybox as THREE.Mesh).geometry}
-                    material={materials.Skybox_mat}
-                    material-fog={false}
-                />
-            </group>
-        )
-    }
     // function LordMarrowgar() {
     //     const { scene } = useGLTF('/dungeons/icc.glb');
     //     const { scene: scenePhysics } = useGLTF('/dungeons/iccPhysics.glb');
@@ -80,11 +66,32 @@ export default function World1({ onTeleport, isDebug }: {
         )
     }
 
+    function FogSync() {
+        const { scene } = useThree()
+        useFrame(() => {
+            const hour = useTimeStore.getState().hour
+            if (scene.fog) (scene.fog as THREE.Fog).color.set(getHorizonColor(hour))
+        })
+        return null
+    }
+
+    const hour = useTimeStore((s) => s.hour)
+    const color = getHorizonColor(hour)
+    const [intensitiveLight, setIntensitiveLight] = useState(0.5)
+    useEffect(() => {
+        if (hour > 2 ) {
+            setIntensitiveLight(2)
+        } else {
+            setIntensitiveLight(0.5)
+        }
+    }, [hour])
+
+
     return (
         // minimized leva
         <>
 
-            <ambientLight intensity={0.5} />
+            <ambientLight intensity={intensitiveLight} color={color} />
             <Floor />
             <Fountain />
             <GrassBlock position={[0, 0, 0]} isDebug={isDebug} />
@@ -133,9 +140,11 @@ export default function World1({ onTeleport, isDebug }: {
             {/* <KShop setEmoji={setEmoji} /> */}
             <KShop />
             <Dragon id="dragon-1" position={[15, 0, 15]} />
-            <Sky />
+            <SkyShader />
 
-            <fog attach="fog" args={['lightblue', 15, 200]} />
+            <FogSync />
+            <fog attach="fog" args={['light', 15, 200]} />
+
 
         </>
     )

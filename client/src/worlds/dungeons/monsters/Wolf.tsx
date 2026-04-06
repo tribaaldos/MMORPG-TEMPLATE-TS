@@ -4,7 +4,7 @@ import * as THREE from 'three'
 import { socket } from '../../../socket/SocketManager'
 import { useFrame } from '@react-three/fiber'
 import { useEcctrlStore } from '../../../character/noPhysicsCharacter/extra/useEcctrlStore'
-import NameTag from '../../../character/NameTag'
+import MonsterPlate from '../../../character/MonsterPlate'
 import { useTargetStore } from '../../../store/useTargetStore'
 
 interface WolfProps {
@@ -127,7 +127,7 @@ export function Wolf({ props, position = [0, 0, 0] }: WolfProps) {
                     })
                 }}
             >
-                <NameTag text="Wolf" />
+                <MonsterPlate name="Wolf" level={1} hp={74} maxHp={100} position={[0, 2.2, 0]} />
                 <group name="Sketchfab_Scene">
                     <group
                         name="Sketchfab_model"

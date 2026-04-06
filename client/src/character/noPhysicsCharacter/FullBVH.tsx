@@ -27,6 +27,16 @@ export default function FullBVH() {
     };
   }, []);
 
+  // listen for reset event from UI
+  useEffect(() => {
+    const handler = () => {
+      ecctrlRef.current?.group?.position.set(0, 5, 0)
+      ecctrlRef.current?.resetLinVel()
+    }
+    window.addEventListener('reset-player-position', handler)
+    return () => window.removeEventListener('reset-player-position', handler)
+  }, [])
+
   // debug
   const EcctrlDebugSettings = useControls("Ecctrl Debug", {
     CameraLock: button(() => {
@@ -134,7 +144,7 @@ export default function FullBVH() {
           key={EcctrlDebugSettings.floatCheckType} // Force remount on change
           colliderCapsuleArgs={[0.3, 0.8, 4, 8]}
         >
-          <pointLight position={[0, 1.8, 0]} intensity={3} />
+          <pointLight position={[0, 1.8, 0]} intensity={30} />
           {/* <NewCharacter /> */}
           <AnimatedCharacterModel
             slowMotion={EcctrlDebugSettings.slowMotionFactor}

@@ -10,7 +10,10 @@
       "mcp__blender__get_hyper3d_status",
       "mcp__blender__generate_hyper3d_model_via_text",
       "mcp__blender__poll_rodin_job_status",
-      "mcp__blender__import_generated_asset"
+      "mcp__blender__import_generated_asset",
+      "Bash(npx tsc:*)",
+      "Bash(md5 \"/Users/angel/TypescriptProjects/MMORPG-Template-TS/client/src/components/shaders/sky/SkyShader.tsx\")",
+      "WebSearch"
     ]
   }
 }

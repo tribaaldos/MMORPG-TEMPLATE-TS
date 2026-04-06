@@ -144,7 +144,7 @@ export default function Experience() {
         return () => { cancelled = true; };
     }, []);
 
-    const isDebug : boolean = true;
+    const isDebug : boolean = false;
 
     return (
         <>

@@ -5,7 +5,7 @@ import ShoulderSVG from '../../components/svg/ShoulderSVG';
 import SwordSVG from '../../components/svg/Sword';
 import BasicShoulders from '../shoulders/BasicShoulders';
 import BasicGreenShoulder from '../shoulders/BasicGreenShoulders';
-
+import GreenShoulderMin from '../../../public/greenshoulder.png'
 
 
 export const BasicShoulder: Item & { Model: EquipmentModel } = {
@@ -21,7 +21,7 @@ export const BasicShoulder: Item & { Model: EquipmentModel } = {
 export const BasicGreenShoulderItem: Item & { Model: EquipmentModel } = {
   name: 'Basic Green Shoulder',
   type: 'shoulders',
-  image: ShoulderSVG,
+  image: GreenShoulderMin,
   attack: 5,
   rarity: 'uncommon',
   bonuses: { agility: 5, maxHp: 20, intelligence: 50 },

@@ -4,6 +4,7 @@ import * as THREE from 'three';
 import { socket } from '../../../socket/SocketManager';
 import { useFrame } from '@react-three/fiber';
 import { LoopRepeat } from 'three';
+import MonsterPlate from '../../../character/MonsterPlate';
 
 interface SpiderProps {
   props?: any
@@ -86,6 +87,7 @@ export function Spider({ props, position = [0, 0, 0] }: SpiderProps) {
 
   return (
     <group ref={group} {...props} dispose={null} scale={0.02} position={position} rotation={[0, Math.PI/2, Math.PI*2]}>
+      <MonsterPlate name="Spider" level={1} hp={80} maxHp={80} scale={50} position={[0, 120, 0]} />
       <group name="Scene">
         <group name="Sketchfab_model001" rotation={[-Math.PI / 2, 0, 0]}>
           <group name="root">

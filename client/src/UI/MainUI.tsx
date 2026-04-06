@@ -17,7 +17,8 @@ import MenuBar from './menuBar/MenuBar';
 import Chat from './chat/Chat';
 import SkillsPopup from './components/skills/SkillsPopup';
 import { useAbilityStore } from '../character/skills/useAbilityStore';
-import { useAuthStore } from '../store/useAuthStore';
+import { useAuthStore } from '../store/useAuthStore'
+import DayNightSlider from './components/DayNightSlider';
 
 export default function MainUI({ isDebug }: { isDebug: boolean }) {
     const isSkillsOpen = useAbilityStore((s) => s.isSkillsOpen)
@@ -37,6 +38,24 @@ export default function MainUI({ isDebug }: { isDebug: boolean }) {
 
                 <div className="ui-region ui-top-left">
                     <CharacterTopLeftUi />
+                </div>
+                <div style={{
+                    position: 'absolute',
+                    top: 12,
+                    left: '50%',
+                    transform: 'translateX(-50%)',
+                    zIndex: 100,
+                }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                    <button
+                        onClick={() => window.dispatchEvent(new CustomEvent('reset-player-position'))}
+                        style={{ padding: '5px 12px', background: '#2c3e50', color: '#fff', border: '1px solid #7f8c8d', borderRadius: 6, cursor: 'pointer', fontSize: 13, whiteSpace: 'nowrap' }}
+                        title="Reset position"
+                    >
+                        ⟳ Reset Pos
+                    </button>
+                    <DayNightSlider />
+                </div>
                 </div>
                 <div className="ui-region ui-top-right">
                     <button

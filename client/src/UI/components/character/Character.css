@@ -26,7 +26,7 @@
   bottom: clamp(68px, 11vh, 140px);
   z-index: 10;
   display: grid;
-  grid-template-columns: 52px 1fr 52px;
+  grid-template-columns: 64px 1fr 64px;
   grid-template-rows: auto 1fr auto auto;
   grid-template-areas:
     "title  title  title"
@@ -178,7 +178,7 @@
 ═══════════════════════════════════════ */
 .equipment-grid {
   display: grid;
-  gap: 5px;
+  gap: 6px;
   position: relative;
   z-index: 1;
 }
@@ -188,7 +188,7 @@
   align-self: stretch;
   grid-template-columns: 1fr;
   justify-items: center;
-  padding: 0 4px;
+  padding: 4px 6px;
   border-right: 1px solid rgba(160, 110, 30, 0.2);
 }
 
@@ -197,7 +197,7 @@
   align-self: stretch;
   grid-template-columns: 1fr;
   justify-items: center;
-  padding: 0 4px;
+  padding: 4px 6px;
   border-left: 1px solid rgba(160, 110, 30, 0.2);
 }
 
@@ -212,8 +212,8 @@
 
 /* === Equipment Slot === */
 .equipment-slot {
-  width: 44px;
-  height: 44px;
+  width: 54px;
+  height: 54px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -240,13 +240,13 @@
 }
 
 .equipment-grid[data-compact="true"] .equipment-slot {
-  width: 42px;
-  height: 42px;
+  width: 52px;
+  height: 52px;
 }
 
 .equipment-grid[data-area="bottom"] .equipment-slot {
-  width: 52px;
-  height: 52px;
+  width: 58px;
+  height: 58px;
 }
 
 .item-icon {

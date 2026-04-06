@@ -5,7 +5,7 @@ import * as THREE from 'three'
 import { socket } from '../../../socket/SocketManager'
 import { useFrame } from '@react-three/fiber'
 import { useEcctrlStore } from '../../../character/noPhysicsCharacter/extra/useEcctrlStore'
-import NameTag from '../../../character/NameTag'
+import MonsterPlate from '../../../character/MonsterPlate'
 import { useTargetStore } from '../../../store/useTargetStore'
 import { useMonsterStore } from './useMonsterStore'
 
@@ -300,7 +300,14 @@ export function Dragon({ id, position = [0, 0, 0], localPlayerPos, nameId = 'Dra
                 }}
             >
                 <group name="Root_Scene">
-                    <NameTag text={nameId} scale={0.5} position={[0, 0.5, 0]} />
+                    <MonsterPlate
+                        name={nameId}
+                        level={1}
+                        hp={useMonsterStore((s) => s.monsters[id]?.hp ?? 200)}
+                        maxHp={useMonsterStore((s) => s.monsters[id]?.maxHp ?? 200)}
+                        scale={0.5}
+                        position={[0, 0.5, 0]}
+                    />
                     <group name="RootNode">
                         <group name="CharacterArmature" rotation={[-Math.PI / 2, 0, Math.PI]} scale={10}>
                             <primitive object={(nodes as any).Root} />
