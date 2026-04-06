@@ -36,7 +36,9 @@ export default function DragonDungeon({ onTeleport }:
     return (
         <>
             <Sky />
-            {/* <Dragon position={[5, 10, 10]} /> */}
+                <Dragon id="dragon-1" position={[0,   0, 0]}  nameId="Dragon" />
+            <Dragon id="dragon-2" position={[15,  0, 8]}  nameId="Dragon" />
+            <Dragon id="dragon-3" position={[-12, 0, 15]} nameId="Dragon" />
             {/* <BVHWeapon /> */}
                         <TeleportZone
                                 position={[10, 0, 0]}

@@ -30,6 +30,7 @@ export default function BVHWeapon({
         <group name="Rig">
 
           <skinnedMesh
+            frustumCulled={false}
             ref={mesh}
             name="polySurface13_lambert1_0"
             geometry={nodes.polySurface13_lambert1_0.geometry}

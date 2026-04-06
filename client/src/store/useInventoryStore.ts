@@ -30,6 +30,16 @@ export type ConsumableType = 'potion' | 'consumable'
 /** Union de todos los tipos posibles de ítem */
 export type ItemType = EquipmentSlot | ConsumableType
 
+/** Bonuses de stats que puede dar un ítem */
+export interface ItemBonuses {
+  strength?: number
+  agility?: number
+  intelligence?: number
+  critRate?: number
+  maxHp?: number
+  maxMana?: number
+}
+
 /** Estructura de un ítem */
 export interface Item {
   type: ItemType
@@ -39,8 +49,8 @@ export interface Item {
   rarity?: 'common' | 'uncommon' | 'rare' | 'epic' | 'legendary'
   attack?: number
   defense?: number
+  bonuses?: ItemBonuses
   Model?: EquipmentModel // Componente 3D asociado (si tiene)
-  // ...otros campos que necesites
 }
 
 export type Equipment = Record<EquipmentSlot, Item | null>

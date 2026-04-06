@@ -62,6 +62,18 @@ function App() {
           useCharacterStore.getState().addGold(user.gold - useCharacterStore.getState().gold)
         }
 
+        if (typeof user.level === 'number' && typeof user.exp === 'number') {
+          useCharacterStore.getState().loadStats({
+            level: user.level,
+            exp: user.exp,
+            statPoints: user.statPoints,
+            strength: user.strength,
+            agility: user.agility,
+            intelligence: user.intelligence,
+            critRate: user.critRate,
+          })
+        }
+
         const equipment = (user.equipment ?? {}) as Record<string, ItemKey | null>
         const inventory = Array.isArray(user.inventory) ? user.inventory as (ItemKey | null)[] : []
         useAuthStore.getState().setSavedLoadout(equipment, inventory)
@@ -88,9 +100,9 @@ function App() {
       <Route path="/shader-visualizer" element={<ShaderVisualizer />} />
       <Route path="/shader-visualizer/:id" element={<ShaderVisualizer />} />
       {/* PROD*/}
-      {/* <Route path="/" element={token ? <Experience /> : <AuthScreen />} /> */}
+      <Route path="/" element={token ? <Experience /> : <AuthScreen />} />
       {/* DEV */}
-      <Route path="/" element={ <Experience /> } />
+      {/* <Route path="/" element={ <Experience /> } /> */}
 
     </Routes>
   )

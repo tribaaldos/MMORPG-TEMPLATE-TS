@@ -1,9 +1,9 @@
 import { useState } from 'react'
 import { useAuthStore } from '../../../store/useAuthStore'
 import { useCharacterStore } from '../../../store/useCharacterStore'
-import { useInventoryStore, EquipmentSlot } from '../../../store/useInventoryStore'
-import { itemRegistry, ItemKey } from '../../../items/itemRegistry'
+import { ItemKey } from '../../../items/itemRegistry'
 import { socket } from '../../../socket/SocketManager'
+import { applyLoadout } from '../../../App'
 import './AuthScreen.css'
 
 const SERVER_URL = import.meta.env.VITE_SERVER_URL || 'http://localhost:5174'
@@ -44,31 +44,43 @@ export default function AuthScreen() {
                 return
             }
 
-            const pos: [number, number, number] = [data.user.posX ?? 0, data.user.posY ?? 0, data.user.posZ ?? 0]
-            const world = data.user.world ?? 'world1'
+            // Cargar datos completos (stats, equipo, inventario) desde /auth/me
+            const meRes = await fetch(`${SERVER_URL}/auth/me`, {
+                headers: { Authorization: `Bearer ${data.token}` },
+            })
+            const user = await meRes.json()
 
-            setAuth(data.token, data.user.id, data.user.email, pos, world)
-            setCharName(data.user.name)
+            const pos: [number, number, number] = [user.posX ?? 0, user.posY ?? 0, user.posZ ?? 0]
+            const world = user.world ?? 'world1'
+
+            setAuth(data.token, user.id, user.email, pos, world)
+            setCharName(user.name)
             setWorld(world)
             setPosition(pos)
 
-            // Aplicar equipo e inventario
-            const equipment = (data.user.equipment ?? {}) as Record<string, ItemKey | null>
-            const inventory = Array.isArray(data.user.inventory) ? data.user.inventory as (ItemKey | null)[] : []
+            if (typeof user.gold === 'number') {
+                useCharacterStore.getState().addGold(user.gold - useCharacterStore.getState().gold)
+            }
+
+            if (typeof user.level === 'number' && typeof user.exp === 'number') {
+                useCharacterStore.getState().loadStats({
+                    level: user.level,
+                    exp: user.exp,
+                    statPoints: user.statPoints,
+                    strength: user.strength,
+                    agility: user.agility,
+                    intelligence: user.intelligence,
+                    critRate: user.critRate,
+                })
+            }
+
+            const equipment = (user.equipment ?? {}) as Record<string, ItemKey | null>
+            const inventory = Array.isArray(user.inventory) ? user.inventory as (ItemKey | null)[] : []
             useAuthStore.getState().setSavedLoadout(equipment, inventory)
 
             const applyAndJoin = (sid: string) => {
-                const { ensurePlayer, setEquipmentSlot } = useInventoryStore.getState()
-                ensurePlayer(sid)
-                for (const [slot, key] of Object.entries(equipment) as [EquipmentSlot, ItemKey | null][]) {
-                    setEquipmentSlot(sid, slot, key)
-                }
-                const inv = inventory.map((key) => (key && itemRegistry[key]) ? itemRegistry[key] : null)
-                while (inv.length < 20) inv.push(null)
-                useInventoryStore.setState((s) => ({
-                    inventoryByPlayer: { ...s.inventoryByPlayer, [sid]: inv }
-                }))
-                socket.emit('playerJoin', { name: data.user.name, userId: data.user.id })
+                applyLoadout(sid, equipment, inventory)
+                socket.emit('playerJoin', { name: user.name, userId: user.id })
             }
 
             if (socket.id) applyAndJoin(socket.id)

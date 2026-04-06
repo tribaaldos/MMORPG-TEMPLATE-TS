@@ -26,11 +26,13 @@ import WorldLoadingOverlay from './UI/WorldLoadingOverlay'
 import { useSavePosition } from './hooks/useSavePosition'
 import { useSaveGold } from './hooks/useSaveGold'
 import { useSaveEquipment } from './hooks/useSaveEquipment'
+import { useSaveExperience } from './hooks/useSaveExperience'
 import { useAuthStore } from './store/useAuthStore'
 import { socket } from './socket/SocketManager'
 export default function Experience() {
     useSavePosition()
     useSaveGold()
+    useSaveExperience()
 
     const [socketId, setSocketId] = useState(() => socket.id ?? '')
     useEffect(() => {

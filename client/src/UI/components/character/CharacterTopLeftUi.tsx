@@ -1,11 +1,15 @@
 import { useCharacterStore } from "../../../store/useCharacterStore";
+import { useTotalStats } from "../../../hooks/useTotalStats";
+import { socket } from "../../../socket/SocketManager";
 import './CharacterTopLeftUi.css'
 
 export default function CharacterTopLeftUi() {
     const characterName = useCharacterStore((state) => state.name);
     const characterLevel = useCharacterStore((state) => state.level);
     const characterHp = useCharacterStore((state) => state.hp);
-    const hpPercent = Math.max(0, Math.min(100, Math.round(characterHp || 0)));
+    const playerId = socket.id ?? 'local-fallback';
+    const { maxHp: characterMaxHp } = useTotalStats(playerId);
+    const hpPercent = Math.max(0, Math.min(100, Math.round((characterHp / characterMaxHp) * 100) || 0));
     return (
         <>
             <div className="character-ui" style={{ ['--hp' as string]: `${hpPercent}%` }}>
@@ -21,7 +25,7 @@ export default function CharacterTopLeftUi() {
                     <div className="character-subtitle">Level {characterLevel} • Adventurer</div>
                     <div className="character-hp">
                         <div className="character-hp-fill" />
-                        <div className="character-hp-text">HP {hpPercent}%</div>
+                        <div className="character-hp-text">HP {characterHp} / {characterMaxHp}</div>
                     </div>
                 </div>
             </div>

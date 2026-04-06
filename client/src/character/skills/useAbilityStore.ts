@@ -8,6 +8,25 @@ import { socket } from "../../socket/SocketManager";
 import { useAnimationStore } from "../noPhysicsCharacter/extra/useAnimationStore";
 import { useCharacterStore } from "../../store/useCharacterStore";
 import { useMonsterStore } from "../../worlds/dungeons/monsters/useMonsterStore";
+import { useInventoryStore } from "../../store/useInventoryStore";
+
+/** Calcula la inteligencia total (base + bonuses de equipo) sin hooks */
+function getTotalIntelligence(): number {
+    const base = useCharacterStore.getState().intelligence ?? 0
+    const playerId = socket.id
+    if (!playerId) return base
+    const equipment = useInventoryStore.getState().equipmentByPlayer[playerId]
+    if (!equipment) return base
+    const bonus = Object.values(equipment).reduce((acc, item) => {
+        return acc + (item?.bonuses?.intelligence ?? 0)
+    }, 0)
+    return base + bonus
+}
+
+/** daño de hielo: 10 base + 1.5 × inteligencia total */
+function calcIceDamage(): number {
+    return Math.floor(10 + getTotalIntelligence() * 1.5)
+}
 export type AbilityContext = {
     isOnGround: boolean;
     currentLinVel: React.MutableRefObject<THREE.Vector3>;
@@ -155,7 +174,7 @@ export const abilities: Record<string, Ability> = {
         const speed = 10
         const ttl = 1000
         const radius = 0.08
-        const damage = 15
+        const damage = calcIceDamage() // escala con inteligencia: 10 + int * 1.5
 
         // Cliente local
         useProjectilesStore.getState().add({

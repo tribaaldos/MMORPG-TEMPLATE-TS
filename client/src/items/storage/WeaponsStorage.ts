@@ -9,15 +9,15 @@ import FireWeaponImg from '../../../public/items/weapons/fireWeapon.png'
 export const BasicSword = {
   name: 'Iron Sword',
   type: 'weapon',
-  image: SwordImageSVG,                       // 👈 componente
-  imageProps: {                          // 👈 props ajustadas aquí
+  image: SwordImageSVG,
+  imageProps: {
     size: 52,
     backgroundColor: 'blue',
     iconColor: '#FFD700',
   },
   attack: 500,
   rarity: 'legendary',
-  // Model: SecondSwordModel,
+  bonuses: { strength: 8, critRate: 5 },
   Model: BVHWeapon,
 } as const;
 

@@ -109,6 +109,13 @@ router.get('/me', async (req: Request, res: Response) => {
         equipment,
         inventory,
         gold: user.gold ?? 9999999,
+        level: user.level ?? 1,
+        exp: user.exp ?? 0,
+        statPoints: user.statPoints ?? 0,
+        strength: user.strength ?? 10,
+        agility: user.agility ?? 10,
+        intelligence: user.intelligence ?? 10,
+        critRate: user.critRate ?? 15,
     })
 })
 
@@ -191,6 +198,39 @@ router.put('/inventory', async (req: Request, res: Response) => {
         prisma.inventoryItem.createMany({ data: records }),
     ])
 
+    res.json({ ok: true })
+})
+
+// PUT /auth/experience — guarda nivel y experiencia
+router.put('/experience', async (req: Request, res: Response) => {
+    const auth = req.headers.authorization
+    if (!auth) { res.status(401).json({ error: 'Token requerido' }); return }
+
+    const token = auth.replace('Bearer ', '')
+    let payload: { userId: string }
+    try {
+        payload = jwt.verify(token, JWT_SECRET) as { userId: string }
+    } catch {
+        res.status(401).json({ error: 'Token inválido' }); return
+    }
+
+    const { level, exp, statPoints, strength, agility, intelligence, critRate } = req.body
+    if (typeof level !== 'number' || typeof exp !== 'number') {
+        res.status(400).json({ error: 'level y exp requeridos' }); return
+    }
+
+    await prisma.user.update({
+        where: { id: payload.userId },
+        data: {
+            level,
+            exp,
+            ...(typeof statPoints === 'number' && { statPoints }),
+            ...(typeof strength === 'number' && { strength }),
+            ...(typeof agility === 'number' && { agility }),
+            ...(typeof intelligence === 'number' && { intelligence }),
+            ...(typeof critRate === 'number' && { critRate }),
+        },
+    })
     res.json({ ok: true })
 })
 

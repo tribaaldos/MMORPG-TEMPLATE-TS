@@ -10,6 +10,7 @@ export const DragonBootsItem: Item & { Model: EquipmentModel } = {
 
     defense: 50,
     rarity: 'epic',
+    bonuses: { agility: 12, maxHp: 40 },
     Model: DragonBootsModel,
 }
 

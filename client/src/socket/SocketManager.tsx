@@ -237,6 +237,10 @@ export const SocketManager: React.FC = () => {
       }
     };
 
+    const onXpGain = (data: { amount: number; source: string }) => {
+      useCharacterStore.getState().gainExp(data.amount)
+    }
+
     const onChatMessage = (msg: { id: string; name: string; message: string; t: number }) => {
       if (!msg || !msg.id || !msg.message) return;
       setChatById((prev) => ({
@@ -265,6 +269,7 @@ export const SocketManager: React.FC = () => {
     socket.on("remoteEquipment", onRemoteEquip);
     socket.on("equipmentSnapshot", onEquipmentSnapshot);
     socket.on("chatMessage", onChatMessage);
+    socket.on("xpGain", onXpGain);
 
     return () => {
       socket.off("connect", onConnect);
@@ -281,6 +286,7 @@ export const SocketManager: React.FC = () => {
       socket.off("remoteEquipment", onRemoteEquip);
       socket.off("equipmentSnapshot", onEquipmentSnapshot);
       socket.off("chatMessage", onChatMessage);
+      socket.off("xpGain", onXpGain);
     };
   }, [setWolf]);
 

@@ -96,6 +96,9 @@ const InventorySlot: React.FC<InventorySlotProps> = ({ item, index, onDrop, onRi
               <ul className="tooltip-stats">
                 {item.attack && <li>⚔️ Attack: {item.attack}</li>}
                 {item.defense && <li>🛡️ Defense: {item.defense}</li>}
+                {item.bonuses && Object.entries(item.bonuses).map(([key, val]) =>
+                  val ? <li key={key}>✦ {key}: +{val}</li> : null
+                )}
               </ul>
             </div>
           )}

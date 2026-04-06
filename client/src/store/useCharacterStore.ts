@@ -37,9 +37,13 @@ interface CharacterState {
   agility: number;
   intelligence: number;
 
+  statPoints: number;
+
   getExpToLevel: (level: number) => number;
   checkLevelUp: () => void;
   gainExp: (amount: number) => void;
+  spendStatPoint: (stat: 'strength' | 'agility' | 'intelligence' | 'critRate') => void;
+  loadStats: (data: { level: number; exp: number; statPoints?: number; strength?: number; agility?: number; intelligence?: number; critRate?: number }) => void;
 
   // economía (sí persistente)
   gold: number;
@@ -89,6 +93,7 @@ export const useCharacterStore = create<CharacterState>()(
       setRigidBodyRef: (ref) => set({ rigidBodyRef: ref }),
 
       // stats
+      statPoints: 0,
       exp: 0,
       level: 1,
       maxHp: 100,
@@ -109,12 +114,12 @@ export const useCharacterStore = create<CharacterState>()(
           set((s) => ({
             level: s.level + 1,
             exp: s.exp - expNeeded,
+            statPoints: s.statPoints + 3,
             maxHp: s.maxHp + 10,
-            hp: Math.min(s.hp + 10, s.maxHp + 10), // evita pasar el nuevo max
+            hp: Math.min(s.hp + 10, s.maxHp + 10),
             mana: Math.min(s.mana + 10, s.maxMana + 10),
             maxMana: s.maxMana + 10,
           }));
-          // recursivo por si sube varios niveles
           get().checkLevelUp();
         }
       },
@@ -122,6 +127,24 @@ export const useCharacterStore = create<CharacterState>()(
       gainExp: (amount) => {
         set((s) => ({ exp: s.exp + Math.max(0, amount) }));
         get().checkLevelUp();
+      },
+
+      spendStatPoint: (stat) => {
+        const { statPoints } = get();
+        if (statPoints <= 0) return;
+        set((s) => ({ statPoints: s.statPoints - 1, [stat]: s[stat] + 1 }));
+      },
+
+      loadStats: ({ level, exp, statPoints, strength, agility, intelligence, critRate }) => {
+        set({
+          level,
+          exp,
+          ...(typeof statPoints === 'number' && { statPoints }),
+          ...(typeof strength === 'number' && { strength }),
+          ...(typeof agility === 'number' && { agility }),
+          ...(typeof intelligence === 'number' && { intelligence }),
+          ...(typeof critRate === 'number' && { critRate }),
+        });
       },
 
       // economía
@@ -148,6 +171,7 @@ export const useCharacterStore = create<CharacterState>()(
         world: state.world,
         level: state.level,
         exp: state.exp,
+        statPoints: state.statPoints,
         gold: state.gold,
         maxHp: state.maxHp,
         hp: state.hp,

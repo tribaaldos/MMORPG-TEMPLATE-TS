@@ -14,6 +14,7 @@ export const BasicShoulder: Item & { Model: EquipmentModel } = {
   image: ShoulderSVG,
   attack: 3,
   rarity: 'common',
+  bonuses: { agility: 3 },
   Model: BasicShoulders
 }
 
@@ -23,5 +24,6 @@ export const BasicGreenShoulderItem: Item & { Model: EquipmentModel } = {
   image: ShoulderSVG,
   attack: 5,
   rarity: 'uncommon',
+  bonuses: { agility: 5, maxHp: 20, intelligence: 50 },
   Model: BasicGreenShoulder
 }

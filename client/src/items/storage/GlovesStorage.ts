@@ -10,5 +10,6 @@ export const IronGlovesItem: Item & { Model: EquipmentModel } = {
     image: SwordSVG,
     attack: 10,
     rarity: 'common',
+    bonuses: { strength: 4, intelligence: 2 },
     Model: IronGloves, // Assign the actual model component here
 }   

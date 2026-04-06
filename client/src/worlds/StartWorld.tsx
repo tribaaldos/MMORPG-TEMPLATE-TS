@@ -15,6 +15,7 @@ import * as THREE from 'three'
 import { Model } from '../components/environmentModels/Cofre'
 import Fountain from '../components/environmentModels/Fountain'
 import KShop from '../components/npc/Shop'
+import { Dragon } from './dungeons/monsters/Dragon'
 import FullBVH from '../character/noPhysicsCharacter/FullBVH'
 import RemoteBVHCharacters from '../character/noPhysicsCharacter/extra/remoteBVHCharacter'
 import { useEffect } from 'react'
@@ -83,7 +84,7 @@ export default function World1({ onTeleport, isDebug }: {
         // minimized leva
         <>
 
-            <ambientLight intensity={1} />
+            <ambientLight intensity={0.5} />
             <Floor />
             <Fountain />
             <GrassBlock position={[0, 0, 0]} isDebug={isDebug} />
@@ -131,6 +132,7 @@ export default function World1({ onTeleport, isDebug }: {
             <Model position={[3, 0, 5]} />
             {/* <KShop setEmoji={setEmoji} /> */}
             <KShop />
+            <Dragon id="dragon-1" position={[15, 0, 15]} />
             <Sky />
 
             <fog attach="fog" args={['lightblue', 15, 200]} />
