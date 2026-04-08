@@ -100,9 +100,9 @@ function App() {
       <Route path="/shader-visualizer" element={<ShaderVisualizer />} />
       <Route path="/shader-visualizer/:id" element={<ShaderVisualizer />} />
       {/* PROD*/}
-      {/* <Route path="/" element={token ? <Experience /> : <AuthScreen />} /> */}
+      <Route path="/" element={token ? <Experience /> : <AuthScreen />} />
       {/* DEV */}
-      <Route path="/" element={ <Experience /> } />
+      {/* <Route path="/" element={ <Experience /> } /> */}
 
     </Routes>
   )
