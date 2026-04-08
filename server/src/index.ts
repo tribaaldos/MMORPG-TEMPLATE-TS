@@ -8,8 +8,10 @@ import authRoutes from './authRoutes';
 import { prisma } from './db';
 
 const app = express();
+const ALLOWED_ORIGIN = process.env.CLIENT_URL || 'http://localhost:5173';
+
 app.use((req, res, next) => {
-    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Origin', ALLOWED_ORIGIN);
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
     if (req.method === 'OPTIONS') { res.sendStatus(204); return; }
@@ -20,7 +22,7 @@ app.use('/auth', authRoutes);
 const server = http.createServer(app);
 const io = new Server(server, {
     cors: {
-        origin: '*',
+        origin: ALLOWED_ORIGIN,
         methods: ['GET', 'POST'],
     },
 });
@@ -58,8 +60,10 @@ const chatHistory: ChatMessage[] = [];
 const CHAT_LIMIT = 50;
 
 
-server.listen(5174, () => {
-    console.log('🚀 Server running on port 5174');
+const PORT = process.env.PORT || 5174;
+
+server.listen(PORT, () => {
+    console.log(`🚀 Server running on port ${PORT}`);
 });
 
 io.on('connection', (socket) => {

@@ -1,0 +1,48 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  password  String
+  name      String
+  posX      Float    @default(0)
+  posY      Float    @default(0)
+  posZ      Float    @default(0)
+  world     String   @default("world1")
+  createdAt DateTime @default(now())
+
+  // stats
+  level        Int @default(1)
+  exp          Int @default(0)
+  statPoints   Int @default(0)
+  hp           Int @default(100)
+  maxHp        Int @default(100)
+  mana         Int @default(100)
+  maxMana      Int @default(100)
+  gold         Int @default(10001)
+  critRate     Int @default(15)
+  strength     Int @default(10)
+  agility      Int @default(10)
+  intelligence Int @default(10)
+
+  inventoryItems InventoryItem[]
+}
+
+model InventoryItem {
+  id        String  @id @default(cuid())
+  userId    String
+  user      User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  itemKey   String
+  quantity  Int     @default(1)
+  slotIndex Int
+  equipSlot String?
+
+  @@index([userId])
+}

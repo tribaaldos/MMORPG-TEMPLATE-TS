@@ -13,7 +13,7 @@ import { itemRegistry } from "../items/itemRegistry";
 // Conexión socket
 
 // local
-export const socket: Socket = io("http://localhost:5174");
+export const socket: Socket = io(import.meta.env.VITE_SERVER_URL || "http://localhost:5174");
 
 // production
 
