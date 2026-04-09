@@ -3,7 +3,7 @@ builder = "nixpacks"
 buildCommand = "yarn install && yarn build"
 
 [build.nixpacks]
-node = "22"
+nodeVersion = "22"
 
 [deploy]
 startCommand = "node dist/index.js"
