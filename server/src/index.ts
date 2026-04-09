@@ -28,6 +28,8 @@ app.use(express.json());
 app.use('/auth', authRoutes);
 const server = http.createServer(app);
 const io = new Server(server, {
+    path: '/socket.io/',
+    transports: ['websocket', 'polling'],
     cors: {
         origin: ALLOWED_ORIGINS as string[],
         methods: ['GET', 'POST'],
