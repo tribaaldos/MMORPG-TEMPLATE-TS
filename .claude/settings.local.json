@@ -13,7 +13,10 @@
       "mcp__blender__import_generated_asset",
       "Bash(npx tsc:*)",
       "Bash(md5 \"/Users/angel/TypescriptProjects/MMORPG-Template-TS/client/src/components/shaders/sky/SkyShader.tsx\")",
-      "WebSearch"
+      "WebSearch",
+      "Bash(git add:*)",
+      "Bash(git commit -m ':*)",
+      "Bash(git push:*)"
     ]
   }
 }
