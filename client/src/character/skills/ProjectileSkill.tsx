@@ -4,7 +4,7 @@ import { useFrame } from '@react-three/fiber'
 import { Html } from '@react-three/drei'
 import * as THREE from 'three'
 import { socket } from '../../socket/SocketManager'
-import { useMonsterStore } from '../../worlds/dungeons/monsters/useMonsterStore'
+import { useMonsterStore, getMonsterRefs } from '../../worlds/dungeons/monsters/useMonsterStore'
 import { useCharacterStore } from '../../store/useCharacterStore'
 import { useProjectilesStore } from './useProjectileStore'
 import './ProjectileSkill.css'
@@ -14,13 +14,16 @@ import { ProjectileIce } from './iceSkill/ProjectileIce'
 import { ProjectileIceExplosion } from './iceSkill/ExplosionIce'
 import { FireProjectile } from './fireSkill/ProjectileFire'
 import { FireExplosion } from './fireSkill/ExplosionFire'
+import ProjectileDarkBall from './DarkBall/ProjectileDarkBall'
+import { DarkBallExplosion } from './DarkBall/ExplosionDarkBall'
+
 type Explosion = {
   id: string
   pos: THREE.Vector3
   age: number
   life: number
   world: string | null
-  kind: 'fire' | 'ice'
+  kind: 'fire' | 'ice' | 'darkBall'
 }
 
 type DamagePopup = {
@@ -53,14 +56,15 @@ export default function ProjectilesLayer({
     [list, world]
   )
 
-  const spawnExplosion = (pos: THREE.Vector3, kind: 'fire' | 'ice') => {
+  const spawnExplosion = (pos: THREE.Vector3, kind: 'fire' | 'ice' | 'darkBall') => {
+    const life = kind === 'darkBall' ? 1.4 : explosionLife
     setExplosions((prev) => [
       ...prev,
       {
         id: `exp_${performance.now()}_${Math.random().toString(36).slice(2)}`,
         pos: pos.clone(),
         age: 0,
-        life: explosionLife,
+        life,
         world: world ?? null,
         kind,
       },
@@ -84,6 +88,7 @@ export default function ProjectilesLayer({
 
   useFrame((_, delta) => {
     const { monsters, damage } = useMonsterStore.getState()
+    const monsterRefs = getMonsterRefs()
 
     for (const p of [...visible]) {
       // TTL
@@ -93,40 +98,33 @@ export default function ProjectilesLayer({
         continue
       }
 
-      // Hitpoint / homing
-      let hitPos: THREE.Vector3 | null = null
-      if (p.targetId) {
-        const t = monsters[p.targetId]
-        if (t?.position) {
-          hitPos = t.position.clone()
-          if ((p as any).aimOffsetY != null) hitPos.y += (p as any).aimOffsetY
-        }
-      } else if ((p as any).aim) {
-        hitPos = (p as any).aim as THREE.Vector3
-      }
-
-      if (hitPos) {
-        const dir = hitPos.clone().sub(p.position).normalize()
-        p.direction.lerp(dir, homingLerp)
-      }
-
-      // mover
+      // Mover recto — sin homing
       p.position.addScaledVector(p.direction, p.speed * delta)
-      if (p.mesh) p.mesh.position.copy(p.position)
-
-      // colisión
-      if (hitPos && p.position.distanceTo(hitPos) <= p.radius + targetRadius) {
-        const m = p.targetId ? monsters[p.targetId] : null
-        if (m) {
-          damage(m.id, p.damage)
-          spawnDamage(hitPos, p.damage)
-          try {
-            socket.emit?.('hitMonster', { id: m.id, damage: p.damage })
-          } catch { }
+      if (p.mesh) {
+        p.mesh.position.copy(p.position)
+        if ((p as any).kind === 'darkBall') {
+          p.mesh.lookAt(p.position.clone().sub(p.direction))
         }
-        spawnExplosion(p.position, (p as any).kind ?? 'fire') // default por si faltara
-        remove(p.id)
       }
+
+      // Colisión contra todos los monstruos vivos
+      let hit = false
+      for (const [mId, group] of Object.entries(monsterRefs)) {
+        const m = monsters[mId]
+        if (!m || m.hp <= 0) continue
+        const mPos = group.position.clone()
+        mPos.y += 1.0   // aproximar al centro del cuerpo
+        if (p.position.distanceTo(mPos) <= p.radius + targetRadius) {
+          damage(m.id, p.damage)
+          spawnDamage(mPos, p.damage)
+          try { socket.emit?.('hitMonster', { id: m.id, damage: p.damage }) } catch {}
+          spawnExplosion(p.position, (p as any).kind ?? 'fire')
+          remove(p.id)
+          hit = true
+          break
+        }
+      }
+      if (hit) continue
     }
 
     // vida de explosiones
@@ -161,7 +159,23 @@ export default function ProjectilesLayer({
     <>
       {/* Proyectiles por tipo */}
       {visible.map((p) => {
-        const kind = (p as any).kind as 'ice' | 'fire'
+        const kind = (p as any).kind as 'ice' | 'fire' | 'darkBall'
+
+        if (kind === 'darkBall') {
+          return (
+            <ProjectileDarkBall
+              key={p.id}
+              ref={(m) => {
+                if (m) {
+                  p.mesh = m as any
+                  m.position.copy(p.position)
+                  m.lookAt(p.position.clone().sub(p.direction))
+                }
+              }}
+            />
+          )
+        }
+
         const Comp = kind === 'ice' ? ProjectileIce : FireProjectile
         return (
           <Comp
@@ -178,7 +192,11 @@ export default function ProjectilesLayer({
 
       {/* Explosiones por tipo */}
       {explosions.map((fx) => {
-        const Exp = fx.kind === 'ice' ? ProjectileIceExplosion : FireExplosion
+        const Exp = fx.kind === 'ice'
+          ? ProjectileIceExplosion
+          : fx.kind === 'darkBall'
+          ? DarkBallExplosion
+          : FireExplosion
         return (
           <group key={fx.id} position={fx.pos}>
             <Exp />

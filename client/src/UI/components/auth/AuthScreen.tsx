@@ -4,6 +4,7 @@ import { useCharacterStore } from '../../../store/useCharacterStore'
 import { ItemKey } from '../../../items/itemRegistry'
 import { socket } from '../../../socket/SocketManager'
 import { applyLoadout } from '../../../App'
+import AuthBackground from './AuthBackground'
 import './AuthScreen.css'
 
 const SERVER_URL = import.meta.env.VITE_SERVER_URL || 'http://localhost:5174'
@@ -94,6 +95,7 @@ export default function AuthScreen() {
 
     return (
         <div className="auth-screen">
+            <AuthBackground />
             <div className="auth-box">
                 <h1 className="auth-title">MMORPG</h1>
                 <div className="auth-tabs">

@@ -62,7 +62,7 @@ export default function InfiniteGridTiles() {
         //   colliders="trimesh"
         //   userData={{ camBlocker: false, floor: true }}
         // >
-        <StaticCollider>
+        <StaticCollider key={tile.key}>
 
           <group position={tile.position}>
             {/* <GridShader />  */}

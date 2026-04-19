@@ -1497,6 +1497,7 @@ const BVHEcctrl = forwardRef<BVHEcctrlApi, EcctrlProps>(({
             jumpVel,
             movingDir: movingDir.current,
             model: characterModelRef.current,
+            camera,
         };
 
         // disparar solo en el primer tick de la pulsación

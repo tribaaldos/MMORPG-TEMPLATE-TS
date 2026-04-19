@@ -2,12 +2,9 @@
 import { create } from "zustand";
 import * as THREE from "three";
 import React from "react";
-import { useTargetStore } from "../../store/useTargetStore";
 import { useProjectilesStore } from "./useProjectileStore";
 import { socket } from "../../socket/SocketManager";
-import { useAnimationStore } from "../noPhysicsCharacter/extra/useAnimationStore";
 import { useCharacterStore } from "../../store/useCharacterStore";
-import { useMonsterStore } from "../../worlds/dungeons/monsters/useMonsterStore";
 import { useInventoryStore } from "../../store/useInventoryStore";
 
 /** Calcula la inteligencia total (base + bonuses de equipo) sin hooks */
@@ -27,12 +24,17 @@ function getTotalIntelligence(): number {
 function calcIceDamage(): number {
     return Math.floor(10 + getTotalIntelligence() * 1.5)
 }
+/** daño de bola del caos: 20 base + 2.0 × inteligencia total */
+function calcDarkBallDamage(): number {
+    return Math.floor(20 + getTotalIntelligence() * 2.0)
+}
 export type AbilityContext = {
     isOnGround: boolean;
     currentLinVel: React.MutableRefObject<THREE.Vector3>;
     jumpVel: number;
     movingDir: THREE.Vector3;
     model: THREE.Group | null;
+    camera: THREE.Camera;
 };
 
 export type Ability = (ctx: AbilityContext) => void;
@@ -92,127 +94,104 @@ export const abilities: Record<string, Ability> = {
 
     },
     fireBolt: (ctx) => {
-        const sel = useTargetStore.getState().selectedTarget
-        if (!ctx.model || !sel?.position) return
+        if (!ctx.model) return
 
-        // origen (cabeza jugador, ajusta si quieres)
         const origin = ctx.model.getWorldPosition(new THREE.Vector3())
+        origin.y += 1.2 // chest height
 
-        // hitPoint MUY importante: lo sincronizamos por red
-        const aim = sel.position.clone() // ya viene elevado desde tu dummy/selector
-
-        const dir = aim.clone().sub(origin).normalize()
-        const id = `p_${Date.now()}_${Math.random().toString(36).slice(2)}`
+        const dir = ctx.camera.getWorldDirection(new THREE.Vector3())
+        const id  = `p_${Date.now()}_${Math.random().toString(36).slice(2)}`
         const world = useCharacterStore.getState().world
-        const m = useMonsterStore.getState().monsters[sel.id]
 
-        const baseY = m?.position?.y ?? sel.position.y
-
-        const aimOffsetY = Math.max(0.3, sel.position.y - baseY) // ej. 0.3 mínimo
-
-        // UNIFICA parámetros cliente/servidor
-        const speed = 10
-        const ttl = 6
-        const radius = 0.08
+        const speed  = 18
+        const ttl    = 5
+        const radius = 0.3
         const damage = 15
 
-        // Cliente local
         useProjectilesStore.getState().add({
-            id,
-            ownerId: socket.id,
-            world,
+            id, ownerId: socket.id, world,
             position: origin.clone(),
             direction: dir.clone(),
-            speed,
-            ttl,
-            radius,
-            damage,
-            targetId: sel.id,
+            speed, ttl, radius, damage,
             mesh: new THREE.Mesh(),
-            aim: aim.clone(),
-            aimOffsetY,          // << offset local
             kind: 'fire',
         })
 
-        // Aviso al servidor (para reemitir a los demás)
         socket.emit('projectileSpawn', {
-            id,
-            ownerId: socket.id,
-            world,
+            id, ownerId: socket.id, world,
             position: origin.toArray(),
             direction: dir.toArray(),
-            speed,
-            ttl,
-            radius,
-            damage,
-            targetId: sel.id,
-            aim: aim.toArray(),      // << viaja por red
-            aimOffsetY,         // << viaja por red
+            speed, ttl, radius, damage,
             kind: 'fire',
         })
     },
+
     iceBall: (ctx) => {
-        const sel = useTargetStore.getState().selectedTarget
-        if (!ctx.model || !sel?.position) return
+        if (!ctx.model) return
 
-        // origen (cabeza jugador, ajusta si quieres)
         const origin = ctx.model.getWorldPosition(new THREE.Vector3())
+        origin.y += 1.2
 
-        // hitPoint MUY importante: lo sincronizamos por red
-        const aim = sel.position.clone() // ya viene elevado desde tu dummy/selector
-
-        const dir = aim.clone().sub(origin).normalize()
-        const id = `p_${Date.now()}_${Math.random().toString(36).slice(2)}`
+        const dir = ctx.camera.getWorldDirection(new THREE.Vector3())
+        const id  = `p_${Date.now()}_${Math.random().toString(36).slice(2)}`
         const world = useCharacterStore.getState().world
-        const m = useMonsterStore.getState().monsters[sel.id]
 
-        const baseY = m?.position?.y ?? sel.position.y
+        const speed  = 16
+        const ttl    = 5
+        const radius = 0.3
+        const damage = calcIceDamage()
 
-        const aimOffsetY = Math.max(0.3, sel.position.y - baseY) // ej. 0.3 mínimo
-
-        // UNIFICA parámetros cliente/servidor
-        const speed = 10
-        const ttl = 1000
-        const radius = 0.08
-        const damage = calcIceDamage() // escala con inteligencia: 10 + int * 1.5
-
-        // Cliente local
         useProjectilesStore.getState().add({
-            id,
-            ownerId: socket.id,
-            world,
+            id, ownerId: socket.id, world,
             position: origin.clone(),
             direction: dir.clone(),
-            speed,
-            ttl,
-            radius,
-            damage,
-            targetId: sel.id,
+            speed, ttl, radius, damage,
             mesh: new THREE.Mesh(),
-            aim: aim.clone(),
-            aimOffsetY,          // << offset local
             kind: 'ice',
         })
 
-        // Aviso al servidor (para reemitir a los demás)
         socket.emit('projectileSpawn', {
-            id,
-            ownerId: socket.id,
-            world,
+            id, ownerId: socket.id, world,
             position: origin.toArray(),
             direction: dir.toArray(),
-            speed,
-            ttl,
-            radius,
-            damage,
-            targetId: sel.id,
-            aim: aim.toArray(),      // << viaja por red
-            aimOffsetY,         // << viaja por red
+            speed, ttl, radius, damage,
             kind: 'ice',
         })
     },
 
-  
+    darkBall: (ctx) => {
+        if (!ctx.model) return
+
+        const origin = ctx.model.getWorldPosition(new THREE.Vector3())
+        origin.y += 1.2
+
+        const dir = ctx.camera.getWorldDirection(new THREE.Vector3())
+        const id  = `p_${Date.now()}_${Math.random().toString(36).slice(2)}`
+        const world = useCharacterStore.getState().world
+
+        const speed  = 14
+        const ttl    = 6
+        const radius = 0.5
+        const damage = calcDarkBallDamage()
+
+        useProjectilesStore.getState().add({
+            id, ownerId: socket.id, world,
+            position: origin.clone(),
+            direction: dir.clone(),
+            speed, ttl, radius, damage,
+            mesh: new THREE.Mesh(),
+            kind: 'darkBall',
+        })
+
+        socket.emit('projectileSpawn', {
+            id, ownerId: socket.id, world,
+            position: origin.toArray(),
+            direction: dir.toArray(),
+            speed, ttl, radius, damage,
+            kind: 'darkBall',
+        })
+    },
+
     actionAbility: () => {
         const { setAbilityAnim } = useAbilityStore.getState();
         setAbilityAnim('ATTACK', 800); // dura 0.8 segundos
@@ -248,6 +227,11 @@ export const abilityMeta: Record<AbilityId, { name: string; icon?: string; descr
         icon: '/skills/dash.svg',
         description: 'Desplazamiento rápido',
     },
+    darkBall: {
+        name: 'Bola del Caos',
+        icon: '/skills/sword.svg',
+        description: 'Proyectil oscuro de caos',
+    },
 };
 
 export const abilityList: AbilityId[] = [
@@ -256,6 +240,7 @@ export const abilityList: AbilityId[] = [
     'dash',
     'iceBall',
     'fireBolt',
+    'darkBall',
 ];
 
 interface AbilityStore {
@@ -277,7 +262,7 @@ export const useAbilityStore = create<AbilityStore>((set, get) => ({
         Key1: "actionAbility",
         Key2: "superJump",
         Key3: "iceBall",
-        Key4: "fireBolt",
+        Key4: "darkBall",
     },
     setAbility: (key, ability) =>
         set((state) => ({

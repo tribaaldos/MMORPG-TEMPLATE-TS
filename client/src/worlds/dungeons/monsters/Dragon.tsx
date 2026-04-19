@@ -7,7 +7,7 @@ import { useFrame } from '@react-three/fiber'
 import { useEcctrlStore } from '../../../character/noPhysicsCharacter/extra/useEcctrlStore'
 import MonsterPlate from '../../../character/MonsterPlate'
 import { useTargetStore } from '../../../store/useTargetStore'
-import { useMonsterStore } from './useMonsterStore'
+import { useMonsterStore, registerMonsterRef, unregisterMonsterRef } from './useMonsterStore'
 
 interface DragonProps {
     id: string
@@ -70,7 +70,7 @@ export function Dragon({ id, position = [0, 0, 0], localPlayerPos, nameId = 'Dra
 
     const setSelectedTarget = useTargetStore((s) => s.setSelectedTarget)
 
-    // === spawn en el store ===
+    // === spawn en el store + registro del ref para Tab-targeting ===
     useEffect(() => {
         useMonsterStore.getState().spawn({
             id,
@@ -84,6 +84,8 @@ export function Dragon({ id, position = [0, 0, 0], localPlayerPos, nameId = 'Dra
             animation: 'CharacterArmature|Flying_Idle',
             aggro: false,
         })
+        if (group.current) registerMonsterRef(id, group.current)
+        return () => unregisterMonsterRef(id)
     }, [id])
 
     // === socket listeners ===

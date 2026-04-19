@@ -1,7 +1,7 @@
 import { create } from 'zustand'
 import * as THREE from 'three'
 
-export type ProjectileKind = 'ice' | 'fire' | 'lightning';
+export type ProjectileKind = 'ice' | 'fire' | 'lightning' | 'darkBall';
 export interface Projectile {
   id: string
   position: THREE.Vector3

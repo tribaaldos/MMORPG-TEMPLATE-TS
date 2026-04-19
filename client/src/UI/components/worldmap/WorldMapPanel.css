@@ -1,0 +1,147 @@
+.wmp-container {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 0;
+    z-index: 50;
+    pointer-events: auto;
+}
+
+/* Toggle button */
+.wmp-toggle {
+    width: 36px;
+    height: 36px;
+    background: rgba(16, 14, 12, 0.85);
+    border: 1px solid rgba(255, 212, 130, 0.35);
+    border-radius: 8px;
+    color: #f4c26b;
+    font-size: 16px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s, border-color 0.2s;
+    flex-shrink: 0;
+    order: 2; /* always at the right of the panel */
+}
+
+.wmp-toggle:hover {
+    background: rgba(30, 26, 18, 0.95);
+    border-color: rgba(255, 212, 130, 0.6);
+}
+
+/* Collapsed state: just show toggle */
+.wmp-collapsed .wmp-panel {
+    display: none;
+}
+
+/* Panel */
+.wmp-panel {
+    order: 1;
+    background: rgba(12, 10, 8, 0.88);
+    border: 1px solid rgba(255, 212, 130, 0.3);
+    border-radius: 10px;
+    overflow: hidden;
+    width: 180px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6), inset 0 0 0 1px rgba(255,255,255,0.03);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+}
+
+/* Header */
+.wmp-header {
+    padding: 8px 12px 6px;
+    border-bottom: 1px solid rgba(255, 212, 130, 0.15);
+    background: rgba(255, 200, 100, 0.05);
+}
+
+.wmp-title {
+    font-family: 'Cinzel', 'Georgia', serif;
+    font-size: 10px;
+    letter-spacing: 3px;
+    color: rgba(255, 212, 130, 0.65);
+    text-transform: uppercase;
+}
+
+/* Button list */
+.wmp-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+}
+
+.wmp-btn {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    padding: 8px 12px;
+    background: transparent;
+    border: none;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+    color: #b8aF9e;
+    cursor: pointer;
+    text-align: left;
+    transition: background 0.15s, color 0.15s;
+    width: 100%;
+}
+
+.wmp-btn:last-child {
+    border-bottom: none;
+}
+
+.wmp-btn:hover:not(:disabled) {
+    background: color-mix(in srgb, var(--wmp-color, #444) 18%, transparent);
+    color: #e8e1d2;
+}
+
+.wmp-btn:disabled {
+    cursor: default;
+}
+
+.wmp-active {
+    background: color-mix(in srgb, var(--wmp-color, #444) 22%, transparent) !important;
+    color: #f4c26b !important;
+    border-left: 2px solid var(--wmp-color, #f4c26b);
+}
+
+.wmp-icon {
+    font-size: 18px;
+    flex-shrink: 0;
+    width: 22px;
+    text-align: center;
+}
+
+.wmp-text {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+    flex: 1;
+    min-width: 0;
+}
+
+.wmp-name {
+    font-family: 'Cinzel', 'Georgia', serif;
+    font-size: 11px;
+    font-weight: 600;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    line-height: 1.2;
+}
+
+.wmp-sub {
+    font-size: 9.5px;
+    color: rgba(180, 160, 130, 0.55);
+    font-family: 'Segoe UI', sans-serif;
+    letter-spacing: 0.3px;
+}
+
+.wmp-here {
+    font-size: 10px;
+    color: #f4c26b;
+    flex-shrink: 0;
+}

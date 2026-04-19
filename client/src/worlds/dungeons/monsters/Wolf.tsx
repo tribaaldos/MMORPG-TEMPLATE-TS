@@ -6,13 +6,15 @@ import { useFrame } from '@react-three/fiber'
 import { useEcctrlStore } from '../../../character/noPhysicsCharacter/extra/useEcctrlStore'
 import MonsterPlate from '../../../character/MonsterPlate'
 import { useTargetStore } from '../../../store/useTargetStore'
+import { useMonsterStore, registerMonsterRef, unregisterMonsterRef } from './useMonsterStore'
 
 interface WolfProps {
     props?: any
+    id?: string
     position?: [number, number, number]
 }
 
-export function Wolf({ props, position = [0, 0, 0] }: WolfProps) {
+export function Wolf({ props, id = 'wolf-1', position = [0, 0, 0] }: WolfProps) {
     const group = useRef<THREE.Group>(null)
     const { nodes, materials, animations } = useGLTF('/dungeons/monsters/wolf_guy.glb')
     const { actions } = useAnimations(animations, group)
@@ -47,6 +49,24 @@ export function Wolf({ props, position = [0, 0, 0] }: WolfProps) {
     // target recibido del servidor
     const targetPos = useRef(new THREE.Vector3(...position))
     const targetQuat = useRef(new THREE.Quaternion())
+
+    // spawn en el monster store + registro del ref para Tab-targeting
+    useEffect(() => {
+        useMonsterStore.getState().spawn({
+            id,
+            kind: 'wolf',
+            name: 'Wolf',
+            level: 1,
+            hp: 100,
+            maxHp: 100,
+            position: new THREE.Vector3(...position),
+            quaternion: new THREE.Quaternion(),
+            animation: 'idle',
+            aggro: false,
+        })
+        if (group.current) registerMonsterRef(id, group.current)
+        return () => unregisterMonsterRef(id)
+    }, [id])
 
     // escuchar servidor
     useEffect(() => {

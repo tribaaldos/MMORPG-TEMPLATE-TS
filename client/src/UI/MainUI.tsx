@@ -18,7 +18,8 @@ import Chat from './chat/Chat';
 import SkillsPopup from './components/skills/SkillsPopup';
 import { useAbilityStore } from '../character/skills/useAbilityStore';
 import { useAuthStore } from '../store/useAuthStore'
-import DayNightSlider from './components/DayNightSlider';
+import DayNightSlider from './components/DayNightSlider'
+import WorldMapPanel from './components/worldmap/WorldMapPanel';
 
 export default function MainUI({ isDebug }: { isDebug: boolean }) {
     const isSkillsOpen = useAbilityStore((s) => s.isSkillsOpen)
@@ -71,6 +72,7 @@ export default function MainUI({ isDebug }: { isDebug: boolean }) {
                     <Popups />
                     {isSkillsOpen && <SkillsPopup />}
                 </div>
+                <WorldMapPanel />
                 <div className="ui-region ui-bottom-left">
                     <Chat />
                 </div>

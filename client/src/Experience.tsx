@@ -21,18 +21,21 @@ import ProjectilesLayer from './character/skills/ProjectileSkill'
 import { PostProcessing } from './VFXEngine/Effects'
 import MobileFullscreenGuard from './UI/OrientationLock'
 import WorldShaderVisualizer from './worlds/WorldShaderVisualizer'
+import SkillMuseum from './worlds/SkillMuseum'
 import { WebGPURenderer } from 'three/webgpu'
 import WorldLoadingOverlay from './UI/WorldLoadingOverlay'
 import { useSavePosition } from './hooks/useSavePosition'
 import { useSaveGold } from './hooks/useSaveGold'
 import { useSaveEquipment } from './hooks/useSaveEquipment'
 import { useSaveExperience } from './hooks/useSaveExperience'
+import { useTabTargeting } from './hooks/useTabTargeting'
 import { useAuthStore } from './store/useAuthStore'
 import { socket } from './socket/SocketManager'
 export default function Experience() {
     useSavePosition()
     useSaveGold()
     useSaveExperience()
+    useTabTargeting()
 
     const [socketId, setSocketId] = useState(() => socket.id ?? '')
     useEffect(() => {
@@ -60,7 +63,7 @@ export default function Experience() {
     const [currentWorld, setCurrentWorld] = useState<any>(startWorld || 'world1');
     const [playerTargetPos, setPlayerTargetPos] = useState<[number, number, number] | null>(startPos || null)
     const [loadingWorld, setLoadingWorld] = useState(false);
-    const allowedWorlds = useRef(new Set(['world1', 'dungeon', 'dragonDungeon', 'Shadervisualizer']));
+    const allowedWorlds = useRef(new Set(['world1', 'dungeon', 'dragonDungeon', 'Shadervisualizer', 'ShaderVisualizer', 'skillMuseum']));
 
     // Función que se pasa al TeleportZone
     const handleTeleport = (worldId: any, targetPos?: [number, number, number]) => {
@@ -77,7 +80,15 @@ export default function Experience() {
         }, 100); // Small delay to trigger loader
     }
 
-    // controls leva to change world 
+    // Listener del panel de mundos (WorldMapPanel)
+    useEffect(() => {
+        const handler = (e: Event) => {
+            const { worldId, pos } = (e as CustomEvent).detail
+            handleTeleport(worldId, pos)
+        }
+        window.addEventListener('teleport-to-world', handler)
+        return () => window.removeEventListener('teleport-to-world', handler)
+    }, [])
 
     // Actualiza la posición del jugador cuando cambia de mundo
     useEffect(() => {
@@ -257,6 +268,9 @@ export default function Experience() {
                                     onTeleport={handleTeleport}
                                 // setEmoji={setEmoji}
                                 />
+                            )}
+                            {currentWorld === 'skillMuseum' && (
+                                <SkillMuseum key="skillMuseum" />
                             )}
                         </Suspense>
 

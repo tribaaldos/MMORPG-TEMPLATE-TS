@@ -7,11 +7,9 @@ import {
     mul, sin, add, sqrt, cos, tan, instanceIndex, uniform,
     normalize, abs, sub, emissive, pow, max
 } from 'three/tsl'
-import { Trail } from '@react-three/drei'
 import { useTargetStore } from '../../../store/useTargetStore'
 import { useFrame } from '@react-three/fiber'
 import { useCharacterStore } from '../../../store/useCharacterStore'
-import { MeshPhysicalNodeMaterial } from 'three/webgpu'
 
 type ProjectileIceProps = {}
 
@@ -116,12 +114,14 @@ export const ProjectileIce = React.forwardRef<THREE.InstancedMesh, ProjectileIce
 
         return (
             <group position={[0, 0, 0]}>
-                <instancedMesh args={[undefined, undefined, count]} ref={ref} scale={0.2} frustumCulled={false}>
-                    <sphereGeometry args={[1, 16, 16]} scale-y={0.001} />
+                <instancedMesh args={[undefined, undefined, count]} ref={ref} scale={[0.2, 0.0002, 0.2]} frustumCulled={false}>
+                    <sphereGeometry args={[1, 16, 16]} />
+                    {/* @ts-ignore */}
                     <meshPhysicalNodeMaterial {...shaderNodes2} key={materialKey} />
                 </instancedMesh>
                 <instancedMesh args={[undefined, undefined, count]} ref={ref} frustumCulled={false}>
                     <boxGeometry args={[0.05, 0.05, 0.05]} />
+                    {/* @ts-ignore */}
                     <meshPhysicalNodeMaterial
                         {...shaderNodes}
                         key={materialKey}

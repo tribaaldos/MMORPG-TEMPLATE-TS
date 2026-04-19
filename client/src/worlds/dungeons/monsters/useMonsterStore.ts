@@ -2,6 +2,21 @@
 import { create } from "zustand";
 import * as THREE from "three";
 
+// ── Ref registry (module-level, outside Zustand) ─────────────────────────────
+// Stores live THREE.Group references so Tab-targeting can read current positions
+// without causing re-renders.
+const _monsterRefs: Record<string, THREE.Group> = {}
+
+export function registerMonsterRef(id: string, group: THREE.Group) {
+    _monsterRefs[id] = group
+}
+export function unregisterMonsterRef(id: string) {
+    delete _monsterRefs[id]
+}
+export function getMonsterRefs(): Readonly<Record<string, THREE.Group>> {
+    return _monsterRefs
+}
+
 export interface MonsterData {
     id: string;
     kind: string; // "wolf" | "dragon" | "skeleton"
